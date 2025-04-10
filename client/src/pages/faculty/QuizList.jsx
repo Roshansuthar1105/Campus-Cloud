@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiEye, FiTrash2, FiClock, FiUsers, FiCheckCircle } from 'react-icons/fi';
 import quizAPI from '../../services/quizApi';
 import courseAPI from '../../services/courseApi';
 
 const QuizList = () => {
+  const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState([]);
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState('');
@@ -15,16 +16,16 @@ const QuizList = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch courses first
         const coursesResponse = await courseAPI.getCourses();
         setCourses(coursesResponse.data.data);
-        
+
         // Then fetch quizzes
         const params = selectedCourse ? { course: selectedCourse } : {};
         const quizzesResponse = await quizAPI.getQuizzes(params);
         setQuizzes(quizzesResponse.data.data);
-        
+
         setError(null);
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -45,10 +46,10 @@ const QuizList = () => {
     if (!window.confirm('Are you sure you want to delete this quiz? This action cannot be undone.')) {
       return;
     }
-    
+
     try {
       await quizAPI.deleteQuiz(id);
-      
+
       // Update the quizzes list
       setQuizzes(quizzes.filter(quiz => quiz._id !== id));
     } catch (err) {
@@ -61,7 +62,7 @@ const QuizList = () => {
     const now = new Date();
     const startDate = new Date(quiz.startDate);
     const endDate = new Date(quiz.endDate);
-    
+
     if (!quiz.isPublished) {
       return (
         <span className="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
@@ -224,6 +225,23 @@ const QuizList = () => {
                           to={`/faculty/quizzes/${quiz._id}/submissions`}
                           className="text-indigo-600 hover:text-indigo-900"
                           title="View Submissions"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            // Fetch submissions and navigate to the appropriate page
+                            quizAPI.getQuizSubmissions(quiz._id)
+                              .then(response => {
+                                if (response.data.data && response.data.data.length > 0) {
+                                  // If there are submissions, show them in a modal or navigate to a submissions list page
+                                  navigate(`/faculty/quizzes/${quiz._id}/submissions`);
+                                } else {
+                                  alert('No submissions found for this quiz.');
+                                }
+                              })
+                              .catch(err => {
+                                console.error('Error fetching submissions:', err);
+                                alert('Failed to fetch submissions. Please try again.');
+                              });
+                          }}
                         >
                           <FiUsers className="h-5 w-5" />
                         </Link>

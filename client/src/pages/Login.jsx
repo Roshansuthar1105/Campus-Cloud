@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FcGoogle } from 'react-icons/fc';
@@ -11,8 +11,23 @@ const Login = () => {
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login, error } = useAuth();
+  const { login, error, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (user?.role === 'student') {
+        navigate('/student/dashboard');
+      } else if (user?.role === 'faculty') {
+        navigate('/faculty/dashboard');
+      } else if (user?.role === 'management') {
+        navigate('/management/dashboard');
+      } else {
+        navigate('/home');
+      }
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,8 +63,19 @@ const Login = () => {
     setIsSubmitting(true);
 
     try {
-      await login(formData);
-      navigate('/dashboard');
+      const result = await login(formData);
+      if (result && result.user) {
+        const { role } = result.user;
+        if (role === 'student') {
+          navigate('/student/dashboard');
+        } else if (role === 'faculty') {
+          navigate('/faculty/dashboard');
+        } else if (role === 'management') {
+          navigate('/management/dashboard');
+        } else {
+          navigate('/dashboard');
+        }
+      }
     } catch (err) {
       console.error('Login error:', err);
       // Error is handled by the auth context

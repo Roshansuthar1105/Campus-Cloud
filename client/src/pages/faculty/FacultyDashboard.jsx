@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FiBook, FiClipboard, FiFileText, FiUsers, FiBarChart2 } from 'react-icons/fi';
+import { Link, useNavigate } from 'react-router-dom';
+import { FiBook, FiClipboard, FiFileText, FiUsers, FiBarChart2, FiArrowRight } from 'react-icons/fi';
 import dashboardAPI from '../../services/dashboardApi';
 import { useAuth } from '../../context/AuthContext';
+import DashboardCard from '../../components/Dashboard/DashboardCard';
+import DashboardSection from '../../components/Dashboard/DashboardSection';
+import DashboardWelcome from '../../components/Dashboard/DashboardWelcome';
 
 const FacultyDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -61,203 +65,221 @@ const FacultyDashboard = () => {
     );
   }
 
+  // Prepare welcome stats
+  const welcomeStats = dashboardData ? [
+    { label: 'My Courses', value: dashboardData.courses?.length || 0 },
+    { label: 'Created Quizzes', value: dashboardData.recentQuizzes?.length || 0 },
+    { label: 'Needs Grading', value: dashboardData.quizzesNeedingGrading?.length || 0 },
+    { label: 'Notifications', value: dashboardData.unreadNotificationsCount || 0 }
+  ] : null;
+
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Welcome, {user?.name || 'Faculty'}</h1>
-        <p className="text-gray-600">Here's an overview of your teaching activities</p>
-      </div>
+      {/* Welcome Banner */}
+      <DashboardWelcome
+        user={user}
+        role="faculty"
+        stats={welcomeStats}
+      />
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-indigo-100 text-indigo-600">
-              <FiBook className="h-6 w-6" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">My Courses</p>
-              <p className="text-lg font-semibold text-gray-900">{dashboardData.courses?.length || 0}</p>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <DashboardCard
+          title="My Courses"
+          value={dashboardData.courses?.length || 0}
+          icon={<FiBook className="h-6 w-6" />}
+          color="indigo"
+          onClick={() => navigate('/faculty/courses')}
+        />
 
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-green-100 text-green-600">
-              <FiClipboard className="h-6 w-6" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Created Quizzes</p>
-              <p className="text-lg font-semibold text-gray-900">{dashboardData.recentQuizzes?.length || 0}</p>
-            </div>
-          </div>
-        </div>
+        <DashboardCard
+          title="Created Quizzes"
+          value={dashboardData.recentQuizzes?.length || 0}
+          icon={<FiClipboard className="h-6 w-6" />}
+          color="green"
+          onClick={() => navigate('/faculty/quizzes')}
+        />
 
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-yellow-100 text-yellow-600">
-              <FiFileText className="h-6 w-6" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Needs Grading</p>
-              <p className="text-lg font-semibold text-gray-900">{dashboardData.quizzesNeedingGrading?.length || 0}</p>
-            </div>
-          </div>
-        </div>
+        <DashboardCard
+          title="Needs Grading"
+          value={dashboardData.quizzesNeedingGrading?.length || 0}
+          icon={<FiFileText className="h-6 w-6" />}
+          color="yellow"
+          onClick={() => navigate('/faculty/quizzes')}
+        />
 
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-purple-100 text-purple-600">
-              <FiUsers className="h-6 w-6" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Notifications</p>
-              <p className="text-lg font-semibold text-gray-900">{dashboardData.unreadNotificationsCount || 0}</p>
-            </div>
-          </div>
-        </div>
+        <DashboardCard
+          title="Notifications"
+          value={dashboardData.unreadNotificationsCount || 0}
+          icon={<FiUsers className="h-6 w-6" />}
+          color="purple"
+          onClick={() => navigate('/faculty/notifications')}
+        />
       </div>
 
       {/* Quizzes Needing Grading */}
-      <div className="bg-white rounded-lg shadow mb-6">
-        <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Quizzes Needing Grading</h3>
-        </div>
-        <div className="px-4 py-5 sm:p-6">
-          {dashboardData.quizzesNeedingGrading && dashboardData.quizzesNeedingGrading.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quiz</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+      <DashboardSection
+        title="Quizzes Needing Grading"
+        actionText="View All Submissions"
+        actionLink="/faculty/quizzes"
+        actionIcon={<FiArrowRight />}
+      >
+        {dashboardData.quizzesNeedingGrading && dashboardData.quizzesNeedingGrading.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quiz</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {dashboardData.quizzesNeedingGrading.map((submission) => (
+                  <tr key={submission._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {submission.quiz?.title || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {submission.student?.name || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(submission.submittedAt).toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <Link to={`/faculty/submissions/${submission._id}/grade`} className="text-purple-600 hover:text-purple-900 font-medium">
+                        Grade Now
+                      </Link>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {dashboardData.quizzesNeedingGrading.map((submission) => (
-                    <tr key={submission._id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {submission.quiz?.title || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {submission.student?.name || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(submission.submittedAt).toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link to={`/faculty/submissions/${submission._id}/grade`} className="text-indigo-600 hover:text-indigo-900">
-                          Grade
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center py-4">No quizzes need grading</p>
-          )}
-        </div>
-      </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <FiClipboard className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No quizzes need grading</h3>
+            <p className="mt-1 text-sm text-gray-500">All student submissions have been graded.</p>
+          </div>
+        )}
+      </DashboardSection>
 
       {/* Recent Quizzes */}
-      <div className="bg-white rounded-lg shadow mb-6">
-        <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Recent Quizzes</h3>
-        </div>
-        <div className="px-4 py-5 sm:p-6">
-          {dashboardData.recentQuizzes && dashboardData.recentQuizzes.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quiz</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {dashboardData.recentQuizzes.map((quiz) => (
-                    <tr key={quiz._id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{quiz.title}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quiz.course?.name || 'N/A'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {quiz.isPublished ? (
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            Published
-                          </span>
-                        ) : (
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                            Draft
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link to={`/faculty/quizzes/${quiz._id}`} className="text-indigo-600 hover:text-indigo-900">
+      <DashboardSection
+        title="Recent Quizzes"
+        actionText="Create New Quiz"
+        actionLink="/faculty/quizzes/create"
+        actionIcon={<FiArrowRight />}
+      >
+        {dashboardData.recentQuizzes && dashboardData.recentQuizzes.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quiz</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {dashboardData.recentQuizzes.map((quiz) => (
+                  <tr key={quiz._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{quiz.title}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quiz.course?.name || 'N/A'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {quiz.isPublished ? (
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          Published
+                        </span>
+                      ) : (
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                          Draft
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex space-x-3">
+                        <Link to={`/faculty/quizzes/${quiz._id}`} className="text-purple-600 hover:text-purple-900 font-medium">
                           View
                         </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center py-4">No recent quizzes</p>
-          )}
-        </div>
-      </div>
+                        <Link to={`/faculty/quizzes/${quiz._id}/edit`} className="text-blue-600 hover:text-blue-900 font-medium">
+                          Edit
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <FiClipboard className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No recent quizzes</h3>
+            <p className="mt-1 text-sm text-gray-500">Create your first quiz to get started.</p>
+          </div>
+        )}
+      </DashboardSection>
 
       {/* Course Statistics */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Course Statistics</h3>
-        </div>
-        <div className="px-4 py-5 sm:p-6">
-          {dashboardData.courseStats && dashboardData.courseStats.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {dashboardData.courseStats.map((stat) => (
-                <div key={stat.course._id} className="border rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-2">{stat.course.name}</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <p className="text-sm text-gray-500">Students</p>
-                      <p className="text-lg font-semibold">{stat.studentCount}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Quizzes</p>
-                      <p className="text-lg font-semibold">{stat.quizCount}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Submission Rate</p>
-                      <p className="text-lg font-semibold">{stat.submissionRate.toFixed(1)}%</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Average Score</p>
-                      <p className="text-lg font-semibold">{stat.averageScore.toFixed(1)}%</p>
-                    </div>
+      <DashboardSection
+        title="Course Statistics"
+        actionText="View All Courses"
+        actionLink="/faculty/courses"
+        actionIcon={<FiArrowRight />}
+      >
+        {dashboardData.courseStats && dashboardData.courseStats.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {dashboardData.courseStats.map((stat) => (
+              <div key={stat.course._id} className="border rounded-lg p-6 hover:shadow-md transition-shadow duration-300">
+                <h4 className="font-medium text-gray-900 mb-4 text-lg">{stat.course.name}</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">Students</p>
+                    <p className="text-xl font-semibold text-gray-900">{stat.studentCount}</p>
                   </div>
-                  <div className="mt-4">
-                    <Link 
-                      to={`/faculty/courses/${stat.course._id}/reports`} 
-                      className="text-sm text-indigo-600 hover:text-indigo-900"
-                    >
-                      View Detailed Reports <FiBarChart2 className="inline ml-1" />
-                    </Link>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">Quizzes</p>
+                    <p className="text-xl font-semibold text-gray-900">{stat.quizCount}</p>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">Submission Rate</p>
+                    <p className="text-xl font-semibold text-gray-900">{stat.submissionRate.toFixed(1)}%</p>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-500 mb-1">Average Score</p>
+                    <p className="text-xl font-semibold text-gray-900">{stat.averageScore.toFixed(1)}%</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center py-4">No course statistics available</p>
-          )}
-        </div>
-      </div>
+                <div className="mt-4 text-right">
+                  <Link
+                    to={`/faculty/courses/${stat.course._id}/reports`}
+                    className="text-sm text-purple-600 hover:text-purple-900 font-medium inline-flex items-center"
+                    onClick={(e) => {
+                      // Prevent default behavior if the route doesn't exist yet
+                      if (!stat.course._id) {
+                        e.preventDefault();
+                        alert('Course reports are not available yet.');
+                      }
+                    }}
+                  >
+                    View Detailed Reports <FiBarChart2 className="ml-1" />
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <FiBook className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No course statistics available</h3>
+            <p className="mt-1 text-sm text-gray-500">Statistics will appear once students have taken quizzes.</p>
+          </div>
+        )}
+      </DashboardSection>
     </div>
   );
 };

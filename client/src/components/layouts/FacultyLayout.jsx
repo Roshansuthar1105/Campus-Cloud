@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { 
-  FiHome, 
-  FiBook, 
-  FiClipboard, 
-  FiUser, 
-  FiLogOut, 
-  FiMenu, 
-  FiX, 
+import {
+  FiHome,
+  FiBook,
+  FiClipboard,
+  FiUser,
+  FiLogOut,
+  FiMenu,
+  FiX,
   FiBell,
   FiBarChart2,
   FiFileText
@@ -35,10 +35,10 @@ const FacultyLayout = () => {
     };
 
     fetchUnreadCount();
-    
+
     // Set up interval to check for new notifications
     const intervalId = setInterval(fetchUnreadCount, 60000); // Check every minute
-    
+
     return () => clearInterval(intervalId);
   }, []);
 
@@ -91,8 +91,8 @@ const FacultyLayout = () => {
                 Quizzes
               </Link>
               <Link
-                to="/faculty/preferences"
-                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-indigo-700 ${isActive('/faculty/preferences')}`}
+                to="/faculty/preference-forms"
+                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-indigo-700 ${isActive('/faculty/preference-forms')}`}
               >
                 <FiFileText className="mr-3 h-5 w-5" />
                 Preference Forms
@@ -165,8 +165,8 @@ const FacultyLayout = () => {
                 Quizzes
               </Link>
               <Link
-                to="/faculty/preferences"
-                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-indigo-700 ${isActive('/faculty/preferences')}`}
+                to="/faculty/preference-forms"
+                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-indigo-700 ${isActive('/faculty/preference-forms')}`}
                 onClick={closeMenu}
               >
                 <FiFileText className="mr-3 h-5 w-5" />

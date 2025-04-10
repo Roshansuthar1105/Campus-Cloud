@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { FiArrowLeft, FiClipboard, FiUsers, FiCalendar, FiFileText, FiBook } from 'react-icons/fi';
+import { FiArrowLeft, FiClipboard, FiUsers, FiCalendar, FiFileText, FiBook, FiClock } from 'react-icons/fi';
 import courseAPI from '../../services/courseApi';
 import quizAPI from '../../services/quizApi';
 import { useAuth } from '../../context/AuthContext';
