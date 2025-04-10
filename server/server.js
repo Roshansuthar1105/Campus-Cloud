@@ -22,7 +22,7 @@ console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'Set' : 'Not set
 console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'Set' : 'Not set');
 
 app.use(cors({
-  origin: [process.env.CLIENT_URL, 'http://localhost:5173', 'http://localhost:5174', 'https://googleauthsite.netlify.app'],
+  origin: [process.env.CLIENT_URL, 'http://localhost:5173', 'http://localhost:5174', 'https://googleauthsite.netlify.app','https://campuscloud.netlify.app'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
