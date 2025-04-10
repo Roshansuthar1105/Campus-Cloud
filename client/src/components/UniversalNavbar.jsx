@@ -48,46 +48,50 @@ const UniversalNavbar = () => {
   const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await notificationAPI.getNotifications();
+      let notificationsData = [];
 
-      if (response.data && response.data.data) {
-        setNotifications(response.data.data);
-        // Count unread notifications
-        const unread = response.data.data.filter(notification => !notification.read).length;
-        setUnreadCount(unread);
-      }
-    } catch (err) {
-      console.error('Error fetching notifications:', err);
-      // For development, use mock data
-      const mockNotifications = [
-        {
-          _id: '1',
-          title: 'New Quiz Available',
-          message: 'A new quiz has been published in Web Development course.',
-          type: 'quiz',
-          read: false,
-          createdAt: new Date().toISOString()
-        },
-        {
-          _id: '2',
-          title: 'Quiz Graded',
-          message: 'Your Database Systems midterm quiz has been graded.',
-          type: 'grade',
-          read: false,
-          createdAt: new Date(Date.now() - 86400000).toISOString() // 1 day ago
-        },
-        {
-          _id: '3',
-          title: 'Course Announcement',
-          message: 'Important information about the upcoming final project.',
-          type: 'announcement',
-          read: true,
-          createdAt: new Date(Date.now() - 172800000).toISOString() // 2 days ago
+      try {
+        const response = await notificationAPI.getNotifications();
+        if (response.data && response.data.data) {
+          notificationsData = response.data.data;
         }
-      ];
+      } catch (apiError) {
+        console.error('API Error fetching notifications:', apiError);
+        // For development, use mock data
+        notificationsData = [
+          {
+            _id: '1',
+            title: 'New Quiz Available',
+            message: 'A new quiz has been published in Web Development course.',
+            type: 'quiz',
+            read: false,
+            createdAt: new Date().toISOString()
+          },
+          {
+            _id: '2',
+            title: 'Quiz Graded',
+            message: 'Your Database Systems midterm quiz has been graded.',
+            type: 'grade',
+            read: false,
+            createdAt: new Date(Date.now() - 86400000).toISOString() // 1 day ago
+          },
+          {
+            _id: '3',
+            title: 'Course Announcement',
+            message: 'Important information about the upcoming final project.',
+            type: 'announcement',
+            read: true,
+            createdAt: new Date(Date.now() - 172800000).toISOString() // 2 days ago
+          }
+        ];
+      }
 
-      setNotifications(mockNotifications);
-      setUnreadCount(mockNotifications.filter(notification => !notification.read).length);
+      setNotifications(notificationsData);
+      // Count unread notifications
+      const unread = notificationsData.filter(notification => !notification.read).length;
+      setUnreadCount(unread);
+    } catch (err) {
+      console.error('Error in fetchNotifications:', err);
     } finally {
       setLoading(false);
     }
@@ -101,12 +105,21 @@ const UniversalNavbar = () => {
       // Set up interval to check for new notifications
       const intervalId = setInterval(async () => {
         try {
+          // Store the current count before fetching
           const prevCount = unreadCount;
-          await fetchNotifications();
+
+          // Fetch new notifications
+          const response = await notificationAPI.getNotifications();
+          const newNotifications = response.data.data || [];
+          setNotifications(newNotifications);
+
+          // Calculate new unread count
+          const newUnreadCount = newNotifications.filter(notification => !notification.read).length;
+          setUnreadCount(newUnreadCount);
 
           // If there are new notifications, show the popup
-          if (unreadCount > prevCount && notifications.length > 0) {
-            const latestNotification = notifications[0];
+          if (newUnreadCount > prevCount && newNotifications.length > 0) {
+            const latestNotification = newNotifications[0];
             setNewNotification(latestNotification);
             setShowNotificationPopup(true);
 
@@ -122,7 +135,7 @@ const UniversalNavbar = () => {
 
       return () => clearInterval(intervalId);
     }
-  }, [isAuthenticated, user, fetchNotifications, unreadCount, notifications]);
+  }, [isAuthenticated, user, fetchNotifications]);
 
   // Close notifications dropdown when clicking outside
   useEffect(() => {
@@ -222,7 +235,7 @@ const UniversalNavbar = () => {
     if (!isAuthenticated || !user) {
       // Public navigation links
       return [
-        { name: 'Home', path: '/', icon: <FiHome /> },
+        { name: 'Home', path: '/home', icon: <FiHome /> },
         { name: 'About', path: '/about', icon: <FiBook /> },
         { name: 'Contact', path: '/contact', icon: <FiUsers /> }
       ];

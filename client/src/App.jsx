@@ -66,11 +66,12 @@ import Announcements from './pages/management/Announcements';
 import Settings from './pages/management/Settings';
 
 import './index.css';
-// pages import 
+// pages import
 import UniversalNavbar from './components/UniversalNavbar';
 import Home from './pages/Home';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import Privacy from './pages/Privacy';
 // Redirect based on user role
 const RoleBasedRedirect = () => {
   const { user } = useAuth();
@@ -106,6 +107,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:resetToken" element={<ResetPassword />} />
             <Route path="/auth-callback" element={<AuthCallback />} />
+            <Route path="/privacy" element={<Privacy />} />
 
             {/* Student routes */}
             <Route element={<RoleRoute allowedRoles={['student']} />}>
