@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiEye, FiTrash2, FiBarChart2, FiFileText } from 'react-icons/fi';
-import preferenceFormAPI from '../../services/preferenceFormApi';
+import api from '../../services/api';
 import courseAPI from '../../services/courseApi';
 import { useAuth } from '../../context/AuthContext';
 
@@ -19,65 +19,61 @@ const PreferenceFormList = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-
+        
         // Fetch faculty courses
         const coursesResponse = await courseAPI.getFacultyCourses();
         setCourses(coursesResponse.data.data);
-
-        try {
-          // Try to fetch preference forms from API
-          const formsResponse = await preferenceFormAPI.getFacultyPreferenceForms();
-          setForms(formsResponse.data.data);
-        } catch (apiError) {
-          console.warn('API not available, using mock data:', apiError);
-
-          // Fallback to mock data if API fails
-          setForms([
-            {
-              _id: '1',
-              title: 'Course Feedback Form',
-              description: 'End of semester course feedback',
-              course: {
-                _id: coursesResponse.data.data[0]?._id,
-                name: coursesResponse.data.data[0]?.name,
-                code: coursesResponse.data.data[0]?.code
-              },
-              startDate: new Date(2023, 10, 1),
-              endDate: new Date(2023, 11, 15),
-              isPublished: true,
-              responses: 12
+        
+        // Then fetch preference forms (this is a placeholder - you'll need to implement the actual API)
+        // const formsResponse = await api.get('/preference-forms/faculty');
+        // setForms(formsResponse.data.data);
+        
+        // For now, we'll use mock data
+        setForms([
+          {
+            _id: '1',
+            title: 'Course Feedback Form',
+            description: 'End of semester course feedback',
+            course: {
+              _id: coursesResponse.data.data[0]?._id,
+              name: coursesResponse.data.data[0]?.name,
+              code: coursesResponse.data.data[0]?.code
             },
-            {
-              _id: '2',
-              title: 'Teaching Effectiveness Survey',
-              description: 'Survey to evaluate teaching methods',
-              course: {
-                _id: coursesResponse.data.data[0]?._id,
-                name: coursesResponse.data.data[0]?.name,
-                code: coursesResponse.data.data[0]?.code
-              },
-              startDate: new Date(2023, 9, 15),
-              endDate: new Date(2023, 10, 30),
-              isPublished: true,
-              responses: 8
+            startDate: new Date(2023, 10, 1),
+            endDate: new Date(2023, 11, 15),
+            isPublished: true,
+            responses: 12
+          },
+          {
+            _id: '2',
+            title: 'Teaching Effectiveness Survey',
+            description: 'Survey to evaluate teaching methods',
+            course: {
+              _id: coursesResponse.data.data[0]?._id,
+              name: coursesResponse.data.data[0]?.name,
+              code: coursesResponse.data.data[0]?.code
             },
-            {
-              _id: '3',
-              title: 'Course Material Evaluation',
-              description: 'Evaluate the quality and relevance of course materials',
-              course: {
-                _id: coursesResponse.data.data[0]?._id,
-                name: coursesResponse.data.data[0]?.name,
-                code: coursesResponse.data.data[0]?.code
-              },
-              startDate: new Date(2023, 11, 1),
-              endDate: new Date(2024, 0, 15),
-              isPublished: false,
-              responses: 0
-            }
-          ]);
-        }
-
+            startDate: new Date(2023, 9, 15),
+            endDate: new Date(2023, 10, 30),
+            isPublished: true,
+            responses: 8
+          },
+          {
+            _id: '3',
+            title: 'Course Material Evaluation',
+            description: 'Evaluate the quality and relevance of course materials',
+            course: {
+              _id: coursesResponse.data.data[0]?._id,
+              name: coursesResponse.data.data[0]?.name,
+              code: coursesResponse.data.data[0]?.code
+            },
+            startDate: new Date(2023, 11, 1),
+            endDate: new Date(2024, 0, 15),
+            isPublished: false,
+            responses: 0
+          }
+        ]);
+        
         setError(null);
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -94,15 +90,10 @@ const PreferenceFormList = () => {
     if (!window.confirm('Are you sure you want to delete this preference form? This action cannot be undone.')) {
       return;
     }
-
+    
     try {
-      try {
-        // Try to delete using the API
-        await preferenceFormAPI.deletePreferenceForm(id);
-      } catch (apiError) {
-        console.warn('API not available, simulating delete:', apiError);
-      }
-
+      // await api.delete(`/preference-forms/${id}`);
+      
       // Update the forms list
       setForms(forms.filter(form => form._id !== id));
     } catch (err) {
@@ -115,7 +106,7 @@ const PreferenceFormList = () => {
     const now = new Date();
     const startDate = new Date(form.startDate);
     const endDate = new Date(form.endDate);
-
+    
     if (!form.isPublished) {
       return 'draft';
     } else if (now < startDate) {
@@ -132,7 +123,7 @@ const PreferenceFormList = () => {
     const matchesCourse = !filterCourse || form.course?._id === filterCourse;
     const formStatus = getFormStatus(form);
     const matchesStatus = !filterStatus || formStatus === filterStatus;
-
+    
     return matchesSearch && matchesCourse && matchesStatus;
   });
 
@@ -289,7 +280,7 @@ const PreferenceFormList = () => {
                   if (status === 'upcoming') statusColor = 'yellow';
                   if (status === 'ended') statusColor = 'red';
                   if (status === 'draft') statusColor = 'gray';
-
+                  
                   return (
                     <tr key={form._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">

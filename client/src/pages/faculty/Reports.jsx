@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiDownload, FiBarChart2, FiPieChart, FiTrendingUp, FiUsers, FiBook, FiClipboard } from 'react-icons/fi';
 import courseAPI from '../../services/courseApi';
-import reportAPI from '../../services/reportApi';
+import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
 const Reports = () => {
@@ -38,94 +38,70 @@ const Reports = () => {
 
       setLoading(true);
       try {
-        // Try to fetch report data from the API
-        try {
-          let response;
-          const params = {
-            course: selectedCourse,
-            dateRange: dateRange
-          };
+        // In a real application, you would fetch actual report data from the API
+        // For now, we'll simulate a delay and return mock data
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
-          switch (reportType) {
-            case 'quiz-performance':
-              response = await reportAPI.getQuizPerformanceReport(params);
-              break;
-            case 'student-engagement':
-              response = await reportAPI.getStudentEngagementReport(params);
-              break;
-            case 'question-analysis':
-              response = await reportAPI.getQuestionAnalysisReport(params);
-              break;
-            default:
-              throw new Error('Invalid report type');
-          }
+        // Mock data for different report types
+        let mockData;
 
-          setReportData(response.data.data);
-        } catch (apiError) {
-          console.warn('API not available, using mock data:', apiError);
-
-          // Fallback to mock data if API fails
-          let mockData;
-
-          switch (reportType) {
-            case 'quiz-performance':
-              mockData = {
-                title: 'Quiz Performance Report',
-                description: 'Average scores across quizzes',
-                labels: ['Quiz 1', 'Quiz 2', 'Quiz 3', 'Quiz 4', 'Quiz 5'],
-                datasets: [
-                  {
-                    label: 'Average Score (%)',
-                    data: [78, 82, 75, 89, 92]
-                  }
-                ],
-                summary: 'Overall average score: 83.2%'
-              };
-              break;
-            case 'student-engagement':
-              mockData = {
-                title: 'Student Engagement Report',
-                description: 'Student participation metrics',
-                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
-                datasets: [
-                  {
-                    label: 'Quiz Submissions',
-                    data: [45, 42, 38, 40, 43]
-                  },
-                  {
-                    label: 'Form Responses',
-                    data: [30, 35, 28, 32, 38]
-                  }
-                ],
-                summary: 'Average weekly engagement: 76.4%'
-              };
-              break;
-            case 'question-analysis':
-              mockData = {
-                title: 'Question Analysis Report',
-                description: 'Performance breakdown by question type',
-                labels: ['Multiple Choice', 'True/False', 'Short Answer', 'Essay'],
-                datasets: [
-                  {
-                    label: 'Average Score (%)',
-                    data: [85, 92, 76, 68]
-                  }
-                ],
-                summary: 'Students perform best on True/False questions (92%)'
-              };
-              break;
-            default:
-              mockData = {
-                title: 'No Data Available',
-                description: 'Please select a report type',
-                labels: [],
-                datasets: []
-              };
-          }
-
-          setReportData(mockData);
+        switch (reportType) {
+          case 'quiz-performance':
+            mockData = {
+              title: 'Quiz Performance Report',
+              description: 'Average scores across quizzes',
+              labels: ['Quiz 1', 'Quiz 2', 'Quiz 3', 'Quiz 4', 'Quiz 5'],
+              datasets: [
+                {
+                  label: 'Average Score (%)',
+                  data: [78, 82, 75, 89, 92]
+                }
+              ],
+              summary: 'Overall average score: 83.2%'
+            };
+            break;
+          case 'student-engagement':
+            mockData = {
+              title: 'Student Engagement Report',
+              description: 'Student participation metrics',
+              labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+              datasets: [
+                {
+                  label: 'Quiz Submissions',
+                  data: [45, 42, 38, 40, 43]
+                },
+                {
+                  label: 'Form Responses',
+                  data: [30, 35, 28, 32, 38]
+                }
+              ],
+              summary: 'Average weekly engagement: 76.4%'
+            };
+            break;
+          case 'question-analysis':
+            mockData = {
+              title: 'Question Analysis Report',
+              description: 'Performance breakdown by question type',
+              labels: ['Multiple Choice', 'True/False', 'Short Answer', 'Essay'],
+              datasets: [
+                {
+                  label: 'Average Score (%)',
+                  data: [85, 92, 76, 68]
+                }
+              ],
+              summary: 'Students perform best on True/False questions (92%)'
+            };
+            break;
+          default:
+            mockData = {
+              title: 'No Data Available',
+              description: 'Please select a report type',
+              labels: [],
+              datasets: []
+            };
         }
 
+        setReportData(mockData);
         setError(null);
       } catch (err) {
         console.error('Error fetching report data:', err);
@@ -246,31 +222,6 @@ const Reports = () => {
         </div>
         <button
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          onClick={async () => {
-            try {
-              const params = {
-                course: selectedCourse,
-                dateRange: dateRange
-              };
-
-              const response = await reportAPI.exportReport(reportType, params);
-
-              // Create a blob from the response data
-              const blob = new Blob([response.data], { type: response.headers['content-type'] });
-
-              // Create a link element and trigger download
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `${reportType}-report.pdf`;
-              document.body.appendChild(a);
-              a.click();
-              window.URL.revokeObjectURL(url);
-            } catch (err) {
-              console.error('Error exporting report:', err);
-              setError('Failed to export report. Please try again later.');
-            }
-          }}
         >
           <FiDownload className="mr-2 -ml-1 h-5 w-5" />
           Export Report
@@ -387,115 +338,6 @@ const Reports = () => {
               <button
                 type="button"
                 className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                onClick={() => {
-                  // Trigger a refresh of the report data
-                  const fetchReportData = async () => {
-                    if (!selectedCourse) {
-                      setError('Please select a course');
-                      return;
-                    }
-
-                    setLoading(true);
-                    try {
-                      // Try to fetch report data from the API
-                      try {
-                        let response;
-                        const params = {
-                          course: selectedCourse,
-                          dateRange: dateRange
-                        };
-
-                        switch (reportType) {
-                          case 'quiz-performance':
-                            response = await reportAPI.getQuizPerformanceReport(params);
-                            break;
-                          case 'student-engagement':
-                            response = await reportAPI.getStudentEngagementReport(params);
-                            break;
-                          case 'question-analysis':
-                            response = await reportAPI.getQuestionAnalysisReport(params);
-                            break;
-                          default:
-                            throw new Error('Invalid report type');
-                        }
-
-                        setReportData(response.data.data);
-                      } catch (apiError) {
-                        console.warn('API not available, using mock data:', apiError);
-
-                        // Fallback to mock data if API fails
-                        let mockData;
-
-                        switch (reportType) {
-                          case 'quiz-performance':
-                            mockData = {
-                              title: 'Quiz Performance Report',
-                              description: 'Average scores across quizzes',
-                              labels: ['Quiz 1', 'Quiz 2', 'Quiz 3', 'Quiz 4', 'Quiz 5'],
-                              datasets: [
-                                {
-                                  label: 'Average Score (%)',
-                                  data: [78, 82, 75, 89, 92]
-                                }
-                              ],
-                              summary: 'Overall average score: 83.2%'
-                            };
-                            break;
-                          case 'student-engagement':
-                            mockData = {
-                              title: 'Student Engagement Report',
-                              description: 'Student participation metrics',
-                              labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
-                              datasets: [
-                                {
-                                  label: 'Quiz Submissions',
-                                  data: [45, 42, 38, 40, 43]
-                                },
-                                {
-                                  label: 'Form Responses',
-                                  data: [30, 35, 28, 32, 38]
-                                }
-                              ],
-                              summary: 'Average weekly engagement: 76.4%'
-                            };
-                            break;
-                          case 'question-analysis':
-                            mockData = {
-                              title: 'Question Analysis Report',
-                              description: 'Performance breakdown by question type',
-                              labels: ['Multiple Choice', 'True/False', 'Short Answer', 'Essay'],
-                              datasets: [
-                                {
-                                  label: 'Average Score (%)',
-                                  data: [85, 92, 76, 68]
-                                }
-                              ],
-                              summary: 'Students perform best on True/False questions (92%)'
-                            };
-                            break;
-                          default:
-                            mockData = {
-                              title: 'No Data Available',
-                              description: 'Please select a report type',
-                              labels: [],
-                              datasets: []
-                            };
-                        }
-
-                        setReportData(mockData);
-                      }
-
-                      setError(null);
-                    } catch (err) {
-                      console.error('Error fetching report data:', err);
-                      setError('Failed to load report data. Please try again later.');
-                    } finally {
-                      setLoading(false);
-                    }
-                  };
-
-                  fetchReportData();
-                }}
               >
                 Generate Report
               </button>

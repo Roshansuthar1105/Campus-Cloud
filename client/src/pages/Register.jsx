@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FcGoogle } from 'react-icons/fc';
@@ -18,23 +18,8 @@ const Register = () => {
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { register, error, isAuthenticated, user } = useAuth();
+  const { register, error } = useAuth();
   const navigate = useNavigate();
-
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      if (user?.role === 'student') {
-        navigate('/student/dashboard');
-      } else if (user?.role === 'faculty') {
-        navigate('/faculty/dashboard');
-      } else if (user?.role === 'management') {
-        navigate('/management/dashboard');
-      } else {
-        navigate('/home');
-      }
-    }
-  }, [isAuthenticated, user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

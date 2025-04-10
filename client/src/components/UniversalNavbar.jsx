@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -11,8 +11,12 @@ import {
   FiUser,
   FiLogOut,
   FiMenu,
-  FiX
+  FiX,
+  FiCheck,
+  FiInfo,
+  FiAlertCircle
 } from 'react-icons/fi';
+import notificationAPI from '../services/notificationApi';
 
 const UniversalNavbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -20,6 +24,13 @@ const UniversalNavbar = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [showNotificationPopup, setShowNotificationPopup] = useState(false);
+  const [newNotification, setNewNotification] = useState(null);
+  const notificationRef = useRef(null);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -27,6 +38,156 @@ const UniversalNavbar = () => {
 
   const toggleProfileMenu = () => {
     setIsProfileMenuOpen(!isProfileMenuOpen);
+  };
+
+  const toggleNotifications = () => {
+    setIsNotificationsOpen(!isNotificationsOpen);
+  };
+
+  // Function to fetch notifications
+  const fetchNotifications = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await notificationAPI.getNotifications();
+
+      if (response.data && response.data.data) {
+        setNotifications(response.data.data);
+        // Count unread notifications
+        const unread = response.data.data.filter(notification => !notification.read).length;
+        setUnreadCount(unread);
+      }
+    } catch (err) {
+      console.error('Error fetching notifications:', err);
+      // For development, use mock data
+      const mockNotifications = [
+        {
+          _id: '1',
+          title: 'New Quiz Available',
+          message: 'A new quiz has been published in Web Development course.',
+          type: 'quiz',
+          read: false,
+          createdAt: new Date().toISOString()
+        },
+        {
+          _id: '2',
+          title: 'Quiz Graded',
+          message: 'Your Database Systems midterm quiz has been graded.',
+          type: 'grade',
+          read: false,
+          createdAt: new Date(Date.now() - 86400000).toISOString() // 1 day ago
+        },
+        {
+          _id: '3',
+          title: 'Course Announcement',
+          message: 'Important information about the upcoming final project.',
+          type: 'announcement',
+          read: true,
+          createdAt: new Date(Date.now() - 172800000).toISOString() // 2 days ago
+        }
+      ];
+
+      setNotifications(mockNotifications);
+      setUnreadCount(mockNotifications.filter(notification => !notification.read).length);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch notifications when component mounts and when user authentication changes
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      fetchNotifications();
+
+      // Set up interval to check for new notifications
+      const intervalId = setInterval(async () => {
+        try {
+          const prevCount = unreadCount;
+          await fetchNotifications();
+
+          // If there are new notifications, show the popup
+          if (unreadCount > prevCount && notifications.length > 0) {
+            const latestNotification = notifications[0];
+            setNewNotification(latestNotification);
+            setShowNotificationPopup(true);
+
+            // Auto-hide the popup after 5 seconds
+            setTimeout(() => {
+              setShowNotificationPopup(false);
+            }, 5000);
+          }
+        } catch (error) {
+          console.error('Error checking for new notifications:', error);
+        }
+      }, 60000); // Check every minute
+
+      return () => clearInterval(intervalId);
+    }
+  }, [isAuthenticated, user, fetchNotifications, unreadCount, notifications]);
+
+  // Close notifications dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isNotificationsOpen && notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setIsNotificationsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isNotificationsOpen]);
+
+  // Function to mark a notification as read
+  const markAsRead = async (id) => {
+    try {
+      await notificationAPI.markAsRead(id);
+
+      // Update local state
+      setNotifications(prevNotifications =>
+        prevNotifications.map(notification =>
+          notification._id === id
+            ? { ...notification, read: true }
+            : notification
+        )
+      );
+
+      // Update unread count
+      setUnreadCount(prevCount => Math.max(0, prevCount - 1));
+    } catch (err) {
+      console.error('Error marking notification as read:', err);
+    }
+  };
+
+  // Function to mark all notifications as read
+  const markAllAsRead = async () => {
+    try {
+      await notificationAPI.markAllAsRead();
+
+      // Update local state
+      setNotifications(prevNotifications =>
+        prevNotifications.map(notification => ({ ...notification, read: true }))
+      );
+
+      // Reset unread count
+      setUnreadCount(0);
+    } catch (err) {
+      console.error('Error marking all notifications as read:', err);
+    }
+  };
+
+  // Function to get the appropriate icon for a notification type
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case 'quiz':
+        return <FiInfo className="h-5 w-5 text-blue-500" />;
+      case 'grade':
+        return <FiCheck className="h-5 w-5 text-green-500" />;
+      case 'announcement':
+        return <FiAlertCircle className="h-5 w-5 text-purple-500" />;
+      default:
+        return <FiInfo className="h-5 w-5 text-gray-500" />;
+    }
   };
 
   const handleLogout = async () => {
@@ -61,7 +222,7 @@ const UniversalNavbar = () => {
     if (!isAuthenticated || !user) {
       // Public navigation links
       return [
-        { name: 'Home', path: '/home', icon: <FiHome /> },
+        { name: 'Home', path: '/', icon: <FiHome /> },
         { name: 'About', path: '/about', icon: <FiBook /> },
         { name: 'Contact', path: '/contact', icon: <FiUsers /> }
       ];
@@ -137,6 +298,120 @@ const UniversalNavbar = () => {
           <div className="hidden md:flex md:items-center">
             {isAuthenticated && user ? (
               <div className="ml-4 relative flex items-center">
+                {/* Notification Bell */}
+                <div className="relative mr-4" ref={notificationRef}>
+                  <button
+                    onClick={toggleNotifications}
+                    className="p-1 rounded-full text-gray-600 hover:text-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                    aria-label="notifications"
+                  >
+                    <span className="sr-only">View notifications</span>
+                    <FiBell className="h-6 w-6" />
+                    {unreadCount > 0 && (
+                      <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Notification Dropdown */}
+                  {isNotificationsOpen && (
+                    <div className="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                      <div className="py-1 divide-y divide-gray-200">
+                        <div className="px-4 py-3 flex justify-between items-center">
+                          <h3 className="text-sm font-medium text-gray-900">Notifications</h3>
+                          {unreadCount > 0 && (
+                            <button
+                              onClick={markAllAsRead}
+                              className="text-xs text-purple-600 hover:text-purple-800"
+                            >
+                              Mark all as read
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="max-h-96 overflow-y-auto">
+                          {loading && notifications.length === 0 ? (
+                            <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                              Loading notifications...
+                            </div>
+                          ) : notifications.length === 0 ? (
+                            <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                              No notifications
+                            </div>
+                          ) : (
+                            notifications.map((notification) => (
+                              <div
+                                key={notification._id}
+                                className={`px-4 py-3 hover:bg-gray-50 ${!notification.read ? 'bg-blue-50' : ''}`}
+                              >
+                                <div className="flex items-start">
+                                  <div className="flex-shrink-0 pt-0.5">
+                                    {getNotificationIcon(notification.type)}
+                                  </div>
+                                  <div className="ml-3 w-0 flex-1">
+                                    <p className="text-sm font-medium text-gray-900">
+                                      {notification.title}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                      {notification.message}
+                                    </p>
+                                    <p className="mt-1 text-xs text-gray-400">
+                                      {new Date(notification.createdAt).toLocaleString()}
+                                    </p>
+                                  </div>
+                                  {!notification.read && (
+                                    <div className="ml-4 flex-shrink-0 flex">
+                                      <button
+                                        onClick={() => markAsRead(notification._id)}
+                                        className="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none"
+                                      >
+                                        <span className="sr-only">Mark as read</span>
+                                        <FiX className="h-5 w-5" />
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Notification Popup */}
+                {showNotificationPopup && newNotification && (
+                  <div className="fixed top-4 right-4 w-80 bg-white rounded-lg shadow-lg overflow-hidden z-50 border border-gray-200 transform transition-all duration-300 ease-in-out">
+                    <div className="bg-purple-600 px-4 py-2 flex justify-between items-center">
+                      <h3 className="text-sm font-medium text-white">New Notification</h3>
+                      <button
+                        onClick={() => setShowNotificationPopup(false)}
+                        className="text-white hover:text-gray-200 focus:outline-none"
+                      >
+                        <FiX className="h-5 w-5" />
+                      </button>
+                    </div>
+                    <div className="p-4">
+                      <div className="flex items-start">
+                        <div className="flex-shrink-0 pt-0.5">
+                          {getNotificationIcon(newNotification.type)}
+                        </div>
+                        <div className="ml-3 w-0 flex-1">
+                          <p className="text-sm font-medium text-gray-900">
+                            {newNotification.title}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {newNotification.message}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* User Profile */}
                 <div className="relative">
                   <button
                     onClick={toggleProfileMenu}
@@ -202,7 +477,24 @@ const UniversalNavbar = () => {
           {/* Mobile menu button */}
           <div className="flex items-center md:hidden">
             {isAuthenticated && user && (
-              <div className="mr-2">
+              <>
+                {/* Mobile Notification Bell */}
+                <div className="relative mr-2">
+                  <button
+                    onClick={toggleNotifications}
+                    className="p-1 rounded-full text-gray-600 hover:text-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                    aria-label="notifications"
+                  >
+                    <span className="sr-only">View notifications</span>
+                    <FiBell className="h-6 w-6" />
+                    {unreadCount > 0 && (
+                      <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </button>
+                </div>
+                <div className="mr-2">
                 <button
                   onClick={toggleProfileMenu}
                   className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
@@ -244,6 +536,7 @@ const UniversalNavbar = () => {
                   </div>
                 )}
               </div>
+              </>
             )}
             <button
               onClick={toggleMenu}

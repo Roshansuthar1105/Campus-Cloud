@@ -1,15 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FiCalendar, FiClipboard, FiFileText, FiBarChart2, FiArrowRight, FiBookOpen } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
+import { FiCalendar, FiClock, FiClipboard, FiFileText, FiBarChart2 } from 'react-icons/fi';
 import dashboardAPI from '../../services/dashboardApi';
 import { useAuth } from '../../context/AuthContext';
-import DashboardCard from '../../components/Dashboard/DashboardCard';
-import DashboardSection from '../../components/Dashboard/DashboardSection';
-import DashboardWelcome from '../../components/Dashboard/DashboardWelcome';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -65,183 +61,177 @@ const StudentDashboard = () => {
     );
   }
 
-  // Prepare welcome stats
-  const welcomeStats = dashboardData ? [
-    { label: 'Enrolled Courses', value: dashboardData.courses?.length || 0 },
-    { label: 'Upcoming Quizzes', value: dashboardData.upcomingQuizzes?.length || 0 },
-    { label: 'Active Forms', value: dashboardData.activeForms?.length || 0 },
-    { label: 'Notifications', value: dashboardData.unreadNotificationsCount || 0 }
-  ] : null;
-
   return (
     <div>
-      {/* Welcome Banner */}
-      <DashboardWelcome
-        user={user}
-        role="student"
-        stats={welcomeStats}
-      />
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Welcome, {user?.name || 'Student'}</h1>
+        <p className="text-gray-600">Here's an overview of your academic activities</p>
+      </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <DashboardCard
-          title="Enrolled Courses"
-          value={dashboardData.courses?.length || 0}
-          icon={<FiCalendar className="h-6 w-6" />}
-          color="blue"
-          onClick={() => navigate('/student/courses')}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-blue-100 text-blue-600">
+              <FiCalendar className="h-6 w-6" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Enrolled Courses</p>
+              <p className="text-lg font-semibold text-gray-900">{dashboardData.courses?.length || 0}</p>
+            </div>
+          </div>
+        </div>
 
-        <DashboardCard
-          title="Upcoming Quizzes"
-          value={dashboardData.upcomingQuizzes?.length || 0}
-          icon={<FiClipboard className="h-6 w-6" />}
-          color="green"
-          onClick={() => navigate('/student/quizzes')}
-        />
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-green-100 text-green-600">
+              <FiClipboard className="h-6 w-6" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Upcoming Quizzes</p>
+              <p className="text-lg font-semibold text-gray-900">{dashboardData.upcomingQuizzes?.length || 0}</p>
+            </div>
+          </div>
+        </div>
 
-        <DashboardCard
-          title="Active Forms"
-          value={dashboardData.activeForms?.length || 0}
-          icon={<FiFileText className="h-6 w-6" />}
-          color="purple"
-          onClick={() => navigate('/student/preference-forms')}
-        />
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-purple-100 text-purple-600">
+              <FiFileText className="h-6 w-6" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Active Forms</p>
+              <p className="text-lg font-semibold text-gray-900">{dashboardData.activeForms?.length || 0}</p>
+            </div>
+          </div>
+        </div>
 
-        <DashboardCard
-          title="Notifications"
-          value={dashboardData.unreadNotificationsCount || 0}
-          icon={<FiBarChart2 className="h-6 w-6" />}
-          color="red"
-          onClick={() => navigate('/student/notifications')}
-        />
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-red-100 text-red-600">
+              <FiBarChart2 className="h-6 w-6" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Notifications</p>
+              <p className="text-lg font-semibold text-gray-900">{dashboardData.unreadNotificationsCount || 0}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Upcoming Quizzes */}
-      <DashboardSection
-        title="Upcoming Quizzes"
-        actionText="View All Quizzes"
-        actionLink="/student/quizzes"
-        actionIcon={<FiArrowRight />}
-      >
-        {dashboardData.upcomingQuizzes && dashboardData.upcomingQuizzes.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quiz</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {dashboardData.upcomingQuizzes.map((quiz) => (
-                  <tr key={quiz._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{quiz.title}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quiz.course?.name || 'N/A'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(quiz.startDate).toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(quiz.endDate).toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <Link to={`/student/quizzes/${quiz._id}/take`} className="text-purple-600 hover:text-purple-900 font-medium">
-                        Take Quiz
-                      </Link>
-                    </td>
+      <div className="bg-white rounded-lg shadow mb-6">
+        <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+          <h3 className="text-lg font-medium text-gray-900">Upcoming Quizzes</h3>
+        </div>
+        <div className="px-4 py-5 sm:p-6">
+          {dashboardData.upcomingQuizzes && dashboardData.upcomingQuizzes.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quiz</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <FiClipboard className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No upcoming quizzes</h3>
-            <p className="mt-1 text-sm text-gray-500">You're all caught up with your quizzes!</p>
-          </div>
-        )}
-      </DashboardSection>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {dashboardData.upcomingQuizzes.map((quiz) => (
+                    <tr key={quiz._id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{quiz.title}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{quiz.course?.name || 'N/A'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(quiz.startDate).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(quiz.endDate).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <Link to={`/student/quizzes/${quiz._id}`} className="text-blue-600 hover:text-blue-900">
+                          View
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-4">No upcoming quizzes</p>
+          )}
+        </div>
+      </div>
 
       {/* Active Preference Forms */}
-      <DashboardSection
-        title="Active Preference Forms"
-        actionText="View All Forms"
-        actionLink="/student/preference-forms"
-        actionIcon={<FiArrowRight />}
-      >
-        {dashboardData.activeForms && dashboardData.activeForms.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Form</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {dashboardData.activeForms.map((form) => (
-                  <tr key={form._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{form.title}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(form.endDate).toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <Link to={`/student/preference-forms/${form._id}`} className="text-purple-600 hover:text-purple-900 font-medium">
-                        Complete Form
-                      </Link>
-                    </td>
+      <div className="bg-white rounded-lg shadow mb-6">
+        <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+          <h3 className="text-lg font-medium text-gray-900">Active Preference Forms</h3>
+        </div>
+        <div className="px-4 py-5 sm:p-6">
+          {dashboardData.activeForms && dashboardData.activeForms.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Form</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <FiFileText className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No active forms</h3>
-            <p className="mt-1 text-sm text-gray-500">There are no preference forms that need your attention right now.</p>
-          </div>
-        )}
-      </DashboardSection>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {dashboardData.activeForms.map((form) => (
+                    <tr key={form._id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{form.title}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(form.endDate).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <Link to={`/student/preferences/${form._id}`} className="text-blue-600 hover:text-blue-900">
+                          View
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-4">No active preference forms</p>
+          )}
+        </div>
+      </div>
 
       {/* Course Statistics */}
-      <DashboardSection title="Course Statistics">
-        {dashboardData.courseStats && dashboardData.courseStats.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {dashboardData.courseStats.map((stat) => (
-              <div key={stat.course._id} className="border rounded-lg p-6 hover:shadow-md transition-shadow duration-300">
-                <h4 className="font-medium text-gray-900 mb-4 text-lg">{stat.course.name}</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-sm text-gray-500 mb-1">Completed Quizzes</p>
-                    <p className="text-xl font-semibold text-gray-900">{stat.completedQuizzes} / {stat.totalQuizzes}</p>
-                  </div>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-sm text-gray-500 mb-1">Average Score</p>
-                    <p className="text-xl font-semibold text-gray-900">{stat.averageScore.toFixed(1)}%</p>
+      <div className="bg-white rounded-lg shadow">
+        <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+          <h3 className="text-lg font-medium text-gray-900">Course Statistics</h3>
+        </div>
+        <div className="px-4 py-5 sm:p-6">
+          {dashboardData.courseStats && dashboardData.courseStats.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {dashboardData.courseStats.map((stat) => (
+                <div key={stat.course._id} className="border rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-2">{stat.course.name}</h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <p className="text-sm text-gray-500">Completed Quizzes</p>
+                      <p className="text-lg font-semibold">{stat.completedQuizzes} / {stat.totalQuizzes}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Average Score</p>
+                      <p className="text-lg font-semibold">{stat.averageScore.toFixed(1)}%</p>
+                    </div>
                   </div>
                 </div>
-                <div className="mt-4 text-right">
-                  <Link to={`/student/courses/${stat.course._id}`} className="text-sm text-purple-600 hover:text-purple-900 font-medium inline-flex items-center">
-                    View Course Details <FiArrowRight className="ml-1" />
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <FiBookOpen className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No course statistics available</h3>
-            <p className="mt-1 text-sm text-gray-500">Statistics will appear once you've completed some quizzes.</p>
-          </div>
-        )}
-      </DashboardSection>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-4">No course statistics available</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
