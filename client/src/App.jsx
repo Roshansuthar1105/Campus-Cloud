@@ -38,7 +38,10 @@ import FacultyCourseDetail from './pages/faculty/CourseDetail';
 import FacultyQuizList from './pages/faculty/QuizList';
 import QuizCreate from './pages/faculty/QuizCreate';
 import QuizEdit from './pages/faculty/QuizEdit';
+import FQuizDetail from './pages/faculty/QuizDetail';
+import QuizSubmissions from './pages/faculty/QuizSubmissions';
 import QuizGrading from './pages/faculty/QuizGrading';
+import SubmissionView from './pages/faculty/SubmissionView';
 import FacultyPreferenceFormList from './pages/faculty/PreferenceFormList';
 import FacultyPreferenceFormCreate from './pages/faculty/PreferenceFormCreate';
 import FacultyPreferenceFormDetail from './pages/faculty/PreferenceFormDetail';
@@ -140,8 +143,11 @@ function App() {
                 <Route path="courses/:id" element={<FacultyCourseDetail />} />
                 <Route path="quizzes" element={<FacultyQuizList />} />
                 <Route path="quizzes/create" element={<QuizCreate />} />
+                <Route path="quizzes/:id" element={<FQuizDetail />} />
                 <Route path="quizzes/:id/edit" element={<QuizEdit />} />
+                <Route path="quizzes/:id/submissions" element={<QuizSubmissions />} />
                 <Route path="submissions/:id/grade" element={<QuizGrading />} />
+                <Route path="submissions/:id/view" element={<SubmissionView />} />
                 <Route path="preference-forms" element={<FacultyPreferenceFormList />} />
                 <Route path="preference-forms/create" element={<FacultyPreferenceFormCreate />} />
                 <Route path="preference-forms/:id/edit" element={<FacultyPreferenceFormCreate />} />

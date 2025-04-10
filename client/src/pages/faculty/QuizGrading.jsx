@@ -22,22 +22,22 @@ const QuizGrading = () => {
     const fetchSubmission = async () => {
       try {
         setLoading(true);
-        
+
         // Get the submission
         const response = await quizAPI.getQuizSubmissions(id);
         const submissionData = response.data.data.find(sub => sub._id === id);
-        
+
         if (!submissionData) {
           throw new Error('Submission not found');
         }
-        
+
         setSubmission(submissionData);
         setStudent(submissionData.student);
-        
+
         // Get the quiz details
         const quizResponse = await quizAPI.getQuiz(submissionData.quiz);
         setQuiz(quizResponse.data.data);
-        
+
         // Initialize grading data
         setGradingData({
           answers: submissionData.answers.map(answer => ({
@@ -48,7 +48,7 @@ const QuizGrading = () => {
           })),
           feedback: submissionData.feedback || ''
         });
-        
+
         setError(null);
       } catch (err) {
         console.error('Error fetching submission:', err);
@@ -65,14 +65,14 @@ const QuizGrading = () => {
     setGradingData(prev => {
       const updatedAnswers = [...prev.answers];
       const answerIndex = updatedAnswers.findIndex(a => a.questionId === questionId);
-      
+
       if (answerIndex !== -1) {
         updatedAnswers[answerIndex] = {
           ...updatedAnswers[answerIndex],
           [field]: field === 'pointsEarned' ? Number(value) : value
         };
       }
-      
+
       return {
         ...prev,
         answers: updatedAnswers
@@ -92,19 +92,19 @@ const QuizGrading = () => {
     setSubmitting(true);
     setError(null);
     setSuccess(null);
-    
+
     try {
       await quizAPI.gradeSubmission(id, gradingData);
       setSuccess('Submission graded successfully!');
-      
+
       // Refresh submission data
       const response = await quizAPI.getQuizSubmissions(id);
       const updatedSubmission = response.data.data.find(sub => sub._id === id);
       setSubmission(updatedSubmission);
-      
+
       // Redirect after a short delay
       setTimeout(() => {
-        navigate('/faculty/quizzes');
+        navigate(`/faculty/quizzes/${quiz._id}/submissions`);
       }, 2000);
     } catch (err) {
       console.error('Error grading submission:', err);
@@ -228,12 +228,12 @@ const QuizGrading = () => {
             {quiz.questions.map((question, index) => {
               const answer = submission.answers.find(a => a.questionId === question._id);
               const gradingAnswer = gradingData.answers.find(a => a.questionId === question._id);
-              
+
               if (!answer || !gradingAnswer) return null;
-              
+
               const isObjective = question.questionType === 'multiple-choice' || question.questionType === 'true-false';
               const needsManualGrading = !isObjective;
-              
+
               return (
                 <div key={question._id} className="p-6">
                   <div className="flex items-start">
@@ -260,16 +260,16 @@ const QuizGrading = () => {
                           <span className="ml-2 text-sm text-gray-500">/ {question.points} points</span>
                         </div>
                       </div>
-                      
+
                       <p className="mt-2 text-sm text-gray-700">{question.questionText}</p>
-                      
+
                       {/* Multiple Choice */}
                       {question.questionType === 'multiple-choice' && (
                         <div className="mt-3 space-y-2">
                           {question.options.map((option, optionIndex) => {
                             const isSelected = answer.selectedOptions.includes(option.text);
                             const isCorrect = option.isCorrect;
-                            
+
                             let optionClass = 'text-gray-700';
                             if (isSelected && isCorrect) {
                               optionClass = 'text-green-700 font-medium';
@@ -278,7 +278,7 @@ const QuizGrading = () => {
                             } else if (!isSelected && isCorrect) {
                               optionClass = 'text-green-600';
                             }
-                            
+
                             return (
                               <div key={optionIndex} className="flex items-center">
                                 <div className={`flex-shrink-0 h-5 w-5 ${isSelected ? 'text-indigo-600' : 'text-gray-400'}`}>
@@ -301,14 +301,14 @@ const QuizGrading = () => {
                           })}
                         </div>
                       )}
-                      
+
                       {/* True/False */}
                       {question.questionType === 'true-false' && (
                         <div className="mt-3 space-y-2">
                           {['true', 'false'].map((option) => {
                             const isSelected = answer.selectedOptions.includes(option);
                             const isCorrect = question.correctAnswer === option;
-                            
+
                             let optionClass = 'text-gray-700';
                             if (isSelected && isCorrect) {
                               optionClass = 'text-green-700 font-medium';
@@ -317,7 +317,7 @@ const QuizGrading = () => {
                             } else if (!isSelected && isCorrect) {
                               optionClass = 'text-green-600';
                             }
-                            
+
                             return (
                               <div key={option} className="flex items-center">
                                 <div className={`flex-shrink-0 h-5 w-5 ${isSelected ? 'text-indigo-600' : 'text-gray-400'}`}>
@@ -340,7 +340,7 @@ const QuizGrading = () => {
                           })}
                         </div>
                       )}
-                      
+
                       {/* Short Answer / Essay */}
                       {(question.questionType === 'short-answer' || question.questionType === 'essay') && (
                         <div className="mt-3">
@@ -348,7 +348,7 @@ const QuizGrading = () => {
                           <div className="mt-1 p-3 bg-gray-50 rounded-md">
                             <p className="text-sm text-gray-800 whitespace-pre-wrap">{answer.textAnswer || 'No answer provided'}</p>
                           </div>
-                          
+
                           <div className="mt-3 flex items-center">
                             <div className="flex items-center mr-4">
                               <input
@@ -377,7 +377,7 @@ const QuizGrading = () => {
                           </div>
                         </div>
                       )}
-                      
+
                       {/* Answer Feedback */}
                       <div className="mt-3">
                         <label htmlFor={`feedback-${question._id}`} className="block text-sm font-medium text-gray-700">
@@ -423,7 +423,7 @@ const QuizGrading = () => {
         <div className="flex justify-end">
           <button
             type="button"
-            onClick={() => navigate('/faculty/quizzes')}
+            onClick={() => navigate(`/faculty/quizzes/${quiz._id}/submissions`)}
             className="mr-3 bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Cancel

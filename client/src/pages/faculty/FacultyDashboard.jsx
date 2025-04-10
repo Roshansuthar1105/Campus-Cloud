@@ -244,7 +244,8 @@ const FacultyDashboard = () => {
                   </div>
                   <div className="mt-4">
                     <Link 
-                      to={`/faculty/courses/${stat.course._id}/reports`} 
+                      to={`/faculty/courses/${stat.course._id}`} 
+                      // to={`/faculty/courses/${stat.course._id}/reports`} 
                       className="text-sm text-indigo-600 hover:text-indigo-900"
                     >
                       View Detailed Reports <FiBarChart2 className="inline ml-1" />
