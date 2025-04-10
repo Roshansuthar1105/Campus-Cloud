@@ -38,7 +38,7 @@ const PreferenceFormCreate = () => {
         
         if (isEditMode) {
           // In a real app, you would fetch the form data from the API
-          // const formResponse = await api.get(`/preference-forms/${id}`);
+          // const formResponse = await api.get(`/preferences/${id}`);
           // const formData = formResponse.data.data;
           
           // For now, we'll use mock data
@@ -347,9 +347,9 @@ const PreferenceFormCreate = () => {
     try {
       // In a real app, you would submit the form data to the API
       // if (isEditMode) {
-      //   await api.put(`/preference-forms/${id}`, formData);
+      //   await api.put(`/preferences/${id}`, formData);
       // } else {
-      //   await api.post('/preference-forms', formData);
+      //   await api.post('/preferences', formData);
       // }
       
       // For now, we'll just simulate a delay
@@ -359,7 +359,7 @@ const PreferenceFormCreate = () => {
       
       // Redirect to the form list after a short delay
       setTimeout(() => {
-        navigate('/management/preference-forms');
+        navigate('/management/preferences');
       }, 2000);
     } catch (err) {
       console.error('Error saving form:', err);
@@ -381,7 +381,7 @@ const PreferenceFormCreate = () => {
     <div>
       <div className="mb-6 flex items-center">
         <button
-          onClick={() => navigate('/management/preference-forms')}
+          onClick={() => navigate('/management/preferences')}
           className="mr-4 text-purple-600 hover:text-purple-900"
         >
           <FiArrowLeft className="h-5 w-5" />
@@ -714,7 +714,7 @@ const PreferenceFormCreate = () => {
         <div className="mt-6 flex justify-end">
           <button
             type="button"
-            onClick={() => navigate('/management/preference-forms')}
+            onClick={() => navigate('/management/preferences')}
             className="mr-3 bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
           >
             Cancel

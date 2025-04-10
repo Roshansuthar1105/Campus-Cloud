@@ -21,8 +21,8 @@ const PreferenceFormReports = () => {
         setLoading(true);
         
         // In a real app, you would fetch the form and submissions data from the API
-        // const formResponse = await api.get(`/preference-forms/${id}`);
-        // const submissionsResponse = await api.get(`/preference-forms/${id}/submissions`);
+        // const formResponse = await api.get(`/preferences/${id}`);
+        // const submissionsResponse = await api.get(`/preferences/${id}/submissions`);
         // setForm(formResponse.data.data);
         // setSubmissions(submissionsResponse.data.data);
         
@@ -456,7 +456,7 @@ const PreferenceFormReports = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <Link
-                        to={`/management/preference-forms/${id}/submissions/${submission._id}`}
+                        to={`/management/preferences/${id}/submissions/${submission._id}`}
                         className="text-purple-600 hover:text-purple-900"
                       >
                         View Details
@@ -493,7 +493,7 @@ const PreferenceFormReports = () => {
             <p className="text-sm text-red-700">{error}</p>
             <div className="mt-2">
               <button
-                onClick={() => navigate('/management/preference-forms')}
+                onClick={() => navigate('/management/preferences')}
                 className="text-sm text-red-700 hover:text-red-900 font-medium"
               >
                 Return to Forms
@@ -510,7 +510,7 @@ const PreferenceFormReports = () => {
       <div className="text-center py-10">
         <p>Form not found.</p>
         <button
-          onClick={() => navigate('/management/preference-forms')}
+          onClick={() => navigate('/management/preferences')}
           className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
         >
           Return to Forms
@@ -524,7 +524,7 @@ const PreferenceFormReports = () => {
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center">
           <button
-            onClick={() => navigate(`/management/preference-forms/${id}`)}
+            onClick={() => navigate(`/management/preferences/${id}`)}
             className="mr-4 text-purple-600 hover:text-purple-900"
           >
             <FiArrowLeft className="h-5 w-5" />

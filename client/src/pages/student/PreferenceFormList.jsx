@@ -25,7 +25,7 @@ const PreferenceFormList = () => {
         setCourses(coursesResponse.data.data);
         
         // Then fetch preference forms (this is a placeholder - you'll need to implement the actual API)
-        // const formsResponse = await api.get('/preference-forms/student');
+        // const formsResponse = await api.get('/preferences/student');
         // setForms(formsResponse.data.data);
         
         // For now, we'll use mock data
@@ -271,7 +271,7 @@ const PreferenceFormList = () => {
                       </div>
                       {actionText && (
                         <Link
-                          to={`/student/preference-forms/${form._id}${status === 'pending' ? '/continue' : status === 'completed' ? '/view' : ''}`}
+                          to={`/student/preferences/${form._id}${status === 'pending' ? '/continue' : status === 'completed' ? '/view' : ''}`}
                           className={`inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-${statusColor === 'gray' ? 'gray' : 'blue'}-600 hover:bg-${statusColor === 'gray' ? 'gray' : 'blue'}-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
                         >
                           <FiEye className="mr-2 -ml-0.5 h-4 w-4" />

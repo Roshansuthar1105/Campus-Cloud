@@ -23,7 +23,7 @@ const PreferenceFormList = () => {
         setCourses(coursesResponse.data.data);
         
         // Then fetch preference forms (this is a placeholder - you'll need to implement the actual API)
-        // const formsResponse = await api.get('/preference-forms');
+        // const formsResponse = await api.get('/preferences');
         // setForms(formsResponse.data.data);
         
         // For now, we'll use mock data
@@ -90,7 +90,7 @@ const PreferenceFormList = () => {
     }
     
     try {
-      // await api.delete(`/preference-forms/${id}`);
+      // await api.delete(`/preferences/${id}`);
       
       // Update the forms list
       setForms(forms.filter(form => form._id !== id));
@@ -141,7 +141,7 @@ const PreferenceFormList = () => {
           <p className="text-gray-600">Manage feedback and preference forms</p>
         </div>
         <Link
-          to="/management/preference-forms/create"
+          to="/management/preferences/create"
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
         >
           <FiPlus className="mr-2 -ml-1 h-5 w-5" />
@@ -232,7 +232,7 @@ const PreferenceFormList = () => {
           <div className="p-6 text-center">
             <p className="text-gray-500">No preference forms found. Create your first form!</p>
             <Link
-              to="/management/preference-forms/create"
+              to="/management/preferences/create"
               className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
             >
               <FiPlus className="mr-2 -ml-1 h-5 w-5" />
@@ -299,21 +299,21 @@ const PreferenceFormList = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-3">
                           <Link
-                            to={`/management/preference-forms/${form._id}`}
+                            to={`/management/preferences/${form._id}`}
                             className="text-purple-600 hover:text-purple-900"
                             title="View Form"
                           >
                             <FiEye className="h-5 w-5" />
                           </Link>
                           <Link
-                            to={`/management/preference-forms/${form._id}/edit`}
+                            to={`/management/preferences/${form._id}/edit`}
                             className="text-yellow-600 hover:text-yellow-900"
                             title="Edit Form"
                           >
                             <FiEdit2 className="h-5 w-5" />
                           </Link>
                           <Link
-                            to={`/management/preference-forms/${form._id}/reports`}
+                            to={`/management/preferences/${form._id}/reports`}
                             className="text-green-600 hover:text-green-900"
                             title="View Reports"
                           >

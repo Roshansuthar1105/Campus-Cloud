@@ -101,7 +101,7 @@ const ManagementLayout = () => {
                 Quizzes
               </Link>
               <Link
-                to="/management/preference-forms"
+                to="/management/preferences"
                 className={`flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-purple-700 ${isActive('/management/preferences')}`}
               >
                 <FiFileText className="mr-3 h-5 w-5" />

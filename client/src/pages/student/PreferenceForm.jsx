@@ -22,7 +22,7 @@ const PreferenceForm = () => {
         setLoading(true);
         
         // In a real app, you would fetch the form data from the API
-        // const response = await api.get(`/preference-forms/${id}`);
+        // const response = await api.get(`/preferences/${id}`);
         // setForm(response.data.data);
         
         // For now, we'll use mock data
@@ -139,7 +139,7 @@ const PreferenceForm = () => {
     
     try {
       // In a real app, you would submit the form data to the API
-      // await api.post(`/preference-forms/${id}/submit`, { answers });
+      // await api.post(`/preferences/${id}/submit`, { answers });
       
       // For now, we'll just simulate a delay
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -148,7 +148,7 @@ const PreferenceForm = () => {
       
       // Redirect to the form list after a short delay
       setTimeout(() => {
-        navigate('/student/preference-forms');
+        navigate('/student/preferences');
       }, 2000);
     } catch (err) {
       console.error('Error submitting form:', err);
@@ -171,7 +171,7 @@ const PreferenceForm = () => {
       <div className="text-center py-10">
         <p>Form not found.</p>
         <button
-          onClick={() => navigate('/student/preference-forms')}
+          onClick={() => navigate('/student/preferences')}
           className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           Return to Forms
@@ -184,7 +184,7 @@ const PreferenceForm = () => {
     <div>
       <div className="mb-6 flex items-center">
         <button
-          onClick={() => navigate('/student/preference-forms')}
+          onClick={() => navigate('/student/preferences')}
           className="mr-4 text-blue-600 hover:text-blue-900"
         >
           <FiArrowLeft className="h-5 w-5" />
@@ -307,7 +307,7 @@ const PreferenceForm = () => {
             <div className="mt-8 flex justify-end">
               <button
                 type="button"
-                onClick={() => navigate('/student/preference-forms')}
+                onClick={() => navigate('/student/preferences')}
                 className="mr-3 bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Cancel

@@ -25,7 +25,7 @@ const PreferenceFormList = () => {
         setCourses(coursesResponse.data.data);
         
         // Then fetch preference forms (this is a placeholder - you'll need to implement the actual API)
-        // const formsResponse = await api.get('/preference-forms/faculty');
+        // const formsResponse = await api.get('/preferences/faculty');
         // setForms(formsResponse.data.data);
         
         // For now, we'll use mock data
@@ -92,7 +92,7 @@ const PreferenceFormList = () => {
     }
     
     try {
-      // await api.delete(`/preference-forms/${id}`);
+      // await api.delete(`/preferences/${id}`);
       
       // Update the forms list
       setForms(forms.filter(form => form._id !== id));
@@ -143,7 +143,7 @@ const PreferenceFormList = () => {
           <p className="text-gray-600">Create and manage feedback forms for your courses</p>
         </div>
         <Link
-          to="/faculty/preference-forms/create"
+          to="/faculty/preferences/create"
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           <FiPlus className="mr-2 -ml-1 h-5 w-5" />
@@ -239,7 +239,7 @@ const PreferenceFormList = () => {
             </p>
             <div className="mt-6">
               <Link
-                to="/faculty/preference-forms/create"
+                to="/faculty/preferences/create"
                 className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <FiPlus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
@@ -307,21 +307,21 @@ const PreferenceFormList = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-3">
                           <Link
-                            to={`/faculty/preference-forms/${form._id}`}
+                            to={`/faculty/preferences/${form._id}`}
                             className="text-indigo-600 hover:text-indigo-900"
                             title="View Form"
                           >
                             <FiEye className="h-5 w-5" />
                           </Link>
                           <Link
-                            to={`/faculty/preference-forms/${form._id}/edit`}
+                            to={`/faculty/preferences/${form._id}/edit`}
                             className="text-yellow-600 hover:text-yellow-900"
                             title="Edit Form"
                           >
                             <FiEdit2 className="h-5 w-5" />
                           </Link>
                           <Link
-                            to={`/faculty/preference-forms/${form._id}/reports`}
+                            to={`/faculty/preferences/${form._id}/reports`}
                             className="text-green-600 hover:text-green-900"
                             title="View Reports"
                           >

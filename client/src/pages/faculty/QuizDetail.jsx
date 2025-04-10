@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiEdit, FiBarChart2, FiUsers, FiClock, FiCalendar, FiCheckCircle, FiXCircle } from 'react-icons/fi';
-import api from '../../services/api';
+import quizAPI from '../../services/quizApi';
 import { useAuth } from '../../context/AuthContext';
 
 const QuizDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const [quiz, setQuiz] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,104 +24,115 @@ const QuizDetail = () => {
     const fetchQuizData = async () => {
       try {
         setLoading(true);
-        
-        // In a real app, you would fetch the quiz data from the API
-        // const response = await api.get(`/quizzes/${id}`);
-        // setQuiz(response.data.data);
-        
-        // For now, we'll use mock data
-        const mockQuiz = {
-          _id: id,
-          title: 'Midterm Exam: Web Development Fundamentals',
-          description: 'This quiz covers HTML, CSS, JavaScript basics, and responsive design principles.',
-          course: {
-            _id: 'course123',
-            name: 'Web Development Fundamentals',
-            code: 'CS301'
-          },
-          timeLimit: 60, // in minutes
-          totalPoints: 100,
-          passingScore: 70,
-          dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-          questions: [
-            {
-              _id: 'q1',
-              text: 'What does HTML stand for?',
-              type: 'multiple-choice',
-              points: 5,
-              options: [
-                { _id: 'o1', text: 'Hyper Text Markup Language' },
-                { _id: 'o2', text: 'High Tech Multi Language' },
-                { _id: 'o3', text: 'Hyper Transfer Markup Language' },
-                { _id: 'o4', text: 'Home Tool Markup Language' }
-              ],
-              correctAnswer: 'o1'
-            },
-            {
-              _id: 'q2',
-              text: 'Which CSS property is used to control the spacing between elements?',
-              type: 'multiple-choice',
-              points: 5,
-              options: [
-                { _id: 'o1', text: 'spacing' },
-                { _id: 'o2', text: 'margin' },
-                { _id: 'o3', text: 'padding' },
-                { _id: 'o4', text: 'border' }
-              ],
-              correctAnswer: 'o2'
-            },
-            {
-              _id: 'q3',
-              text: 'Explain the difference between let, const, and var in JavaScript.',
-              type: 'essay',
-              points: 10
-            },
-            {
-              _id: 'q4',
-              text: 'What is the purpose of media queries in CSS?',
-              type: 'essay',
-              points: 10
-            },
-            {
-              _id: 'q5',
-              text: 'Select all valid ways to create a JavaScript object:',
-              type: 'multiple-select',
-              points: 10,
-              options: [
-                { _id: 'o1', text: 'const obj = {};' },
-                { _id: 'o2', text: 'const obj = new Object();' },
-                { _id: 'o3', text: 'const obj = Object.create(null);' },
-                { _id: 'o4', text: 'const obj = Object.instance();' }
-              ],
-              correctAnswers: ['o1', 'o2', 'o3']
-            }
-          ],
-          published: true,
-          createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000) // 14 days ago
-        };
-        
-        setQuiz(mockQuiz);
-        
+
+        // Fetch quiz data
+        const quizResponse = await quizAPI.getQuiz(id);
+        const quizData = quizResponse.data.data || {};
+        setQuiz(quizData);
+
         // Fetch quiz statistics
-        // In a real app, you would fetch the stats from the API
-        // const statsResponse = await api.get(`/quizzes/${id}/stats`);
-        // setStats(statsResponse.data.data);
-        
-        // For now, we'll use mock stats
-        const mockStats = {
-          totalSubmissions: 45,
-          averageScore: 78.5,
-          highestScore: 98,
-          lowestScore: 52,
-          completionRate: 85 // percentage
+        const statsResponse = await quizAPI.getQuizStats(id);
+        const statsData = statsResponse.data.data || {
+          totalSubmissions: 0,
+          averageScore: 0,
+          highestScore: 0,
+          lowestScore: 0,
+          completionRate: 0
         };
-        
-        setStats(mockStats);
-        
+        setStats(statsData);
+
         setError(null);
       } catch (err) {
         console.error('Error fetching quiz data:', err);
         setError('Failed to load quiz details. Please try again later.');
+
+        // Fallback to mock data if API fails (for development purposes)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Using mock data in development mode');
+
+          // Mock quiz data
+          const mockQuiz = {
+            _id: id,
+            title: 'Midterm Exam: Web Development Fundamentals',
+            description: 'This quiz covers HTML, CSS, JavaScript basics, and responsive design principles.',
+            course: {
+              _id: 'course123',
+              name: 'Web Development Fundamentals',
+              code: 'CS301'
+            },
+            timeLimit: 60, // in minutes
+            totalPoints: 100,
+            passingScore: 70,
+            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+            questions: [
+              {
+                _id: 'q1',
+                text: 'What does HTML stand for?',
+                type: 'multiple-choice',
+                points: 5,
+                options: [
+                  { _id: 'o1', text: 'Hyper Text Markup Language' },
+                  { _id: 'o2', text: 'High Tech Multi Language' },
+                  { _id: 'o3', text: 'Hyper Transfer Markup Language' },
+                  { _id: 'o4', text: 'Home Tool Markup Language' }
+                ],
+                correctAnswer: 'o1'
+              },
+              {
+                _id: 'q2',
+                text: 'Which CSS property is used to control the spacing between elements?',
+                type: 'multiple-choice',
+                points: 5,
+                options: [
+                  { _id: 'o1', text: 'spacing' },
+                  { _id: 'o2', text: 'margin' },
+                  { _id: 'o3', text: 'padding' },
+                  { _id: 'o4', text: 'border' }
+                ],
+                correctAnswer: 'o2'
+              },
+              {
+                _id: 'q3',
+                text: 'Explain the difference between let, const, and var in JavaScript.',
+                type: 'essay',
+                points: 10
+              },
+              {
+                _id: 'q4',
+                text: 'What is the purpose of media queries in CSS?',
+                type: 'essay',
+                points: 10
+              },
+              {
+                _id: 'q5',
+                text: 'Select all valid ways to create a JavaScript object:',
+                type: 'multiple-select',
+                points: 10,
+                options: [
+                  { _id: 'o1', text: 'const obj = {};' },
+                  { _id: 'o2', text: 'const obj = new Object();' },
+                  { _id: 'o3', text: 'const obj = Object.create(null);' },
+                  { _id: 'o4', text: 'const obj = Object.instance();' }
+                ],
+                correctAnswers: ['o1', 'o2', 'o3']
+              }
+            ],
+            published: true,
+            createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000) // 14 days ago
+          };
+
+          // Mock stats data
+          const mockStats = {
+            totalSubmissions: 45,
+            averageScore: 78.5,
+            highestScore: 98,
+            lowestScore: 52,
+            completionRate: 85 // percentage
+          };
+
+          setQuiz(mockQuiz);
+          setStats(mockStats);
+        }
       } finally {
         setLoading(false);
       }
@@ -223,7 +234,7 @@ const QuizDetail = () => {
           <h3 className="text-lg font-medium leading-6 text-gray-900">Quiz Details</h3>
           <p className="mt-1 max-w-2xl text-sm text-gray-500">{quiz.description}</p>
         </div>
-        
+
         <div className="px-4 py-5 sm:p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -248,7 +259,7 @@ const QuizDetail = () => {
                 <span className="text-sm text-gray-700">Status: {quiz.published ? 'Published' : 'Draft'}</span>
               </div>
             </div>
-            
+
             <div className="bg-gray-50 p-4 rounded-md">
               <h4 className="text-sm font-medium text-gray-900 mb-3">Quiz Statistics</h4>
               <div className="grid grid-cols-2 gap-4">
@@ -281,7 +292,7 @@ const QuizDetail = () => {
             Total: {quiz.questions.length} questions ({quiz.totalPoints} points)
           </p>
         </div>
-        
+
         <div className="px-4 py-5 sm:p-6">
           <div className="space-y-8">
             {quiz.questions.map((question, index) => (
@@ -293,7 +304,7 @@ const QuizDetail = () => {
                   </div>
                   <span className="text-sm font-medium text-gray-500">{question.points} pts</span>
                 </div>
-                
+
                 {question.type === 'multiple-choice' && (
                   <div className="mt-4 ml-8">
                     <p className="text-sm font-medium text-gray-700 mb-2">Options:</p>
@@ -310,7 +321,7 @@ const QuizDetail = () => {
                     </ul>
                   </div>
                 )}
-                
+
                 {question.type === 'multiple-select' && (
                   <div className="mt-4 ml-8">
                     <p className="text-sm font-medium text-gray-700 mb-2">Options (select all that apply):</p>
@@ -327,7 +338,7 @@ const QuizDetail = () => {
                     </ul>
                   </div>
                 )}
-                
+
                 {question.type === 'essay' && (
                   <div className="mt-4 ml-8">
                     <p className="text-sm font-medium text-gray-700 mb-2">Essay Question</p>

@@ -25,8 +25,8 @@ const PreferenceFormDetail = () => {
         setLoading(true);
         
         // In a real app, you would fetch the form and submissions data from the API
-        // const formResponse = await api.get(`/preference-forms/${id}`);
-        // const submissionsResponse = await api.get(`/preference-forms/${id}/submissions`);
+        // const formResponse = await api.get(`/preferences/${id}`);
+        // const submissionsResponse = await api.get(`/preferences/${id}/submissions`);
         // setForm(formResponse.data.data);
         // setSubmissions(submissionsResponse.data.data);
         
@@ -254,7 +254,7 @@ const PreferenceFormDetail = () => {
             <p className="text-sm text-red-700">{error}</p>
             <div className="mt-2">
               <button
-                onClick={() => navigate('/management/preference-forms')}
+                onClick={() => navigate('/management/preferences')}
                 className="text-sm text-red-700 hover:text-red-900 font-medium"
               >
                 Return to Forms
@@ -271,7 +271,7 @@ const PreferenceFormDetail = () => {
       <div className="text-center py-10">
         <p>Form not found.</p>
         <button
-          onClick={() => navigate('/management/preference-forms')}
+          onClick={() => navigate('/management/preferences')}
           className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
         >
           Return to Forms
@@ -288,7 +288,7 @@ const PreferenceFormDetail = () => {
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center">
           <button
-            onClick={() => navigate('/management/preference-forms')}
+            onClick={() => navigate('/management/preferences')}
             className="mr-4 text-purple-600 hover:text-purple-900"
           >
             <FiArrowLeft className="h-5 w-5" />
@@ -300,14 +300,14 @@ const PreferenceFormDetail = () => {
         </div>
         <div className="flex space-x-3">
           <Link
-            to={`/management/preference-forms/${id}/edit`}
+            to={`/management/preferences/${id}/edit`}
             className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
           >
             <FiEdit2 className="mr-2 -ml-1 h-5 w-5" />
             Edit Form
           </Link>
           <Link
-            to={`/management/preference-forms/${id}/reports`}
+            to={`/management/preferences/${id}/reports`}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
           >
             <FiBarChart2 className="mr-2 -ml-1 h-5 w-5" />
@@ -406,7 +406,7 @@ const PreferenceFormDetail = () => {
             </dl>
             <div className="mt-6">
               <Link
-                to={`/management/preference-forms/${id}/reports`}
+                to={`/management/preferences/${id}/reports`}
                 className="text-purple-600 hover:text-purple-900 text-sm font-medium"
               >
                 View detailed reports →
@@ -479,7 +479,7 @@ const PreferenceFormDetail = () => {
           <div className="px-4 py-5 sm:px-6 border-b border-gray-200 flex justify-between items-center">
             <h3 className="text-lg font-medium leading-6 text-gray-900">Recent Submissions</h3>
             <Link
-              to={`/management/preference-forms/${id}/submissions`}
+              to={`/management/preferences/${id}/submissions`}
               className="text-purple-600 hover:text-purple-900 text-sm font-medium"
             >
               View all
@@ -521,7 +521,7 @@ const PreferenceFormDetail = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <Link
-                            to={`/management/preference-forms/${id}/submissions/${submission._id}`}
+                            to={`/management/preferences/${id}/submissions/${submission._id}`}
                             className="text-purple-600 hover:text-purple-900"
                           >
                             <FiEye className="inline-block mr-1" />

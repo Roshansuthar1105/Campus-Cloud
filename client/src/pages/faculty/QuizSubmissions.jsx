@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FiArrowLeft, FiEye, FiCheck, FiX, FiClock, FiSearch, FiFilter, FiDownload } from 'react-icons/fi';
-import api from '../../services/api';
+import quizAPI from '../../services/quizApi';
 import { useAuth } from '../../context/AuthContext';
 
 const QuizSubmissions = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const [quiz, setQuiz] = useState(null);
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,111 +22,116 @@ const QuizSubmissions = () => {
     const fetchQuizData = async () => {
       try {
         setLoading(true);
-        
-        // In a real app, you would fetch the quiz data from the API
-        // const quizResponse = await api.get(`/quizzes/${id}`);
-        // setQuiz(quizResponse.data.data);
-        
-        // For now, we'll use mock data
-        const mockQuiz = {
-          _id: id,
-          title: 'Midterm Exam: Web Development Fundamentals',
-          course: {
-            _id: 'course123',
-            name: 'Web Development Fundamentals',
-            code: 'CS301'
-          },
-          totalPoints: 100,
-          passingScore: 70,
-          dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
-        };
-        
-        setQuiz(mockQuiz);
-        
+
+        // Fetch quiz data
+        const quizResponse = await quizAPI.getQuiz(id);
+        const quizData = quizResponse.data.data || {};
+        setQuiz(quizData);
+
         // Fetch submissions
-        // In a real app, you would fetch the submissions from the API
-        // const submissionsResponse = await api.get(`/quizzes/${id}/submissions`);
-        // setSubmissions(submissionsResponse.data.data);
-        
-        // For now, we'll use mock submissions
-        const mockSubmissions = [
-          {
-            _id: 'sub1',
-            student: {
-              _id: 'student1',
-              name: 'John Doe',
-              email: 'john.doe@example.com',
-              avatar: null
-            },
-            score: 85,
-            status: 'graded',
-            submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-            gradedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-            timeSpent: 45 // minutes
-          },
-          {
-            _id: 'sub2',
-            student: {
-              _id: 'student2',
-              name: 'Jane Smith',
-              email: 'jane.smith@example.com',
-              avatar: null
-            },
-            score: 92,
-            status: 'graded',
-            submittedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-            gradedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-            timeSpent: 52 // minutes
-          },
-          {
-            _id: 'sub3',
-            student: {
-              _id: 'student3',
-              name: 'Michael Johnson',
-              email: 'michael.johnson@example.com',
-              avatar: null
-            },
-            score: 78,
-            status: 'graded',
-            submittedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), // 4 days ago
-            gradedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-            timeSpent: 58 // minutes
-          },
-          {
-            _id: 'sub4',
-            student: {
-              _id: 'student4',
-              name: 'Emily Davis',
-              email: 'emily.davis@example.com',
-              avatar: null
-            },
-            score: null,
-            status: 'pending',
-            submittedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-            gradedAt: null,
-            timeSpent: 49 // minutes
-          },
-          {
-            _id: 'sub5',
-            student: {
-              _id: 'student5',
-              name: 'Robert Wilson',
-              email: 'robert.wilson@example.com',
-              avatar: null
-            },
-            score: 65,
-            status: 'graded',
-            submittedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
-            gradedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), // 4 days ago
-            timeSpent: 60 // minutes
-          }
-        ];
-        
-        setSubmissions(mockSubmissions);
+        const submissionsResponse = await quizAPI.getQuizSubmissions(id);
+        const submissionsData = submissionsResponse.data.data || [];
+        setSubmissions(submissionsData);
         setError(null);
       } catch (err) {
         console.error('Error fetching quiz submissions:', err);
         setError('Failed to load quiz submissions. Please try again later.');
+
+        // Fallback to mock data if API fails (for development purposes)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Using mock data in development mode');
+
+          // Mock quiz data
+          const mockQuiz = {
+            _id: id,
+            title: 'Midterm Exam: Web Development Fundamentals',
+            course: {
+              _id: 'course123',
+              name: 'Web Development Fundamentals',
+              code: 'CS301'
+            },
+            totalPoints: 100,
+            passingScore: 70,
+            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
+          };
+
+          // Mock submissions data
+          const mockSubmissions = [
+            {
+              _id: 'sub1',
+              student: {
+                _id: 'student1',
+                name: 'John Doe',
+                email: 'john.doe@example.com',
+                avatar: null
+              },
+              score: 85,
+              status: 'graded',
+              submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+              gradedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+              timeSpent: 45 // minutes
+            },
+            {
+              _id: 'sub2',
+              student: {
+                _id: 'student2',
+                name: 'Jane Smith',
+                email: 'jane.smith@example.com',
+                avatar: null
+              },
+              score: 92,
+              status: 'graded',
+              submittedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+              gradedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+              timeSpent: 52 // minutes
+            },
+            {
+              _id: 'sub3',
+              student: {
+                _id: 'student3',
+                name: 'Michael Johnson',
+                email: 'michael.johnson@example.com',
+                avatar: null
+              },
+              score: 78,
+              status: 'graded',
+              submittedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), // 4 days ago
+              gradedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+              timeSpent: 58 // minutes
+            },
+            {
+              _id: 'sub4',
+              student: {
+                _id: 'student4',
+                name: 'Emily Davis',
+                email: 'emily.davis@example.com',
+                avatar: null
+              },
+              score: null,
+              status: 'pending',
+              submittedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+              gradedAt: null,
+              timeSpent: 49 // minutes
+            },
+            {
+              _id: 'sub5',
+              student: {
+                _id: 'student5',
+                name: 'Robert Wilson',
+                email: 'robert.wilson@example.com',
+                avatar: null
+              },
+              score: 65,
+              status: 'graded',
+              submittedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+              gradedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), // 4 days ago
+              timeSpent: 60 // minutes
+            }
+          ];
+
+          setQuiz(mockQuiz);
+          setSubmissions(mockSubmissions);
+        }
       } finally {
         setLoading(false);
       }
@@ -143,9 +148,29 @@ const QuizSubmissions = () => {
     navigate(`/faculty/submissions/${submissionId}/view`);
   };
 
-  const handleExportSubmissions = () => {
-    // In a real app, this would trigger an API call to export the submissions
-    alert('This would export the submissions to a CSV or Excel file in a real application.');
+  const handleExportSubmissions = async () => {
+    try {
+      // Show loading indicator or disable button here if needed
+      const response = await quizAPI.exportQuizSubmissions(id);
+
+      // Create a blob from the response data
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+
+      // Create a temporary link and trigger download
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `quiz-${id}-submissions.csv`);
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error exporting submissions:', err);
+      alert('Failed to export submissions. Please try again later.');
+    }
   };
 
   // Filter and sort submissions
@@ -153,13 +178,13 @@ const QuizSubmissions = () => {
     const matchesSearch = submission.student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           submission.student.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'all' || submission.status === filterStatus;
-    
+
     return matchesSearch && matchesStatus;
   });
 
   const sortedSubmissions = [...filteredSubmissions].sort((a, b) => {
     if (sortBy === 'date') {
-      return sortOrder === 'asc' 
+      return sortOrder === 'asc'
         ? new Date(a.submittedAt) - new Date(b.submittedAt)
         : new Date(b.submittedAt) - new Date(a.submittedAt);
     } else if (sortBy === 'name') {
@@ -171,7 +196,7 @@ const QuizSubmissions = () => {
       if (a.score === null && b.score === null) return 0;
       if (a.score === null) return sortOrder === 'asc' ? -1 : 1;
       if (b.score === null) return sortOrder === 'asc' ? 1 : -1;
-      
+
       return sortOrder === 'asc' ? a.score - b.score : b.score - a.score;
     }
     return 0;
@@ -270,7 +295,7 @@ const QuizSubmissions = () => {
                 />
               </div>
             </div>
-            
+
             <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
               <div className="w-full md:w-auto">
                 <label htmlFor="filter" className="sr-only">
@@ -293,7 +318,7 @@ const QuizSubmissions = () => {
                   </select>
                 </div>
               </div>
-              
+
               <div className="w-full md:w-auto">
                 <label htmlFor="sort" className="sr-only">
                   Sort By

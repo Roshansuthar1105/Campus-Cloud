@@ -124,10 +124,10 @@ function App() {
                 <Route path="quizzes/:id/take" element={<QuizTake />} />
                 <Route path="submissions/:id" element={<QuizResults />} />
                 <Route path="submissions/:id/continue" element={<QuizTake />} />
-                <Route path="preference-forms" element={<StudentPreferenceFormList />} />
-                <Route path="preference-forms/:id" element={<StudentPreferenceForm />} />
-                <Route path="preference-forms/:id/continue" element={<StudentPreferenceForm />} />
-                <Route path="preference-forms/:id/view" element={<StudentPreferenceFormView />} />
+                <Route path="preferences" element={<StudentPreferenceFormList />} />
+                <Route path="preferences/:id" element={<StudentPreferenceForm />} />
+                <Route path="preferences/:id/continue" element={<StudentPreferenceForm />} />
+                <Route path="preferences/:id/view" element={<StudentPreferenceFormView />} />
                 <Route path="reports" element={<StudentReports />} />
                 <Route index element={<Navigate to="dashboard" replace />} />
               </Route>
@@ -148,11 +148,11 @@ function App() {
                 <Route path="quizzes/:id/submissions" element={<QuizSubmissions />} />
                 <Route path="submissions/:id/grade" element={<QuizGrading />} />
                 <Route path="submissions/:id/view" element={<SubmissionView />} />
-                <Route path="preference-forms" element={<FacultyPreferenceFormList />} />
-                <Route path="preference-forms/create" element={<FacultyPreferenceFormCreate />} />
-                <Route path="preference-forms/:id/edit" element={<FacultyPreferenceFormCreate />} />
-                <Route path="preference-forms/:id" element={<FacultyPreferenceFormDetail />} />
-                <Route path="preference-forms/:id/reports" element={<FacultyPreferenceFormReports />} />
+                <Route path="preferences" element={<FacultyPreferenceFormList />} />
+                <Route path="preferences/create" element={<FacultyPreferenceFormCreate />} />
+                <Route path="preferences/:id/edit" element={<FacultyPreferenceFormCreate />} />
+                <Route path="preferences/:id" element={<FacultyPreferenceFormDetail />} />
+                <Route path="preferences/:id/reports" element={<FacultyPreferenceFormReports />} />
                 <Route path="reports" element={<FacultyReports />} />
                 <Route index element={<Navigate to="dashboard" replace />} />
               </Route>
@@ -176,11 +176,11 @@ function App() {
                 <Route path="quizzes/:id/edit" element={<QuizEdit />} />
                 <Route path="quizzes/:id" element={<QuizDetail />} />
                 <Route path="quizzes/:id/reports" element={<QuizReports />} />
-                <Route path="preference-forms" element={<PreferenceFormList />} />
-                <Route path="preference-forms/create" element={<PreferenceFormCreate />} />
-                <Route path="preference-forms/:id/edit" element={<PreferenceFormCreate />} />
-                <Route path="preference-forms/:id" element={<PreferenceFormDetail />} />
-                <Route path="preference-forms/:id/reports" element={<PreferenceFormReports />} />
+                <Route path="preferences" element={<PreferenceFormList />} />
+                <Route path="preferences/create" element={<PreferenceFormCreate />} />
+                <Route path="preferences/:id/edit" element={<PreferenceFormCreate />} />
+                <Route path="preferences/:id" element={<PreferenceFormDetail />} />
+                <Route path="preferences/:id/reports" element={<PreferenceFormReports />} />
                 <Route path="reports" element={<Reports />} />
                 <Route path="announcements" element={<Announcements />} />
                 <Route path="settings" element={<Settings />} />
