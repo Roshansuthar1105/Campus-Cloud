@@ -62,8 +62,10 @@ const quizAPI = {
       console.error('Error exporting submissions:', error);
 
       // If the endpoint doesn't exist, create a CSV manually
+      console.log(`Creating CSV manually for quiz ID: ${quizId}`);
       const submissionsResponse = await api.get(`/quizzes/${quizId}/submissions`);
       const submissions = submissionsResponse.data.data || [];
+      console.log(`Found ${submissions.length} submissions for CSV export`);
 
       // Create CSV content
       let csvContent = 'Student Name,Email,Submission Date,Time Spent,Score,Status\n';
@@ -94,13 +96,17 @@ const quizAPI = {
       console.error('Error fetching quiz stats:', error);
 
       // If the endpoint doesn't exist, calculate stats manually
+      console.log(`Calculating stats manually for quiz ID: ${quizId}`);
       const submissionsResponse = await api.get(`/quizzes/${quizId}/submissions`);
       const submissions = submissionsResponse.data.data || [];
+      console.log(`Found ${submissions.length} submissions for quiz`);
 
       // Calculate statistics
       const gradedSubmissions = submissions.filter(sub => sub.status === 'graded');
+      console.log(`Found ${gradedSubmissions.length} graded submissions`);
       const totalSubmissions = submissions.length;
       const scores = gradedSubmissions.map(sub => sub.score || 0);
+      console.log('Scores:', scores);
 
       const stats = {
         totalSubmissions,
@@ -109,6 +115,8 @@ const quizAPI = {
         lowestScore: scores.length > 0 ? Math.min(...scores) : 0,
         completionRate: totalSubmissions > 0 ? (gradedSubmissions.length / totalSubmissions) * 100 : 0
       };
+
+      console.log('Calculated stats:', stats);
 
       return {
         data: {
@@ -136,11 +144,25 @@ const quizAPI = {
         const submission = submissions.find(sub => sub._id === submissionId);
 
         if (submission) {
-          // Return the submission in the same format as a direct API call would
+          // Get the full quiz data
+          console.log(`Getting full quiz data for quiz ID: ${quiz._id}`);
+          const quizResponse = await api.get(`/quizzes/${quiz._id}`);
+          console.log('Quiz response:', quizResponse.data);
+          const fullQuizData = quizResponse.data.data || {};
+          console.log('Full quiz data:', fullQuizData);
+
+          // Create a new submission object with the full quiz data
+          const enhancedSubmission = {
+            ...submission,
+            quiz: fullQuizData
+          };
+          console.log('Enhanced submission with quiz data:', enhancedSubmission);
+
+          // Return the enhanced submission in the same format as a direct API call would
           return {
             data: {
               success: true,
-              data: submission
+              data: enhancedSubmission
             }
           };
         }

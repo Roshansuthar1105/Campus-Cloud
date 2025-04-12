@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiUser, FiClock, FiCalendar, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import quizAPI from '../../services/quizApi';
-import { useAuth } from '../../context/AuthContext';
+// import { useAuth } from '../../context/AuthContext';
 
 const SubmissionView = () => {
-  const { id } = useParams();
+  const { id, quizId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+
+  // Extract quizId from URL if available
+  const urlParams = new URLSearchParams(window.location.search);
+  const queryQuizId = urlParams.get('quizId');
 
   const [submission, setSubmission] = useState(null);
   const [quiz, setQuiz] = useState(null);
@@ -22,11 +25,34 @@ const SubmissionView = () => {
         // Fetch submission data
         const response = await quizAPI.getSubmission(id);
         const submissionData = response.data.data || {};
+        console.log('Submission data:', submissionData);
         setSubmission(submissionData);
 
         // Set quiz data from the submission
-        if (submissionData.quiz) {
+        if (submissionData.quiz && typeof submissionData.quiz === 'object') {
+          console.log('Quiz data from submission:', submissionData.quiz);
           setQuiz(submissionData.quiz);
+        } else {
+          console.warn('No quiz data object found in submission');
+
+          // Try to get the quiz ID from various sources
+          const possibleQuizId = quizId || queryQuizId ||
+                               (submissionData.quiz && typeof submissionData.quiz === 'string' ? submissionData.quiz : null) ||
+                               (submissionData.quizId ? submissionData.quizId : null);
+
+          if (possibleQuizId) {
+            try {
+              console.log(`Fetching quiz data directly for ID: ${possibleQuizId}`);
+              const quizResponse = await quizAPI.getQuiz(possibleQuizId);
+              const quizData = quizResponse.data.data || {};
+              console.log('Directly fetched quiz data:', quizData);
+              setQuiz(quizData);
+            } catch (quizError) {
+              console.error('Error fetching quiz directly:', quizError);
+            }
+          } else {
+            console.error('Could not determine quiz ID from any source');
+          }
         }
 
         setError(null);
@@ -144,20 +170,50 @@ const SubmissionView = () => {
     };
 
     fetchSubmissionData();
-  }, [id]);
+  }, [id, quizId, queryQuizId]);
 
-  const getQuestionScore = (questionId) => {
-    if (!submission || !submission.feedback || !submission.feedback[questionId]) {
-      return 'Not graded';
+  const getStudentTrueFalseAnswer = (questionId) => {
+    if (!submission || !submission.answers) return null;
+
+    // Handle different submission data structures
+    if (Array.isArray(submission.answers)) {
+      // Find the answer for this question in the array
+      const answer = submission.answers.find(a => a.questionId === questionId);
+      if (answer) {
+        if (Array.isArray(answer.selectedOptions) && answer.selectedOptions.length > 0) {
+          return answer.selectedOptions[0]; // Return the first selected option
+        }
+        return answer.textAnswer || null;
+      }
+    } else if (typeof submission.answers === 'object') {
+      // Direct object mapping
+      return submission.answers[questionId] || null;
     }
 
-    const question = quiz.questions.find(q => q._id === questionId);
-    if (!question) return 'N/A';
+    return null;
+  };
 
-    return `${submission.feedback[questionId].score}/${question.points}`;
+  const getStudentEssayAnswer = (questionId) => {
+    if (!submission || !submission.answers) return null;
+
+    // Handle different submission data structures
+    if (Array.isArray(submission.answers)) {
+      // Find the answer for this question in the array
+      const answer = submission.answers.find(a => a.questionId === questionId);
+      if (answer) {
+        return answer.textAnswer || null;
+      }
+    } else if (typeof submission.answers === 'object') {
+      // Direct object mapping
+      return submission.answers[questionId] || null;
+    }
+
+    return null;
   };
 
   const isCorrectAnswer = (questionId, answerId) => {
+    if (!quiz || !quiz.questions) return false;
+
     const question = quiz.questions.find(q => q._id === questionId);
     if (!question) return false;
 
@@ -166,7 +222,7 @@ const SubmissionView = () => {
     }
 
     if (question.type === 'multiple-select') {
-      return question.correctAnswers.includes(answerId);
+      return Array.isArray(question.correctAnswers) && question.correctAnswers.includes(answerId);
     }
 
     return false;
@@ -175,7 +231,21 @@ const SubmissionView = () => {
   const isStudentAnswer = (questionId, answerId) => {
     if (!submission || !submission.answers) return false;
 
-    const answer = submission.answers[questionId];
+    // Handle different submission data structures
+    let answer;
+
+    // Check if answers is an object with question IDs as keys
+    if (typeof submission.answers === 'object' && !Array.isArray(submission.answers)) {
+      answer = submission.answers[questionId];
+    }
+    // Check if answers is an array of answer objects
+    else if (Array.isArray(submission.answers)) {
+      const answerObj = submission.answers.find(a => a.questionId === questionId);
+      if (answerObj) {
+        answer = answerObj.selectedOptions || answerObj.textAnswer;
+      }
+    }
+
     if (!answer) return false;
 
     if (Array.isArray(answer)) {
@@ -231,7 +301,7 @@ const SubmissionView = () => {
       </div>
     );
   }
-
+  console.log("quiz data",quiz);
   return (
     <div>
       <div className="mb-6 flex items-center">
@@ -248,8 +318,11 @@ const SubmissionView = () => {
           <FiArrowLeft className="h-5 w-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Submission: {quiz.title}</h1>
-          <p className="text-gray-600">{quiz.course.name} ({quiz.course.code})</p>
+          <h1 className="text-2xl font-bold text-gray-900">Submission: {quiz?.title || 'Unknown Quiz'}</h1>
+          <p className="text-gray-600">
+            {quiz?.course?.name || 'Unknown Course'}
+            {quiz?.course?.code ? `(${quiz.course.code})` : ''}
+          </p>
         </div>
       </div>
 
@@ -258,11 +331,11 @@ const SubmissionView = () => {
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-medium leading-6 text-gray-900">Student Information</h3>
             <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-              submission.score >= quiz.passingScore
+              (submission?.percentage || submission?.totalScore || 0) >= (quiz?.passingScore || 60)
                 ? 'bg-green-100 text-green-800'
                 : 'bg-red-100 text-red-800'
             }`}>
-              {submission.score >= quiz.passingScore ? 'Passed' : 'Failed'}
+              {(submission?.percentage || submission?.totalScore || 0) >= (quiz?.passingScore || 60) ? 'Passed' : 'Failed'}
             </span>
           </div>
         </div>
@@ -279,13 +352,22 @@ const SubmissionView = () => {
               <div className="flex items-center mb-4">
                 <FiCalendar className="h-5 w-5 text-gray-400 mr-2" />
                 <span className="text-sm text-gray-700">
-                  <span className="font-medium">Submitted:</span> {new Date(submission.submittedAt).toLocaleDateString()} at {new Date(submission.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  <span className="font-medium">Submitted:</span> {submission?.endTime ? `${new Date(submission.endTime).toLocaleDateString()} at ${new Date(submission.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Not available'}
                 </span>
               </div>
               <div className="flex items-center">
                 <FiClock className="h-5 w-5 text-gray-400 mr-2" />
                 <span className="text-sm text-gray-700">
-                  <span className="font-medium">Time Spent:</span> {submission.timeSpent} minutes
+                  <span className="font-medium">Time Spent:</span>
+                  {submission?.startTime && submission?.endTime ? (
+                    <>
+                      {Math.floor((new Date(submission.endTime) - new Date(submission.startTime)) / 60000)} minute
+                      {Math.floor((new Date(submission.endTime) - new Date(submission.startTime)) / 60000) !== 1 && 's'}
+                      {' '}
+                      {Math.floor(((new Date(submission.endTime) - new Date(submission.startTime)) % 60000) / 1000)} second
+                      {Math.floor(((new Date(submission.endTime) - new Date(submission.startTime)) % 60000) / 1000) !== 1 && 's'}
+                    </>
+                  ) : 'Not available'}
                 </span>
               </div>
             </div>
@@ -294,20 +376,20 @@ const SubmissionView = () => {
               <h4 className="text-sm font-medium text-gray-900 mb-3">Submission Score</h4>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-gray-900">{submission.score}%</p>
+                  <p className="text-3xl font-bold text-gray-900">{submission?.percentage || Math.round((submission?.totalScore || 0) / (quiz?.totalPoints || 1) * 100)}%</p>
                   <p className="text-sm text-gray-500">
-                    ({Math.round(submission.score * quiz.totalPoints / 100)}/{quiz.totalPoints} points)
+                    ({submission?.totalScore || 0}/{quiz?.totalPoints || 1} points)
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-gray-500">Passing Score</p>
-                  <p className="text-lg font-semibold text-gray-900">{quiz.passingScore}%</p>
+                  <p className="text-lg font-semibold text-gray-900">{quiz?.passingScore || 60}%</p>
                 </div>
               </div>
 
-              {submission.gradedAt && (
+              {(submission?.updatedAt || submission?.gradedAt) && (
                 <p className="mt-2 text-xs text-gray-500">
-                  Graded on {new Date(submission.gradedAt).toLocaleDateString()} at {new Date(submission.gradedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  Graded on {new Date(submission?.updatedAt || submission?.gradedAt).toLocaleDateString()} at {new Date(submission?.updatedAt || submission?.gradedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
               )}
             </div>
@@ -325,30 +407,22 @@ const SubmissionView = () => {
 
         <div className="px-4 py-5 sm:p-6">
           <div className="space-y-8">
-            {quiz.questions.map((question, index) => (
+            {quiz?.questions?.map((question, index) => (
               <div key={question._id} className="border-b border-gray-200 pb-6 last:border-b-0 last:pb-0">
                 <div className="flex justify-between items-baseline mb-2">
                   <div className="flex items-baseline">
                     <span className="text-lg font-medium text-gray-900 mr-2">Q{index + 1}.</span>
-                    <span className="text-lg text-gray-900">{question.text}</span>
+                    <span className="text-lg text-gray-900">{question.questionText || question.text}</span>
                   </div>
                   <div className="flex items-center">
                     <span className="text-sm font-medium text-gray-700 mr-2">Score:</span>
-                    <span className={`text-sm font-medium ${
-                      submission.feedback && submission.feedback[question._id] &&
-                      submission.feedback[question._id].score === question.points
-                        ? 'text-green-600'
-                        : submission.feedback && submission.feedback[question._id] &&
-                          submission.feedback[question._id].score === 0
-                          ? 'text-red-600'
-                          : 'text-yellow-600'
-                    }`}>
-                      {getQuestionScore(question._id)}
+                    <span className="text-sm font-medium text-green-600">
+                      {question.points || 1} point{question.points !== 1 && 's'}
                     </span>
                   </div>
                 </div>
 
-                {question.type === 'multiple-choice' && (
+                {(question.questionType === 'multiple-choice' || question.type === 'multiple-choice') && (
                   <div className="mt-4 ml-8">
                     <p className="text-sm font-medium text-gray-700 mb-2">Options:</p>
                     <ul className="space-y-2">
@@ -387,7 +461,7 @@ const SubmissionView = () => {
                   </div>
                 )}
 
-                {question.type === 'multiple-select' && (
+                {(question.questionType === 'multiple-select' || question.type === 'multiple-select') && (
                   <div className="mt-4 ml-8">
                     <p className="text-sm font-medium text-gray-700 mb-2">Options (select all that apply):</p>
                     <ul className="space-y-2">
@@ -426,23 +500,41 @@ const SubmissionView = () => {
                   </div>
                 )}
 
-                {question.type === 'essay' && (
+                {(question.questionType === 'true-false' || question.type === 'true-false') && (
+                  <div className="mt-4 ml-8">
+                    <p className="text-sm font-medium text-gray-700 mb-2">True/False Question</p>
+                    <div className="flex items-center space-x-4">
+                      <div className={`px-3 py-1 rounded-full ${getStudentTrueFalseAnswer(question._id) === 'true' ? 'bg-green-100 text-green-800 font-medium' : 'bg-gray-100 text-gray-600'}`}>
+                        True {getStudentTrueFalseAnswer(question._id) === 'true' && '✓'}
+                      </div>
+                      <div className={`px-3 py-1 rounded-full ${getStudentTrueFalseAnswer(question._id) === 'false' ? 'bg-green-100 text-green-800 font-medium' : 'bg-gray-100 text-gray-600'}`}>
+                        False {getStudentTrueFalseAnswer(question._id) === 'false' && '✓'}
+                      </div>
+                    </div>
+                    <p className="mt-2 text-xs text-gray-500">
+                      Correct answer: <span className="font-medium">{question.correctAnswer ? question.correctAnswer.charAt(0).toUpperCase() + question.correctAnswer.slice(1) : 'Not specified'}</span>
+                    </p>
+                  </div>
+                )}
+
+                {(question.questionType === 'essay' || question.type === 'essay') && (
                   <div className="mt-4 ml-8">
                     <p className="text-sm font-medium text-gray-700 mb-2">Student's Answer:</p>
                     <div className="bg-gray-50 p-4 rounded-md">
                       <p className="text-sm text-gray-700">
-                        {submission.answers[question._id] || <span className="italic text-gray-500">No answer provided</span>}
+                        {getStudentEssayAnswer(question._id) || <span className="italic text-gray-500">No answer provided</span>}
                       </p>
                     </div>
                   </div>
                 )}
 
-                {submission.feedback && submission.feedback[question._id] && (
+                {/* Feedback section - not applicable for this data structure */}
+                {question.explanation && (
                   <div className="mt-4 ml-8">
-                    <p className="text-sm font-medium text-gray-700 mb-2">Feedback:</p>
+                    <p className="text-sm font-medium text-gray-700 mb-2">Explanation:</p>
                     <div className="bg-blue-50 p-4 rounded-md">
                       <p className="text-sm text-blue-700">
-                        {submission.feedback[question._id].comment || <span className="italic">No feedback provided</span>}
+                        {question.explanation}
                       </p>
                     </div>
                   </div>

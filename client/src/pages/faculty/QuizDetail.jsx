@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiEdit, FiBarChart2, FiUsers, FiClock, FiCalendar, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import quizAPI from '../../services/quizApi';
-import { useAuth } from '../../context/AuthContext';
+// import { useAuth } from '../../context/AuthContext';
 
 const QuizDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   const [quiz, setQuiz] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -240,23 +239,23 @@ const QuizDetail = () => {
             <div>
               <div className="flex items-center mb-4">
                 <FiClock className="h-5 w-5 text-gray-400 mr-2" />
-                <span className="text-sm text-gray-700">Time Limit: {quiz.timeLimit} minutes</span>
+                <span className="text-sm text-gray-700">Time Limit: {quiz?.timeLimit || 60} minutes</span>
               </div>
               <div className="flex items-center mb-4">
                 <FiCalendar className="h-5 w-5 text-gray-400 mr-2" />
-                <span className="text-sm text-gray-700">Due Date: {new Date(quiz.dueDate).toLocaleDateString()}</span>
+                <span className="text-sm text-gray-700">Due Date: {quiz?.dueDate ? new Date(quiz.dueDate).toLocaleDateString() : 'Not set'}</span>
               </div>
               <div className="flex items-center mb-4">
                 <FiBarChart2 className="h-5 w-5 text-gray-400 mr-2" />
-                <span className="text-sm text-gray-700">Total Points: {quiz.totalPoints}</span>
+                <span className="text-sm text-gray-700">Total Points: {quiz.totalPoints || 0}</span>
               </div>
               <div className="flex items-center">
-                {quiz.published ? (
+                {quiz.published || quiz.isPublished ? (
                   <FiCheckCircle className="h-5 w-5 text-green-500 mr-2" />
                 ) : (
                   <FiXCircle className="h-5 w-5 text-red-500 mr-2" />
                 )}
-                <span className="text-sm text-gray-700">Status: {quiz.published ? 'Published' : 'Draft'}</span>
+                <span className="text-sm text-gray-700">Status: {quiz.published || quiz.isPublished ? 'Published' : 'Draft'}</span>
               </div>
             </div>
 
@@ -265,19 +264,19 @@ const QuizDetail = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-gray-500">Total Submissions</p>
-                  <p className="text-lg font-semibold text-gray-900">{stats.totalSubmissions}</p>
+                  <p className="text-lg font-semibold text-gray-900">{stats?.totalSubmissions || 0}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Completion Rate</p>
-                  <p className="text-lg font-semibold text-gray-900">{stats.completionRate}%</p>
+                  <p className="text-lg font-semibold text-gray-900">{stats?.completionRate?.toFixed(1) || 0}%</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Average Score</p>
-                  <p className="text-lg font-semibold text-gray-900">{stats.averageScore}%</p>
+                  <p className="text-lg font-semibold text-gray-900">{stats?.averageScore?.toFixed(1) || 0}%</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Passing Score</p>
-                  <p className="text-lg font-semibold text-gray-900">{quiz.passingScore}%</p>
+                  <p className="text-lg font-semibold text-gray-900">{quiz?.passingScore || 70}%</p>
                 </div>
               </div>
             </div>
@@ -289,13 +288,14 @@ const QuizDetail = () => {
         <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
           <h3 className="text-lg font-medium leading-6 text-gray-900">Questions</h3>
           <p className="mt-1 max-w-2xl text-sm text-gray-500">
-            Total: {quiz.questions.length} questions ({quiz.totalPoints} points)
+            Total: {quiz?.questions?.length || 0} questions ({quiz?.totalPoints || 0} points)
           </p>
         </div>
 
         <div className="px-4 py-5 sm:p-6">
           <div className="space-y-8">
-            {quiz.questions.map((question, index) => (
+            {quiz?.questions?.length > 0 ? (
+              quiz.questions.map((question, index) => (
               <div key={question._id} className="border-b border-gray-200 pb-6 last:border-b-0 last:pb-0">
                 <div className="flex justify-between items-baseline mb-2">
                   <div className="flex items-baseline">
@@ -309,7 +309,7 @@ const QuizDetail = () => {
                   <div className="mt-4 ml-8">
                     <p className="text-sm font-medium text-gray-700 mb-2">Options:</p>
                     <ul className="space-y-2">
-                      {question.options.map((option) => (
+                      {question.options?.map((option) => (
                         <li key={option._id} className="flex items-center">
                           <div className={`h-4 w-4 rounded-full mr-2 ${option._id === question.correctAnswer ? 'bg-green-500' : 'bg-gray-200'}`}></div>
                           <span className={`text-sm ${option._id === question.correctAnswer ? 'font-medium text-gray-900' : 'text-gray-700'}`}>
@@ -326,12 +326,12 @@ const QuizDetail = () => {
                   <div className="mt-4 ml-8">
                     <p className="text-sm font-medium text-gray-700 mb-2">Options (select all that apply):</p>
                     <ul className="space-y-2">
-                      {question.options.map((option) => (
+                      {question.options?.map((option) => (
                         <li key={option._id} className="flex items-center">
-                          <div className={`h-4 w-4 rounded mr-2 ${question.correctAnswers.includes(option._id) ? 'bg-green-500' : 'bg-gray-200'}`}></div>
-                          <span className={`text-sm ${question.correctAnswers.includes(option._id) ? 'font-medium text-gray-900' : 'text-gray-700'}`}>
+                          <div className={`h-4 w-4 rounded mr-2 ${Array.isArray(question.correctAnswers) && question.correctAnswers.includes(option._id) ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                          <span className={`text-sm ${Array.isArray(question.correctAnswers) && question.correctAnswers.includes(option._id) ? 'font-medium text-gray-900' : 'text-gray-700'}`}>
                             {option.text}
-                            {question.correctAnswers.includes(option._id) && ' (Correct)'}
+                            {Array.isArray(question.correctAnswers) && question.correctAnswers.includes(option._id) && ' (Correct)'}
                           </span>
                         </li>
                       ))}
@@ -348,7 +348,12 @@ const QuizDetail = () => {
                   </div>
                 )}
               </div>
-            ))}
+              ))
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-gray-500">No questions available for this quiz.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

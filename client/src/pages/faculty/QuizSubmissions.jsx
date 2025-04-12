@@ -150,11 +150,14 @@ const QuizSubmissions = () => {
 
   const handleExportSubmissions = async () => {
     try {
+      console.log(`Exporting submissions for quiz ID: ${id}`);
       // Show loading indicator or disable button here if needed
       const response = await quizAPI.exportQuizSubmissions(id);
+      console.log('Export response:', response);
 
       // Create a blob from the response data
-      const blob = new Blob([response.data], { type: 'text/csv' });
+      const blob = response.data instanceof Blob ? response.data : new Blob([response.data], { type: 'text/csv' });
+      console.log('Created blob:', blob);
       const url = window.URL.createObjectURL(blob);
 
       // Create a temporary link and trigger download
@@ -201,7 +204,6 @@ const QuizSubmissions = () => {
     }
     return 0;
   });
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -406,22 +408,32 @@ const QuizSubmissions = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(submission.submittedAt).toLocaleDateString()} at {new Date(submission.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(submission.endTime).toLocaleDateString()} at {new Date(submission.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div className="flex items-center">
                         <FiClock className="mr-1.5 h-4 w-4 text-gray-400" />
-                        {submission.timeSpent} minutes
+                        {submission.startTime && submission.endTime ? (
+                          <>
+                            {Math.floor((new Date(submission.endTime) - new Date(submission.startTime)) / 60000)} minute
+                            {Math.floor((new Date(submission.endTime) - new Date(submission.startTime)) / 60000) !== 1 && 's'}
+                            {' '}
+                            {Math.floor(((new Date(submission.endTime) - new Date(submission.startTime)) % 60000) / 1000)} second
+                            {Math.floor(((new Date(submission.endTime) - new Date(submission.startTime)) % 60000) / 1000) !== 1 && 's'}
+                          </>
+                        ) : (
+                          'Not completed'
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {submission.score !== null ? (
+                      {(submission.percentage !== null || submission.totalScore !== null) ? (
                         <div className="text-sm font-medium">
-                          <span className={`${submission.score >= quiz.passingScore ? 'text-green-600' : 'text-red-600'}`}>
-                            {submission.score}%
+                          <span className={`${(submission.percentage || 0) >= (quiz?.passingScore || 70) ? 'text-green-600' : 'text-red-600'}`}>
+                            {submission.percentage || Math.round((submission.totalScore / (quiz?.totalPoints || 1)) * 100)}%
                           </span>
                           <span className="text-gray-500 ml-1">
-                            ({Math.round(submission.score * quiz.totalPoints / 100)}/{quiz.totalPoints})
+                            ({submission.totalScore || 0}/{quiz?.totalPoints || 1})
                           </span>
                         </div>
                       ) : (
@@ -429,7 +441,7 @@ const QuizSubmissions = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {submission.status === 'graded' ? (
+                      {(submission.status === 'graded' || submission.isGraded) ? (
                         <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                           <FiCheck className="mr-1 h-4 w-4" /> Graded
                         </span>
@@ -440,7 +452,7 @@ const QuizSubmissions = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      {submission.status === 'pending' ? (
+                      {(submission.status !== 'graded' && !submission.isGraded) ? (
                         <button
                           onClick={() => handleGradeSubmission(submission._id)}
                           className="text-blue-600 hover:text-blue-900 mr-4"
