@@ -20,6 +20,7 @@ export const SubmissionView = () => {
   const [overallFeedback, setOverallFeedback] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('Feedback saved successfully');
 
   useEffect(() => {
     const fetchSubmissionData = async () => {
@@ -282,6 +283,15 @@ export const SubmissionView = () => {
         console.log('- Success status:', response.data.success);
         console.log('- Message:', response.data.message);
         console.log('- Returned data:', response.data.data);
+        console.log('- Notification sent:', response.data.data.notificationSent);
+
+        // Show different success message based on notification status
+        const successMessage = response.data.data.notificationSent
+          ? 'Feedback saved and notification sent to student'
+          : 'Feedback saved successfully';
+
+        setSaveSuccess(true);
+        setSuccessMessage(successMessage);
 
         // Update the submission object with the new feedback
         if (response.data && response.data.data) {
@@ -292,7 +302,7 @@ export const SubmissionView = () => {
           }));
         }
 
-        setSaveSuccess(true);
+        // Success message is set above
         // Reset success message after 3 seconds
         setTimeout(() => setSaveSuccess(false), 3000);
       } catch (apiError) {
@@ -325,6 +335,7 @@ export const SubmissionView = () => {
           overallFeedback: feedbackData.overallFeedback
         }));
 
+        setSuccessMessage('Feedback saved locally (API error)');
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 3000);
       }
@@ -731,7 +742,7 @@ export const SubmissionView = () => {
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm">Feedback saved successfully!</p>
+              <p className="text-sm">{successMessage}</p>
             </div>
           </div>
         </div>

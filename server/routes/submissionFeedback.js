@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const QuizSubmission = require('../models/QuizSubmission');
+const Notification = require('../models/Notification');
+const Quiz = require('../models/Quiz');
 const { authenticateToken, isInstructor } = require('../middleware/auth');
 
 /**
@@ -102,12 +104,72 @@ router.post('/feedback', [authenticateToken, isInstructor], async (req, res) => 
     // Log confirmation of successful save
     console.log('Feedback successfully saved to database for submission:', submission._id);
 
+    try {
+      // Get the quiz details for the notification
+      const quiz = await Quiz.findById(submission.quiz);
+
+      if (!quiz) {
+        console.log('Quiz not found for notification');
+        return res.status(200).json({
+          success: true,
+          message: 'Feedback saved successfully, but notification could not be sent (quiz not found)',
+          data: {
+            feedback: submission.feedback,
+            overallFeedback: submission.overallFeedback
+          }
+        });
+      }
+
+      // Get the student ID (handling both object and ID reference)
+      const studentId = typeof submission.student === 'object' ?
+        (submission.student._id || submission.student) : submission.student;
+
+      console.log('Creating notification for student:', studentId);
+
+      // Create a notification for the student
+      const notification = new Notification({
+        title: 'Quiz Feedback',
+        message: `Your submission for "${quiz.title}" has been graded with feedback.`,
+        type: 'grade',
+        priority: 'medium',
+        recipients: [{
+          user: studentId,
+          read: false
+        }],
+        targetRole: 'student',
+        relatedResource: {
+          resourceType: 'quiz',
+          resourceId: quiz._id
+        },
+        createdBy: req.user._id
+      });
+
+      console.log('Notification created:', notification);
+
+      await notification.save();
+      console.log('Notification sent to student:', submission.student);
+    } catch (notificationError) {
+      console.error('Error sending notification:', notificationError);
+      // We still return success for the feedback save even if notification fails
+      return res.status(200).json({
+        success: true,
+        message: 'Feedback saved successfully, but notification could not be sent',
+        data: {
+          feedback: submission.feedback,
+          overallFeedback: submission.overallFeedback,
+          notificationSent: false,
+          notificationError: notificationError.message
+        }
+      });
+    }
+
     res.status(200).json({
       success: true,
-      message: 'Feedback saved successfully',
+      message: 'Feedback saved successfully and notification sent to student',
       data: {
         feedback: submission.feedback,
-        overallFeedback: submission.overallFeedback
+        overallFeedback: submission.overallFeedback,
+        notificationSent: true
       }
     });
   } catch (error) {
