@@ -79,7 +79,7 @@ import Privacy from './pages/Privacy';
 const RoleBasedRedirect = () => {
   const { user } = useAuth();
 
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/home" replace />;
 
   switch (user.role) {
     case 'student':
@@ -89,7 +89,7 @@ const RoleBasedRedirect = () => {
     case 'management':
       return <Navigate to="/management/dashboard" replace />;
     default:
-      return <Navigate to="/login" replace />;
+      return <Navigate to="/home" replace />;
   }
 };
 
@@ -98,7 +98,7 @@ function App() {
     <AuthProvider>
       <Router>
         <UniversalNavbar/>
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col mt-16">
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<RoleBasedRedirect />} />
