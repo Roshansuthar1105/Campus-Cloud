@@ -187,7 +187,7 @@ const StudentLayout = () => {
       {/* Main content */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Top navigation */}
-        <div className="bg-white shadow-sm z-10">
+        {/* <div className="bg-white shadow-sm z-10">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
               <div className="flex">
@@ -232,7 +232,7 @@ const StudentLayout = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto bg-gray-100 p-4 sm:p-6 lg:p-8">

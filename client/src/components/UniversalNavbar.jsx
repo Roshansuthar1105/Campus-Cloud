@@ -31,6 +31,9 @@ const UniversalNavbar = () => {
   const [showNotificationPopup, setShowNotificationPopup] = useState(false);
   const [newNotification, setNewNotification] = useState(null);
   const notificationRef = useRef(null);
+  const mobileNotificationRef = useRef(null);
+  const profileMenuRef = useRef(null);
+  const mobileProfileMenuRef = useRef(null);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -140,16 +143,44 @@ const UniversalNavbar = () => {
   // Close notifications dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (isNotificationsOpen && notificationRef.current && !notificationRef.current.contains(event.target)) {
+      // Check if notification is open and click is outside both desktop and mobile notification refs
+      if (isNotificationsOpen &&
+          ((notificationRef.current && !notificationRef.current.contains(event.target)) ||
+           (mobileNotificationRef.current && !mobileNotificationRef.current.contains(event.target)))) {
         setIsNotificationsOpen(false);
       }
     };
 
+    // Add both mouse and touch event listeners for mobile compatibility
     document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
     };
   }, [isNotificationsOpen]);
+
+  // Close profile menu dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Check if profile menu is open and click is outside both desktop and mobile profile refs
+      if (isProfileMenuOpen &&
+          ((profileMenuRef.current && !profileMenuRef.current.contains(event.target)) ||
+           (mobileProfileMenuRef.current && !mobileProfileMenuRef.current.contains(event.target)))) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    // Add both mouse and touch event listeners for mobile compatibility
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isProfileMenuOpen]);
 
   // Function to mark a notification as read
   const markAsRead = async (id) => {
@@ -329,7 +360,7 @@ const UniversalNavbar = () => {
 
                   {/* Notification Dropdown */}
                   {isNotificationsOpen && (
-                    <div className="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                    <div className="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50" style={{ maxWidth: 'calc(100vw - 24px)', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
                       <div className="py-1 divide-y divide-gray-200">
                         <div className="px-4 py-3 flex justify-between items-center">
                           <h3 className="text-sm font-medium text-gray-900">Notifications</h3>
@@ -425,7 +456,7 @@ const UniversalNavbar = () => {
                 )}
 
                 {/* User Profile */}
-                <div className="relative">
+                <div className="relative" ref={profileMenuRef}>
                   <button
                     onClick={toggleProfileMenu}
                     className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
@@ -492,7 +523,7 @@ const UniversalNavbar = () => {
             {isAuthenticated && user && (
               <>
                 {/* Mobile Notification Bell */}
-                <div className="relative mr-2">
+                <div className="relative mr-2" ref={mobileNotificationRef}>
                   <button
                     onClick={toggleNotifications}
                     className="p-1 rounded-full text-gray-600 hover:text-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
@@ -506,8 +537,74 @@ const UniversalNavbar = () => {
                       </span>
                     )}
                   </button>
+
+                  {/* Mobile Notification Dropdown */}
+                  {isNotificationsOpen && (
+                    <div className="origin-top-right absolute right-0 mt-2 w-72 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50" style={{ maxWidth: 'calc(100vw - 24px)', right: '-10px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
+                      <div className="py-1 divide-y divide-gray-200">
+                        <div className="px-4 py-3 flex justify-between items-center">
+                          <h3 className="text-sm font-medium text-gray-900">Notifications</h3>
+                          {unreadCount > 0 && (
+                            <button
+                              onClick={markAllAsRead}
+                              className="text-xs text-purple-600 hover:text-purple-800"
+                            >
+                              Mark all as read
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="max-h-96 overflow-y-auto">
+                          {loading && notifications.length === 0 ? (
+                            <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                              Loading notifications...
+                            </div>
+                          ) : notifications.length === 0 ? (
+                            <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                              No notifications
+                            </div>
+                          ) : (
+                            notifications.map((notification) => (
+                              <div
+                                key={notification._id}
+                                className={`px-4 py-3 hover:bg-gray-50 ${!notification.read ? 'bg-blue-50' : ''}`}
+                              >
+                                <div className="flex items-start">
+                                  <div className="flex-shrink-0 pt-0.5">
+                                    {getNotificationIcon(notification.type)}
+                                  </div>
+                                  <div className="ml-3 w-0 flex-1">
+                                    <p className="text-sm font-medium text-gray-900">
+                                      {notification.title}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                      {notification.message}
+                                    </p>
+                                    <p className="mt-1 text-xs text-gray-400">
+                                      {new Date(notification.createdAt).toLocaleString()}
+                                    </p>
+                                  </div>
+                                  {!notification.read && (
+                                    <div className="ml-4 flex-shrink-0 flex">
+                                      <button
+                                        onClick={() => markAsRead(notification._id)}
+                                        className="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none"
+                                      >
+                                        <span className="sr-only">Mark as read</span>
+                                        <FiX className="h-5 w-5" />
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="mr-2">
+                <div className="mr-2" ref={mobileProfileMenuRef}>
                 <button
                   onClick={toggleProfileMenu}
                   className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
