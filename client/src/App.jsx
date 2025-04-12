@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './context/AuthContext';
-import RoleRoute from './components/RoleRoute';
+import { RoleRoute } from './components/RoleRoute';
 
 // Layouts
 import StudentLayout from './components/layouts/StudentLayout';
@@ -41,7 +41,7 @@ import QuizEdit from './pages/faculty/QuizEdit';
 import FQuizDetail from './pages/faculty/QuizDetail';
 import QuizSubmissions from './pages/faculty/QuizSubmissions';
 import QuizGrading from './pages/faculty/QuizGrading';
-import SubmissionView from './pages/faculty/SubmissionView';
+import { SubmissionView } from './pages/faculty/SubmissionView';
 import FacultyPreferenceFormList from './pages/faculty/PreferenceFormList';
 import FacultyPreferenceFormCreate from './pages/faculty/PreferenceFormCreate';
 import FacultyPreferenceFormDetail from './pages/faculty/PreferenceFormDetail';

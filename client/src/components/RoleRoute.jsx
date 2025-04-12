@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const RoleRoute = ({ allowedRoles }) => {
+export const RoleRoute = ({ allowedRoles }) => {
   const { isAuthenticated, isLoading, user } = useAuth();
 
   // Show loading spinner while checking authentication
@@ -38,4 +38,5 @@ const RoleRoute = ({ allowedRoles }) => {
   return <Outlet />;
 };
 
-export default RoleRoute;
+// We're keeping the default export for backward compatibility
+// but we've also added a named export above

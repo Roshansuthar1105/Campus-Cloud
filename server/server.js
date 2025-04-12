@@ -47,6 +47,7 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/courses', require('./routes/courses'));
 app.use('/api/quizzes', require('./routes/quizzes'));
 app.use('/api/submissions', require('./routes/submissions'));
+app.use('/api/submissions', require('./routes/submissionFeedback'));
 app.use('/api/preferences', require('./routes/preferences'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/dashboard', require('./routes/dashboard'));

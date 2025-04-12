@@ -27,7 +27,7 @@ const getTokenFromCookies = () => {
 // Add request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    console.log('API Request:', config.url);
+    console.log('%c API Request ', 'background: #3498db; color: white; font-weight: bold;', config.url);
     // First check localStorage
     let token = localStorage.getItem('token');
     console.log('Token from localStorage:', token ? 'exists' : 'not found');
@@ -44,9 +44,27 @@ api.interceptors.request.use(
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('Authorization header set:', `Bearer ${token.substring(0, 10)}...`);
+      console.log('%c Token Found ', 'background: #2ecc71; color: white; font-weight: bold;');
+      console.log('Token value:', token);
+      console.log('Authorization header:', `Bearer ${token.substring(0, 10)}...`);
+
+      try {
+        // Try to decode the token to show user info
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        const decodedToken = JSON.parse(jsonPayload);
+        console.log('Decoded token:', decodedToken);
+        console.log('User ID:', decodedToken.id);
+        console.log('Token expiration:', new Date(decodedToken.exp * 1000).toLocaleString());
+      } catch (e) {
+        console.log('Could not decode token:', e.message);
+      }
     } else {
-      console.warn('No token found for request:', config.url);
+      console.warn('%c No Token Found ', 'background: #e74c3c; color: white; font-weight: bold;', 'for request:', config.url);
     }
 
     return config;
@@ -57,11 +75,29 @@ api.interceptors.request.use(
 // Add response interceptor for debugging
 api.interceptors.response.use(
   (response) => {
-    console.log('API Response:', response.config.url, response.status);
+    console.log('%c API Response Success ', 'background: #2ecc71; color: white; font-weight: bold;');
+    console.log('URL:', response.config.url);
+    console.log('Status:', response.status);
+    console.log('Data:', response.data);
     return response;
   },
   (error) => {
-    console.error('API Error:', error.config?.url, error.response?.status, error.response?.data);
+    console.log('%c API Response Error ', 'background: #e74c3c; color: white; font-weight: bold;');
+    console.log('URL:', error.config?.url);
+    console.log('Status:', error.response?.status);
+    console.log('Error data:', error.response?.data);
+
+    // Check for authentication errors
+    if (error.response?.status === 401) {
+      console.warn('Authentication error detected. Token may be invalid or expired.');
+    }
+
+    // Check for authorization errors
+    if (error.response?.status === 403) {
+      console.warn('Authorization error detected. User may not have required permissions.');
+      console.log('User role required:', error.response?.data?.message);
+    }
+
     return Promise.reject(error);
   }
 );

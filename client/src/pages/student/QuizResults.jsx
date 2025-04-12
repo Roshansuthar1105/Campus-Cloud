@@ -12,6 +12,8 @@ const QuizResults = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    console.log('%c Loading Quiz Results ', 'background: #9b59b6; color: white; font-weight: bold;');
+
     const fetchSubmission = async () => {
       try {
         setLoading(true);
@@ -30,6 +32,13 @@ const QuizResults = () => {
         const quizResponse = await quizAPI.getQuiz(userSubmission.quiz);
         setQuiz(quizResponse.data.data);
 
+        // Log the submission data with feedback
+        console.log('%c Submission Data Loaded ', 'background: #9b59b6; color: white; font-weight: bold;');
+        console.log('Submission:', userSubmission);
+        console.log('- Feedback:', userSubmission.feedback);
+        console.log('- Overall Feedback:', userSubmission.overallFeedback);
+        console.log('Quiz:', quizResponse.data.data);
+        console.log(quizResponse.data.data);
         setError(null);
       } catch (err) {
         console.error('Error fetching submission:', err);
@@ -42,6 +51,8 @@ const QuizResults = () => {
     fetchSubmission();
   }, [id]);
 
+  // The question parameter is passed but not used directly in this function
+  // It's kept for potential future use if we need to check question properties
   const getAnswerStatus = (question, answer) => {
     if (!answer) {
       return {
@@ -178,10 +189,10 @@ const QuizResults = () => {
             </div>
           </div>
 
-          {submission.feedback && (
+          {submission.overallFeedback && (
             <div className="mt-6 bg-blue-50 rounded-lg p-4">
               <h3 className="text-sm font-medium text-blue-800">Feedback</h3>
-              <p className="mt-1 text-sm text-blue-700">{submission.feedback}</p>
+              <p className="mt-1 text-sm text-blue-700">{submission.overallFeedback}</p>
             </div>
           )}
         </div>
@@ -312,10 +323,34 @@ const QuizResults = () => {
                       )}
 
                       {/* Answer Feedback */}
-                      {answer?.feedback && (
+                      {(() => {
+                        // Determine if feedback exists and log it
+                        const hasFeedback = answer?.feedback ||
+                          (submission?.feedback &&
+                            (typeof submission.feedback === 'object' &&
+                              (submission.feedback[question._id]?.comment ||
+                               typeof submission.feedback[question._id] === 'string' && submission.feedback[question._id])));
+
+                        // Log feedback availability for debugging
+                        if (hasFeedback) {
+                          console.log(`Feedback found for question ${question._id}:`,
+                            answer?.feedback ||
+                            (typeof submission?.feedback?.[question._id] === 'string'
+                              ? submission.feedback[question._id]
+                              : submission?.feedback?.[question._id]?.comment));
+                        }
+
+                        return hasFeedback;
+                      })() && (
                         <div className="mt-3 p-3 bg-yellow-50 rounded-md">
-                          <p className="text-sm font-medium text-yellow-800">Feedback:</p>
-                          <p className="mt-1 text-sm text-yellow-700">{answer.feedback}</p>
+                          <p className="text-sm font-medium text-yellow-800">Instructor Feedback:</p>
+                          <p className="mt-1 text-sm text-yellow-700 whitespace-pre-wrap">
+                            {answer?.feedback ||
+                             (typeof submission?.feedback?.[question._id] === 'string'
+                              ? submission.feedback[question._id]
+                              : submission?.feedback?.[question._id]?.comment)}
+                              
+                          </p>
                         </div>
                       )}
                     </div>
@@ -323,6 +358,34 @@ const QuizResults = () => {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Overall Feedback Section */}
+      {(() => {
+        // Check if overall feedback exists and log it
+        const hasOverallFeedback = submission?.overallFeedback && submission.overallFeedback.trim() !== '';
+
+        if (hasOverallFeedback) {
+          console.log('%c Overall Feedback Found ', 'background: #f1c40f; color: black; font-weight: bold;');
+          console.log('Overall feedback content:', submission.overallFeedback);
+        } else if (submission?.overallFeedback) {
+          console.log('Overall feedback exists but is empty');
+        } else {
+          console.log('No overall feedback available');
+        }
+
+        return hasOverallFeedback;
+      })() && (
+        <div className="bg-white shadow rounded-lg overflow-hidden mb-6">
+          <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 className="text-lg font-medium leading-6 text-gray-900">Instructor Feedback</h3>
+          </div>
+
+          <div className="px-4 py-5 sm:p-6 bg-yellow-50">
+            <p className="text-sm font-medium text-yellow-800 mb-2">Overall Feedback:</p>
+            <p className="text-sm text-yellow-700 whitespace-pre-wrap">{submission.overallFeedback}</p>
           </div>
         </div>
       )}

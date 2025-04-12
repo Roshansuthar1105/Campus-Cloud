@@ -26,12 +26,17 @@ export const AuthProvider = ({ children }) => {
   // Function to load user data
   const loadUser = async () => {
     try {
+      console.log('%c Loading User Data ', 'background: #9b59b6; color: white; font-weight: bold;');
+
       // Check if token exists in localStorage or cookies
       let token = localStorage.getItem('token');
+      console.log('Token in localStorage:', token ? 'Found' : 'Not found');
 
       // If not in localStorage, check cookies (for Google OAuth)
       if (!token) {
         token = getTokenFromCookies();
+        console.log('Token in cookies:', token ? 'Found' : 'Not found');
+
         // If found in cookies, also save to localStorage for future use
         if (token) {
           localStorage.setItem('token', token);
@@ -40,18 +45,45 @@ export const AuthProvider = ({ children }) => {
       }
 
       if (!token) {
-        console.log('No authentication token found');
+        console.log('%c No Authentication Token Found ', 'background: #e74c3c; color: white; font-weight: bold;');
         setIsLoading(false);
         return;
       }
 
-      console.log('Token found, fetching user data...');
+      console.log('%c Token Found, Fetching User Data ', 'background: #2ecc71; color: white; font-weight: bold;');
+
+      // Try to decode token to show user info
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        const decodedToken = JSON.parse(jsonPayload);
+        console.log('Token payload:', decodedToken);
+        console.log('User ID from token:', decodedToken.id);
+        console.log('Token expiration:', new Date(decodedToken.exp * 1000).toLocaleString());
+      } catch (e) {
+        console.log('Could not decode token:', e.message);
+      }
+
       const response = await authAPI.getCurrentUser();
-      console.log('User data received:', response.data);
+      console.log('%c User Data Received ', 'background: #2ecc71; color: white; font-weight: bold;');
+      console.log('User data:', response.data.data);
+      console.log('User role:', response.data.data.role);
+
       setUser(response.data.data);
       setIsAuthenticated(true);
     } catch (err) {
-      console.error('Error loading user:', err);
+      console.error('%c Error Loading User ', 'background: #e74c3c; color: white; font-weight: bold;');
+      console.error('Error details:', err);
+
+      if (err.response) {
+        console.log('Response status:', err.response.status);
+        console.log('Response data:', err.response.data);
+      }
+
       localStorage.removeItem('token');
     } finally {
       setIsLoading(false);
@@ -86,12 +118,34 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(true);
     setError(null);
 
+    console.log('%c Login Attempt ', 'background: #3498db; color: white; font-weight: bold;');
+    console.log('Login credentials:', { email: userData.email, passwordProvided: !!userData.password });
+
     try {
+      console.log('Calling login API...');
       const response = await authAPI.login(userData);
+      console.log('%c Login Successful ', 'background: #2ecc71; color: white; font-weight: bold;');
+      console.log('Login response:', response);
+      console.log('User data:', response.user);
+      console.log('User role:', response.user?.role);
+      console.log('Token received:', response.token ? 'Yes' : 'No');
+
       setUser(response.user);
       setIsAuthenticated(true);
+
+      // Load user data to ensure we have the complete profile
+      loadUser();
+
       return response;
     } catch (err) {
+      console.log('%c Login Failed ', 'background: #e74c3c; color: white; font-weight: bold;');
+      console.error('Login error:', err);
+
+      if (err.response) {
+        console.log('Response status:', err.response.status);
+        console.log('Response data:', err.response.data);
+      }
+
       setError(err.response?.data?.message || 'Login failed');
       throw err;
     } finally {

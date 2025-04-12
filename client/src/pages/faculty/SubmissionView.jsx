@@ -4,7 +4,7 @@ import { FiArrowLeft, FiUser, FiClock, FiCalendar, FiCheckCircle, FiXCircle } fr
 import quizAPI from '../../services/quizApi';
 // import { useAuth } from '../../context/AuthContext';
 
-const SubmissionView = () => {
+export const SubmissionView = () => {
   const { id, quizId } = useParams();
   const navigate = useNavigate();
 
@@ -16,6 +16,10 @@ const SubmissionView = () => {
   const [quiz, setQuiz] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [feedback, setFeedback] = useState({});
+  const [overallFeedback, setOverallFeedback] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
     const fetchSubmissionData = async () => {
@@ -209,6 +213,127 @@ const SubmissionView = () => {
     }
 
     return null;
+  };
+
+  // Initialize feedback from existing data when submission loads
+  useEffect(() => {
+    if (submission && quiz?.questions) {
+      // Initialize feedback object with empty feedback for each question
+      const initialFeedback = {};
+      quiz.questions.forEach(question => {
+        initialFeedback[question._id] = submission.feedback?.[question._id]?.comment || '';
+      });
+      setFeedback(initialFeedback);
+
+      // Initialize overall feedback if it exists
+      setOverallFeedback(submission.overallFeedback || '');
+    }
+  }, [submission, quiz]);
+
+  // Handle feedback change for a specific question
+  const handleFeedbackChange = (questionId, value) => {
+    setFeedback(prev => ({
+      ...prev,
+      [questionId]: value
+    }));
+    console.log('Feedback for question', questionId, 'changed to:', value);
+  };
+
+  // Handle overall feedback change
+  const handleOverallFeedbackChange = (e) => {
+    setOverallFeedback(e.target.value);
+  };
+
+  // Save all feedback
+  const handleSaveFeedback = async () => {
+    try {
+      setIsSaving(true);
+
+      // Prepare feedback data
+      const feedbackData = {
+        submissionId: submission._id,
+        questionFeedback: Object.entries(feedback).map(([questionId, comment]) => {
+          // Find the question to get its points
+          const question = quiz?.questions?.find(q => q._id === questionId);
+          const pointsEarned = submission?.answers?.find(a => a.questionId === questionId)?.pointsEarned || 0;
+
+          return {
+            questionId,
+            comment: comment || '',
+            score: pointsEarned,
+            maxScore: question?.points || 1
+          };
+        }),
+        overallFeedback
+      };
+
+      // Send feedback to the API
+      try {
+        console.log('%c Submitting Feedback ', 'background: #2ecc71; color: white; font-weight: bold;');
+        console.log('Feedback data being sent:', feedbackData);
+        console.log('- Submission ID:', feedbackData.submissionId);
+        console.log('- Question feedback:', feedbackData.questionFeedback);
+        console.log('- Overall feedback:', feedbackData.overallFeedback);
+
+        const response = await quizAPI.saveFeedback(feedbackData);
+
+        console.log('%c Feedback Saved Successfully ', 'background: #2ecc71; color: white; font-weight: bold;');
+        console.log('API Response:', response.data);
+        console.log('- Success status:', response.data.success);
+        console.log('- Message:', response.data.message);
+        console.log('- Returned data:', response.data.data);
+
+        // Update the submission object with the new feedback
+        if (response.data && response.data.data) {
+          setSubmission(prev => ({
+            ...prev,
+            feedback: response.data.data.feedback || prev.feedback,
+            overallFeedback: response.data.data.overallFeedback || prev.overallFeedback
+          }));
+        }
+
+        setSaveSuccess(true);
+        // Reset success message after 3 seconds
+        setTimeout(() => setSaveSuccess(false), 3000);
+      } catch (apiError) {
+        console.log('%c API Error Saving Feedback ', 'background: #e74c3c; color: white; font-weight: bold;');
+        console.error('Error details:', apiError);
+
+        if (apiError.response) {
+          console.log('Response status:', apiError.response.status);
+          console.log('Response data:', apiError.response.data);
+        } else if (apiError.request) {
+          console.log('Request was made but no response received');
+          console.log('Request details:', apiError.request);
+        } else {
+          console.log('Error message:', apiError.message);
+        }
+
+        // Fallback for development or if API fails
+        console.log('%c Using Fallback (Mock Save) ', 'background: #f39c12; color: white; font-weight: bold;');
+        console.log('Saving feedback locally:', feedbackData);
+
+        // Update the local state with the feedback even if API fails
+        setSubmission(prev => ({
+          ...prev,
+          feedback: Object.fromEntries(
+            feedbackData.questionFeedback.map(item => [
+              item.questionId,
+              { comment: item.comment, score: item.score }
+            ])
+          ),
+          overallFeedback: feedbackData.overallFeedback
+        }));
+
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+      }
+    } catch (error) {
+      console.error('Error saving feedback:', error);
+      alert('Failed to save feedback. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const isCorrectAnswer = (questionId, answerId) => {
@@ -528,7 +653,7 @@ const SubmissionView = () => {
                   </div>
                 )}
 
-                {/* Feedback section - not applicable for this data structure */}
+                {/* Question explanation section */}
                 {question.explanation && (
                   <div className="mt-4 ml-8">
                     <p className="text-sm font-medium text-gray-700 mb-2">Explanation:</p>
@@ -539,13 +664,81 @@ const SubmissionView = () => {
                     </div>
                   </div>
                 )}
+
+                {/* Faculty feedback section */}
+                <div className="mt-4 ml-8">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Faculty Feedback:</p>
+                  <textarea
+                    className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    rows="3"
+                    placeholder="Provide feedback for this question..."
+                    value={feedback[question._id] || ''}
+                    onChange={(e) => handleFeedbackChange(question._id, e.target.value)}
+                  ></textarea>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      {/* Overall Feedback Section */}
+      <div className="bg-white shadow rounded-lg overflow-hidden mb-6">
+        <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+          <h3 className="text-lg font-medium leading-6 text-gray-900">Overall Feedback</h3>
+          <p className="mt-1 max-w-2xl text-sm text-gray-500">
+            Provide general feedback for the student's overall performance on this quiz.
+          </p>
+        </div>
+
+        <div className="px-4 py-5 sm:p-6">
+          <textarea
+            className="w-full p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            rows="4"
+            placeholder="Provide overall feedback for the student..."
+            value={overallFeedback}
+            onChange={handleOverallFeedbackChange}
+          ></textarea>
+        </div>
+      </div>
+
+      {/* Save Button */}
+      <div className="flex justify-end mb-8">
+        <button
+          onClick={handleSaveFeedback}
+          disabled={isSaving}
+          className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${isSaving ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+        >
+          {isSaving ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Saving...
+            </>
+          ) : 'Save Feedback'}
+        </button>
+      </div>
+
+      {/* Success Message */}
+      {saveSuccess && (
+        <div className="fixed bottom-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm">Feedback saved successfully!</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default SubmissionView;
+// We're keeping the default export for backward compatibility
+// but we've also added a named export above

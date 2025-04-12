@@ -173,6 +173,60 @@ const quizAPI = {
 
     // If we get here, the submission wasn't found
     throw new Error('Submission not found');
+  },
+
+  // Save feedback for a submission
+  saveFeedback: async (feedbackData) => {
+    // Create a copy of the data to avoid modifying the original
+    const formattedData = { ...feedbackData };
+
+    // Format question feedback if needed
+    if (formattedData.questionFeedback) {
+      formattedData.questionFeedback = formattedData.questionFeedback.map(item => {
+        // If feedback is a string, we need the questionId from elsewhere
+        // This case should not happen with our current implementation
+        // but we handle it just in case
+        if (typeof item === 'string') {
+          console.warn('Received string feedback without questionId:', item);
+          return {
+            questionId: '', // This would need to be provided separately
+            comment: item,
+            score: null // Add a default score if needed
+          };
+        }
+
+        // If feedback is already an object but missing required fields
+        if (typeof item === 'object') {
+          return {
+            questionId: item.questionId || '',
+            comment: item.comment || '',
+            score: item.score !== undefined ? item.score : null
+          };
+        }
+
+        return item;
+      });
+    }
+
+    // Format overall feedback if it's not a string
+    if (formattedData.overallFeedback && typeof formattedData.overallFeedback !== 'string') {
+      formattedData.overallFeedback = String(formattedData.overallFeedback);
+    }
+
+    // Ensure submissionId is present
+    if (!formattedData.submissionId) {
+      throw new Error('Submission ID is required');
+    }
+
+    // Log the formatted data for debugging
+    console.log('%c Sending Feedback Data to API ', 'background: #3498db; color: white; font-weight: bold;');
+    console.log('Original data:', feedbackData);
+    console.log('Formatted data:', formattedData);
+    console.log('Submission ID:', formattedData.submissionId);
+    console.log('Question feedback:', formattedData.questionFeedback);
+    console.log('Overall feedback:', formattedData.overallFeedback);
+
+    return await api.post('/submissions/feedback', formattedData);
   }
 };
 

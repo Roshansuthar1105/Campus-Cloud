@@ -67,7 +67,12 @@ const QuizSubmissionSchema = new mongoose.Schema({
     type: Date
   },
   feedback: {
-    type: String
+    type: mongoose.Schema.Types.Mixed,
+    default: {}
+  },
+  overallFeedback: {
+    type: String,
+    default: ''
   },
   createdAt: {
     type: Date,
@@ -82,12 +87,12 @@ const QuizSubmissionSchema = new mongoose.Schema({
 // Update the updatedAt field before saving
 QuizSubmissionSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
-  
+
   // Calculate total score and percentage if the quiz is completed
   if (this.status === 'completed' || this.status === 'graded') {
     if (this.answers && this.answers.length > 0) {
       this.totalScore = this.answers.reduce((sum, answer) => sum + (answer.pointsEarned || 0), 0);
-      
+
       // Get the quiz to calculate percentage
       mongoose.model('Quiz').findById(this.quiz)
         .then(quiz => {
