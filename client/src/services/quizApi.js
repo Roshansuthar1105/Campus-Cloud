@@ -101,10 +101,15 @@ const quizAPI = {
       const submissions = submissionsResponse.data.data || [];
       console.log(`Found ${submissions.length} submissions for quiz`);
 
+      // Get the quiz to check for submissions array
+      const quizResponse = await api.get(`/quizzes/${quizId}`);
+      const quiz = quizResponse.data.data || {};
+
       // Calculate statistics
       const gradedSubmissions = submissions.filter(sub => sub.status === 'graded');
       console.log(`Found ${gradedSubmissions.length} graded submissions`);
-      const totalSubmissions = submissions.length;
+      const totalSubmissions = quiz.submissions?.length || submissions.length;
+      console.log(`Total submissions from quiz.submissions: ${quiz.submissions?.length || 0}`);
       const scores = gradedSubmissions.map(sub => sub.score || 0);
       console.log('Scores:', scores);
 

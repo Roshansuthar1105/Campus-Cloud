@@ -63,7 +63,10 @@ exports.startQuizAttempt = async (req, res) => {
       status: { $in: ['completed', 'graded'] }
     });
 
-    if (completedSubmission && !quiz.allowMultipleAttempts) {
+    // Also check if student is in the submissions array of the quiz
+    const isInSubmissionsArray = quiz.submissions && quiz.submissions.includes(req.user.id);
+
+    if ((completedSubmission || isInSubmissionsArray) && !quiz.allowMultipleAttempts) {
       return res.status(400).json({ message: 'You have already completed this quiz' });
     }
 
@@ -265,6 +268,12 @@ exports.completeSubmission = async (req, res) => {
     }
 
     await submission.save();
+
+    // Add student to quiz submissions array if not already there
+    if (!quiz.submissions.includes(req.user.id)) {
+      quiz.submissions.push(req.user.id);
+      await quiz.save();
+    }
 
     // Create notification for faculty if manual grading is needed
     if (needsManualGrading) {

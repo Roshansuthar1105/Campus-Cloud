@@ -264,6 +264,7 @@ const QuizSubmissions = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Submissions: {quiz.title}</h1>
             <p className="text-gray-600">{quiz.course.name} ({quiz.course.code})</p>
+            <p className="text-sm text-gray-500 mt-1">Total Submissions: {quiz?.submissions?.length || submissions.length || 0}</p>
           </div>
         </div>
         <button

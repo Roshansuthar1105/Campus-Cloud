@@ -43,6 +43,7 @@ exports.getQuizzes = async (req, res) => {
     const quizzes = await Quiz.find(query)
       .populate('course', 'name code')
       .populate('createdBy', 'name')
+      .populate('submissions', 'name email')
       .sort({ startDate: -1 });
 
     res.status(200).json({
@@ -63,7 +64,8 @@ exports.getQuiz = async (req, res) => {
   try {
     const quiz = await Quiz.findById(req.params.id)
       .populate('course', 'name code faculty students')
-      .populate('createdBy', 'name');
+      .populate('createdBy', 'name')
+      .populate('submissions', 'name email');
 
     if (!quiz) {
       return res.status(404).json({ message: 'Quiz not found' });
@@ -323,9 +325,13 @@ exports.getQuizSubmissions = async (req, res) => {
       .populate('student', 'name email')
       .populate('gradedBy', 'name');
 
+    // Include the count of submissions from the quiz.submissions array
+    const submissionsCount = quiz.submissions ? quiz.submissions.length : 0;
+
     res.status(200).json({
       success: true,
       count: submissions.length,
+      submissionsCount: submissionsCount,
       data: submissions
     });
   } catch (error) {
