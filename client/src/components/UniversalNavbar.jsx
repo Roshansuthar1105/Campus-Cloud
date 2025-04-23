@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+// We're using inline notification items now
 import {
   FiHome,
   FiBook,
@@ -30,6 +31,7 @@ const UniversalNavbar = () => {
   const [loading, setLoading] = useState(false);
   const [showNotificationPopup, setShowNotificationPopup] = useState(false);
   const [newNotification, setNewNotification] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(Date.now()); // Add timestamp for forcing re-renders
   const notificationRef = useRef(null);
   const mobileNotificationRef = useRef(null);
   const profileMenuRef = useRef(null);
@@ -44,7 +46,8 @@ const UniversalNavbar = () => {
   };
 
   const toggleNotifications = () => {
-    setIsNotificationsOpen(!isNotificationsOpen);
+    // Simple direct toggle without any delays or conditions
+    setIsNotificationsOpen(prev => !prev);
   };
 
   // Function to fetch notifications
@@ -184,20 +187,38 @@ const UniversalNavbar = () => {
 
   // Function to mark a notification as read
   const markAsRead = async (id) => {
-    try {
-      await notificationAPI.markAsRead(id);
+    console.log('markAsRead called with id:', id);
 
-      // Update local state
-      setNotifications(prevNotifications =>
-        prevNotifications.map(notification =>
+    try {
+      // Call API first to ensure it works
+      console.log('Calling API to mark notification as read...');
+      const response = await notificationAPI.markAsRead(id);
+      console.log('API response for marking as read:', response);
+
+      // If API call succeeds, update local state
+      console.log('Updating local state...');
+      setNotifications(prevNotifications => {
+        console.log('Previous notifications:', prevNotifications);
+        const updated = prevNotifications.map(notification =>
           notification._id === id
             ? { ...notification, read: true }
             : notification
-        )
-      );
+        );
+        console.log('Updated notifications:', updated);
+        return updated;
+      });
 
       // Update unread count
-      setUnreadCount(prevCount => Math.max(0, prevCount - 1));
+      setUnreadCount(prevCount => {
+        const newCount = Math.max(0, prevCount - 1);
+        console.log(`Unread count updated: ${prevCount} -> ${newCount}`);
+        return newCount;
+      });
+
+      // Force a re-render by updating a timestamp
+      setLastUpdated(new Date().getTime());
+
+      console.log('Notification marked as read successfully');
     } catch (err) {
       console.error('Error marking notification as read:', err);
     }
@@ -205,16 +226,31 @@ const UniversalNavbar = () => {
 
   // Function to mark all notifications as read
   const markAllAsRead = async () => {
-    try {
-      await notificationAPI.markAllAsRead();
+    console.log('markAllAsRead called');
 
-      // Update local state
-      setNotifications(prevNotifications =>
-        prevNotifications.map(notification => ({ ...notification, read: true }))
-      );
+    try {
+      // Call API first to ensure it works
+      console.log('Calling API to mark all notifications as read...');
+      const response = await notificationAPI.markAllAsRead();
+      console.log('API response for marking all as read:', response);
+
+      // If API call succeeds, update local state
+      console.log('Updating local state...');
+      setNotifications(prevNotifications => {
+        console.log('Previous notifications:', prevNotifications);
+        const updated = prevNotifications.map(notification => ({ ...notification, read: true }));
+        console.log('Updated notifications:', updated);
+        return updated;
+      });
 
       // Reset unread count
       setUnreadCount(0);
+      console.log('Unread count reset to 0');
+
+      // Force a re-render by updating a timestamp
+      setLastUpdated(new Date().getTime());
+
+      console.log('All notifications marked as read successfully');
     } catch (err) {
       console.error('Error marking all notifications as read:', err);
     }
@@ -366,8 +402,8 @@ const UniversalNavbar = () => {
                           <h3 className="text-sm font-medium text-gray-900">Notifications</h3>
                           {unreadCount > 0 && (
                             <button
-                              onClick={markAllAsRead}
-                              className="text-xs text-purple-600 hover:text-purple-800"
+                              onClick={() => markAllAsRead()}
+                              className="text-xs bg-purple-100 hover:bg-purple-200 text-purple-600 px-2 py-1 rounded-md font-medium"
                             >
                               Mark all as read
                             </button>
@@ -407,11 +443,13 @@ const UniversalNavbar = () => {
                                   {!notification.read && (
                                     <div className="ml-4 flex-shrink-0 flex">
                                       <button
-                                        onClick={() => markAsRead(notification._id)}
-                                        className="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          markAsRead(notification._id);
+                                        }}
+                                        className="bg-blue-100 hover:bg-blue-200 text-blue-600 px-2 py-1 rounded-md text-xs font-medium"
                                       >
-                                        <span className="sr-only">Mark as read</span>
-                                        <FiX className="h-5 w-5" />
+                                        Mark as read
                                       </button>
                                     </div>
                                   )}
@@ -546,8 +584,8 @@ const UniversalNavbar = () => {
                           <h3 className="text-sm font-medium text-gray-900">Notifications</h3>
                           {unreadCount > 0 && (
                             <button
-                              onClick={markAllAsRead}
-                              className="text-xs text-purple-600 hover:text-purple-800"
+                              onClick={() => markAllAsRead()}
+                              className="text-xs bg-purple-100 hover:bg-purple-200 text-purple-600 px-2 py-1 rounded-md font-medium"
                             >
                               Mark all as read
                             </button>
@@ -587,11 +625,13 @@ const UniversalNavbar = () => {
                                   {!notification.read && (
                                     <div className="ml-4 flex-shrink-0 flex">
                                       <button
-                                        onClick={() => markAsRead(notification._id)}
-                                        className="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          markAsRead(notification._id);
+                                        }}
+                                        className="bg-blue-100 hover:bg-blue-200 text-blue-600 px-2 py-1 rounded-md text-xs font-medium"
                                       >
-                                        <span className="sr-only">Mark as read</span>
-                                        <FiX className="h-5 w-5" />
+                                        Mark as read
                                       </button>
                                     </div>
                                   )}
