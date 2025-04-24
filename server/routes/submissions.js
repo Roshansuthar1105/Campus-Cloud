@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { 
+const {
   startQuizAttempt,
   submitAnswer,
   completeSubmission,
-  gradeSubmission
+  gradeSubmission,
+  getSubmission
 } = require('../controllers/quizSubmissionController');
 
 const { protect } = require('../middleware/auth');
@@ -24,5 +25,8 @@ router.put('/:id/complete', authorize('student'), completeSubmission);
 
 // Grade a submission
 router.put('/:id/grade', authorize('faculty', 'management'), gradeSubmission);
+
+// Get a specific submission
+router.get('/:id', authorize('faculty', 'management', 'student'), getSubmission);
 
 module.exports = router;

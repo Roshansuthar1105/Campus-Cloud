@@ -8,7 +8,7 @@ const QuizReports = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const [quiz, setQuiz] = useState(null);
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,122 +19,17 @@ const QuizReports = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
-        // In a real app, you would fetch the quiz and submissions data from the API
-        // const quizResponse = await api.get(`/quizzes/${id}`);
-        // const submissionsResponse = await api.get(`/quizzes/${id}/submissions`);
-        // setQuiz(quizResponse.data.data);
-        // setSubmissions(submissionsResponse.data.data);
-        
-        // For now, we'll use mock data
-        const mockQuiz = {
-          _id: id,
-          title: 'Midterm Examination',
-          description: 'Comprehensive midterm covering all topics from weeks 1-8.',
-          course: {
-            _id: 'course123',
-            name: 'Introduction to Computer Science',
-            code: 'CS101'
-          },
-          questions: [
-            {
-              _id: 'q1',
-              text: 'What is the time complexity of binary search?',
-              type: 'multiple-choice',
-              options: [
-                { _id: 'o1', text: 'O(1)' },
-                { _id: 'o2', text: 'O(log n)' },
-                { _id: 'o3', text: 'O(n)' },
-                { _id: 'o4', text: 'O(n log n)' }
-              ],
-              correctAnswer: 'o2',
-              points: 5
-            },
-            {
-              _id: 'q2',
-              text: 'Explain the concept of recursion and provide an example.',
-              type: 'essay',
-              points: 10
-            },
-            {
-              _id: 'q3',
-              text: 'Which of the following are valid data structures? (Select all that apply)',
-              type: 'multiple-select',
-              options: [
-                { _id: 'o1', text: 'Array' },
-                { _id: 'o2', text: 'Linked List' },
-                { _id: 'o3', text: 'Queue' },
-                { _id: 'o4', text: 'Branch' }
-              ],
-              correctAnswer: ['o1', 'o2', 'o3'],
-              points: 5
-            }
-          ],
-          timeLimit: 60,
-          passingScore: 70,
-          startDate: new Date(2023, 10, 1),
-          endDate: new Date(2023, 11, 15),
-          isPublished: true
-        };
-        
-        // Generate 20 mock submissions with realistic data
-        const mockSubmissions = [];
-        const studentNames = [
-          'John Doe', 'Jane Smith', 'Bob Johnson', 'Alice Williams', 'Charlie Brown',
-          'Diana Prince', 'Edward Jones', 'Fiona Miller', 'George Davis', 'Hannah Wilson',
-          'Ian Taylor', 'Julia Roberts', 'Kevin Anderson', 'Laura Martin', 'Michael Scott',
-          'Nancy Garcia', 'Oliver White', 'Patricia Lee', 'Quentin Thomas', 'Rachel Green'
-        ];
-        
-        for (let i = 0; i < 20; i++) {
-          // Generate random scores between 60-100 with occasional lower scores
-          const score = Math.floor(Math.random() * 41) + 60; // 60-100
-          
-          // Occasionally add lower scores for variety
-          const lowerScore = i % 5 === 0;
-          const finalScore = lowerScore ? Math.max(score - 30, 30) : score;
-          
-          // Generate random time spent between 30-60 minutes
-          const timeSpent = Math.floor(Math.random() * 31) + 30; // 30-60
-          
-          // Generate submission date within the quiz's active period
-          const startMs = new Date(mockQuiz.startDate).getTime();
-          const endMs = new Date(mockQuiz.endDate).getTime();
-          const randomMs = startMs + Math.random() * (endMs - startMs);
-          const submissionDate = new Date(randomMs);
-          
-          // Generate random answers
-          const answers = {
-            q1: ['o1', 'o2', 'o3', 'o4'][Math.floor(Math.random() * 4)],
-            q2: 'Recursion is a method where the solution to a problem depends on solutions to smaller instances of the same problem.',
-            q3: [
-              ['o1', 'o2', 'o3'],
-              ['o1', 'o2'],
-              ['o1', 'o3'],
-              ['o2', 'o3'],
-              ['o1', 'o2', 'o4']
-            ][Math.floor(Math.random() * 5)]
-          };
-          
-          mockSubmissions.push({
-            _id: `sub${i + 1}`,
-            quizId: id,
-            student: {
-              _id: `student${i + 1}`,
-              name: studentNames[i],
-              email: studentNames[i].toLowerCase().replace(' ', '.') + '@example.com'
-            },
-            submittedAt: submissionDate,
-            score: finalScore,
-            timeSpent,
-            answers,
-            status: 'graded'
-          });
-        }
-        
-        setQuiz(mockQuiz);
-        setSubmissions(mockSubmissions);
-        
+
+        // Fetch quiz data
+        const quizResponse = await api.get(`/quizzes/${id}`);
+        const quizData = quizResponse.data.data;
+        setQuiz(quizData);
+
+        // Fetch submissions data
+        const submissionsResponse = await api.get(`/quizzes/${id}/submissions`);
+        const submissionsData = submissionsResponse.data.data;
+        setSubmissions(submissionsData);
+
         setError(null);
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -147,94 +42,147 @@ const QuizReports = () => {
     fetchData();
   }, [id]);
 
-  const calculateStats = () => {
-    if (!quiz || !submissions || submissions.length === 0) {
-      return {
-        totalSubmissions: 0,
-        completionRate: 0,
-        averageScore: 0,
-        passingRate: 0,
-        scoreDistribution: {},
-        questionPerformance: {}
-      };
-    }
-    
-    const totalStudents = 25; // This would come from the API in a real app
-    const completionRate = (submissions.length / totalStudents) * 100;
-    
-    // Calculate average score
-    const totalScore = submissions.reduce((sum, sub) => sum + sub.score, 0);
-    const averageScore = totalScore / submissions.length;
-    
-    // Calculate passing rate
-    const passedSubmissions = submissions.filter(sub => sub.score >= quiz.passingScore);
-    const passingRate = (passedSubmissions.length / submissions.length) * 100;
-    
-    // Calculate score distribution
-    const scoreDistribution = {
+  const [stats, setStats] = useState({
+    totalSubmissions: 0,
+    totalStudents: 0,
+    completionRate: 0,
+    averageScore: 0,
+    passingRate: 0,
+    scoreDistribution: {
       '90-100': 0,
       '80-89': 0,
       '70-79': 0,
       '60-69': 0,
       'Below 60': 0
-    };
-    
-    submissions.forEach(sub => {
-      if (sub.score >= 90) {
-        scoreDistribution['90-100']++;
-      } else if (sub.score >= 80) {
-        scoreDistribution['80-89']++;
-      } else if (sub.score >= 70) {
-        scoreDistribution['70-79']++;
-      } else if (sub.score >= 60) {
-        scoreDistribution['60-69']++;
-      } else {
-        scoreDistribution['Below 60']++;
-      }
-    });
-    
-    // Calculate question performance
-    const questionPerformance = {};
-    
-    if (quiz.questions) {
-      quiz.questions.forEach(question => {
-        if (question.type === 'multiple-choice' || question.type === 'multiple-select') {
-          const correctCount = submissions.filter(sub => {
-            if (question.type === 'multiple-choice') {
-              return sub.answers[question._id] === question.correctAnswer;
-            } else {
-              const studentAnswer = sub.answers[question._id] || [];
-              const correctAnswer = question.correctAnswer || [];
-              
-              // Check if arrays are equal (ignoring order)
-              return (
-                studentAnswer.length === correctAnswer.length &&
-                correctAnswer.every(ans => studentAnswer.includes(ans))
-              );
-            }
-          }).length;
-          
-          questionPerformance[question._id] = {
-            correctCount,
-            correctPercentage: (correctCount / submissions.length) * 100,
-            questionText: question.text
-          };
-        }
-      });
+    },
+    questionPerformance: {},
+    timeStats: {
+      averageTime: 0,
+      fastestTime: 0,
+      slowestTime: 0
     }
-    
-    return {
-      totalSubmissions: submissions.length,
-      totalStudents,
-      completionRate,
-      averageScore,
-      passingRate,
-      scoreDistribution,
-      questionPerformance
-    };
-  };
+  });
 
-  const stats = calculateStats();
+  // Fetch stats from API
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!quiz) return;
+
+      try {
+        // Try to get stats from the API
+        const response = await api.get(`/quizzes/${id}/stats`);
+        const statsData = response.data.data;
+        setStats(statsData);
+      } catch (err) {
+        console.error('Error fetching quiz stats:', err);
+
+        // If API fails, calculate stats locally
+        if (quiz && submissions && submissions.length > 0) {
+          // Calculate completion rate
+          const totalStudents = quiz.course?.students?.length || 25; // Fallback to 25 if not available
+          const completionRate = (submissions.length / totalStudents) * 100;
+
+          // Calculate average score
+          const gradedSubmissions = submissions.filter(sub => sub.status === 'graded');
+          const totalScore = gradedSubmissions.reduce((sum, sub) => sum + (sub.score || 0), 0);
+          const averageScore = gradedSubmissions.length > 0 ? totalScore / gradedSubmissions.length : 0;
+
+          // Calculate passing rate
+          const passedSubmissions = gradedSubmissions.filter(sub => (sub.score || 0) >= quiz.passingScore);
+          const passingRate = gradedSubmissions.length > 0 ? (passedSubmissions.length / gradedSubmissions.length) * 100 : 0;
+
+          // Calculate score distribution
+          const scoreDistribution = {
+            '90-100': 0,
+            '80-89': 0,
+            '70-79': 0,
+            '60-69': 0,
+            'Below 60': 0
+          };
+
+          gradedSubmissions.forEach(sub => {
+            const score = sub.score || 0;
+            if (score >= 90) {
+              scoreDistribution['90-100']++;
+            } else if (score >= 80) {
+              scoreDistribution['80-89']++;
+            } else if (score >= 70) {
+              scoreDistribution['70-79']++;
+            } else if (score >= 60) {
+              scoreDistribution['60-69']++;
+            } else {
+              scoreDistribution['Below 60']++;
+            }
+          });
+
+          // Calculate question performance
+          const questionPerformance = {};
+
+          if (quiz.questions) {
+            quiz.questions.forEach(question => {
+              if (question.type === 'multiple-choice' || question.type === 'true-false' || question.type === 'multiple-select') {
+                const correctCount = submissions.filter(sub => {
+                  if (!sub.answers || !sub.answers[question._id]) return false;
+
+                  if (question.type === 'multiple-choice' || question.type === 'true-false') {
+                    return sub.answers[question._id] === question.correctAnswer;
+                  } else {
+                    const studentAnswer = Array.isArray(sub.answers[question._id]) ?
+                      sub.answers[question._id] :
+                      [sub.answers[question._id]];
+
+                    const correctAnswer = Array.isArray(question.correctAnswer) ?
+                      question.correctAnswer :
+                      [question.correctAnswer];
+
+                    // Check if arrays are equal (ignoring order)
+                    return (
+                      studentAnswer.length === correctAnswer.length &&
+                      correctAnswer.every(ans => studentAnswer.includes(ans))
+                    );
+                  }
+                }).length;
+
+                const totalAttempts = submissions.filter(sub => sub.answers && sub.answers[question._id]).length;
+
+                questionPerformance[question._id] = {
+                  questionId: question._id,
+                  questionText: question.text,
+                  questionType: question.type,
+                  correctCount,
+                  totalAttempts,
+                  correctPercentage: totalAttempts > 0 ? (correctCount / totalAttempts) * 100 : 0
+                };
+              }
+            });
+          }
+
+          // Calculate time statistics
+          const times = submissions.map(sub => sub.timeSpent || 0).filter(time => time > 0);
+          const timeStats = {
+            averageTime: times.length > 0 ? times.reduce((sum, time) => sum + time, 0) / times.length : 0,
+            fastestTime: times.length > 0 ? Math.min(...times) : 0,
+            slowestTime: times.length > 0 ? Math.max(...times) : 0
+          };
+
+          setStats({
+            totalSubmissions: submissions.length,
+            totalStudents,
+            completionRate,
+            gradedSubmissions: gradedSubmissions.length,
+            averageScore,
+            passingScore: quiz.passingScore,
+            passingRate,
+            scoreDistribution,
+            questionPerformance,
+            timeStats
+          });
+        }
+      }
+    };
+
+    fetchStats();
+  }, [id, quiz, submissions]);
 
   const renderSummaryTab = () => {
     return (
@@ -248,7 +196,7 @@ const QuizReports = () => {
               </dl>
             </div>
           </div>
-          
+
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
               <dl>
@@ -257,7 +205,7 @@ const QuizReports = () => {
               </dl>
             </div>
           </div>
-          
+
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
               <dl>
@@ -268,7 +216,7 @@ const QuizReports = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="bg-white shadow rounded-lg overflow-hidden">
             <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
@@ -278,7 +226,7 @@ const QuizReports = () => {
               <div className="space-y-4">
                 {Object.entries(stats.scoreDistribution).map(([range, count]) => {
                   const percentage = (count / stats.totalSubmissions) * 100;
-                  
+
                   return (
                     <div key={range}>
                       <div className="flex items-center justify-between">
@@ -287,8 +235,8 @@ const QuizReports = () => {
                       </div>
                       <div className="mt-1">
                         <div className="bg-gray-200 rounded-full h-2.5 w-full">
-                          <div 
-                            className="bg-purple-600 h-2.5 rounded-full" 
+                          <div
+                            className="bg-purple-600 h-2.5 rounded-full"
                             style={{ width: `${percentage}%` }}
                           ></div>
                         </div>
@@ -297,7 +245,7 @@ const QuizReports = () => {
                   );
                 })}
               </div>
-              
+
               <div className="mt-6 text-center">
                 <div className="text-gray-500">
                   <FiPieChart className="mx-auto h-16 w-16 text-purple-400" />
@@ -306,7 +254,7 @@ const QuizReports = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white shadow rounded-lg overflow-hidden">
             <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
               <h3 className="text-lg font-medium leading-6 text-gray-900">Question Performance</h3>
@@ -316,7 +264,7 @@ const QuizReports = () => {
                 {Object.entries(stats.questionPerformance).map(([questionId, data]) => {
                   const question = quiz.questions.find(q => q._id === questionId);
                   if (!question) return null;
-                  
+
                   return (
                     <div key={questionId}>
                       <div className="text-sm font-medium text-gray-900 mb-2 line-clamp-2" title={data.questionText}>
@@ -327,15 +275,15 @@ const QuizReports = () => {
                         <div className="text-sm text-gray-900">{data.correctCount} ({data.correctPercentage.toFixed(1)}%)</div>
                       </div>
                       <div className="bg-gray-200 rounded-full h-2.5 w-full">
-                        <div 
-                          className="bg-green-500 h-2.5 rounded-full" 
+                        <div
+                          className="bg-green-500 h-2.5 rounded-full"
                           style={{ width: `${data.correctPercentage}%` }}
                         ></div>
                       </div>
                     </div>
                   );
                 })}
-                
+
                 {Object.keys(stats.questionPerformance).length === 0 && (
                   <p className="text-gray-500 text-center">No objective questions to analyze.</p>
                 )}
@@ -343,7 +291,7 @@ const QuizReports = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="mt-6 bg-white shadow rounded-lg overflow-hidden">
           <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
             <h3 className="text-lg font-medium leading-6 text-gray-900">Time Analysis</h3>
@@ -353,26 +301,26 @@ const QuizReports = () => {
               <div>
                 <h4 className="text-base font-medium text-gray-900">Average Time Spent</h4>
                 <p className="mt-2 text-3xl font-semibold text-gray-900">
-                  {(submissions.reduce((sum, sub) => sum + sub.timeSpent, 0) / submissions.length).toFixed(1)} min
+                  {stats.timeStats?.averageTime?.toFixed(1) || 0} min
                 </p>
                 <p className="text-sm text-gray-500">Out of {quiz.timeLimit} min allowed</p>
               </div>
-              
+
               <div>
                 <h4 className="text-base font-medium text-gray-900">Fastest Completion</h4>
                 <p className="mt-2 text-3xl font-semibold text-gray-900">
-                  {Math.min(...submissions.map(sub => sub.timeSpent))} min
+                  {stats.timeStats?.fastestTime || 0} min
                 </p>
               </div>
-              
+
               <div>
                 <h4 className="text-base font-medium text-gray-900">Slowest Completion</h4>
                 <p className="mt-2 text-3xl font-semibold text-gray-900">
-                  {Math.max(...submissions.map(sub => sub.timeSpent))} min
+                  {stats.timeStats?.slowestTime || 0} min
                 </p>
               </div>
             </div>
-            
+
             <div className="mt-6 text-center">
               <div className="text-gray-500">
                 <FiBarChart2 className="mx-auto h-16 w-16 text-purple-400" />
@@ -387,7 +335,7 @@ const QuizReports = () => {
 
   const renderEssayResponsesTab = () => {
     const essayQuestions = quiz.questions.filter(q => q.type === 'essay');
-    
+
     if (essayQuestions.length === 0) {
       return (
         <div className="bg-white shadow rounded-lg p-6 text-center">
@@ -395,7 +343,7 @@ const QuizReports = () => {
         </div>
       );
     }
-    
+
     return (
       <div>
         {essayQuestions.map((question) => (
@@ -573,6 +521,28 @@ const QuizReports = () => {
           </div>
         </div>
         <button
+          onClick={async () => {
+            try {
+              const response = await api.get(`/quizzes/${id}/submissions/export`, {
+                responseType: 'blob'
+              });
+
+              // Create a download link
+              const url = window.URL.createObjectURL(new Blob([response.data]));
+              const link = document.createElement('a');
+              link.href = url;
+              link.setAttribute('download', `${quiz.title}_report.csv`);
+              document.body.appendChild(link);
+              link.click();
+
+              // Clean up
+              window.URL.revokeObjectURL(url);
+              document.body.removeChild(link);
+            } catch (err) {
+              console.error('Error exporting report:', err);
+              alert('Failed to export report. Please try again.');
+            }
+          }}
           className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
         >
           <FiDownload className="mr-2 -ml-1 h-5 w-5" />

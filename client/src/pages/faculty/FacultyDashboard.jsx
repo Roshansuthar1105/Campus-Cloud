@@ -16,6 +16,7 @@ const FacultyDashboard = () => {
         setLoading(true);
         const response = await dashboardAPI.getFacultyDashboard();
         setDashboardData(response.data.data);
+        console.log("Course Statistics" , response.data.data)
         setError(null);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);

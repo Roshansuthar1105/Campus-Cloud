@@ -60,6 +60,7 @@ import UserForm from './pages/management/UserForm';
 import QuizList from './pages/management/QuizList';
 import QuizDetail from './pages/management/QuizDetail';
 import QuizReports from './pages/management/QuizReports';
+import MSubmissionView from './pages/management/SubmissionView';
 import PreferenceFormList from './pages/management/PreferenceFormList';
 import PreferenceFormCreate from './pages/management/PreferenceFormCreate';
 import PreferenceFormDetail from './pages/management/PreferenceFormDetail';
@@ -75,6 +76,8 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Privacy from './pages/Privacy';
+import WorkInProgress from './components/WorkInProgress';
+import ExampleWIPUsage from './pages/ExampleWIPUsage';
 // Redirect based on user role
 const RoleBasedRedirect = () => {
   const { user } = useAuth();
@@ -111,6 +114,9 @@ function App() {
             <Route path="/reset-password/:resetToken" element={<ResetPassword />} />
             <Route path="/auth-callback" element={<AuthCallback />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/work-in-progress" element={<WorkInProgress />} />
+            <Route path="/coming-soon" element={<WorkInProgress title="Coming Soon" message="This feature will be available soon. We're working on it!" />} />
+            <Route path="/wip-examples" element={<ExampleWIPUsage />} />
 
             {/* Student routes */}
             <Route element={<RoleRoute allowedRoles={['student']} />}>
@@ -129,6 +135,11 @@ function App() {
                 <Route path="preferences/:id/continue" element={<StudentPreferenceForm />} />
                 <Route path="preferences/:id/view" element={<StudentPreferenceFormView />} />
                 <Route path="reports" element={<StudentReports />} />
+                <Route path="work-in-progress" element={<WorkInProgress
+                  title="Student Feature in Development"
+                  message="This student feature is currently under development and will be available soon."
+                  contactEmail="support@campuscloud.edu"
+                />} />
                 <Route index element={<Navigate to="dashboard" replace />} />
               </Route>
             </Route>
@@ -154,6 +165,12 @@ function App() {
                 <Route path="preferences/:id" element={<FacultyPreferenceFormDetail />} />
                 <Route path="preferences/:id/reports" element={<FacultyPreferenceFormReports />} />
                 <Route path="reports" element={<FacultyReports />} />
+                <Route path="work-in-progress" element={<WorkInProgress
+                  title="Faculty Feature in Development"
+                  message="This faculty feature is currently under development and will be available soon."
+                  contactEmail="faculty-support@campuscloud.edu"
+                  estimatedCompletion="End of current semester"
+                />} />
                 <Route index element={<Navigate to="dashboard" replace />} />
               </Route>
             </Route>
@@ -176,6 +193,8 @@ function App() {
                 <Route path="quizzes/:id/edit" element={<QuizEdit />} />
                 <Route path="quizzes/:id" element={<QuizDetail />} />
                 <Route path="quizzes/:id/reports" element={<QuizReports />} />
+                {/* <Route path="quizzes/:id/submissions/:submissionId" element={<MSubmissionView />} /> */}
+                <Route path="quizzes/:id/submissions/:submissionId" element={<WorkInProgress />} />
                 <Route path="preferences" element={<PreferenceFormList />} />
                 <Route path="preferences/create" element={<PreferenceFormCreate />} />
                 <Route path="preferences/:id/edit" element={<PreferenceFormCreate />} />
@@ -184,6 +203,14 @@ function App() {
                 <Route path="reports" element={<Reports />} />
                 <Route path="announcements" element={<Announcements />} />
                 <Route path="settings" element={<Settings />} />
+                <Route path="work-in-progress" element={<WorkInProgress
+                  title="Management Feature in Development"
+                  message="This management feature is currently under development and will be available soon."
+                  contactEmail="admin@campuscloud.edu"
+                  contactPerson="System Administrator"
+                  featureDescription="This upcoming feature will provide advanced management capabilities for campus administrators."
+                  estimatedCompletion="Next quarter"
+                />} />
                 <Route index element={<Navigate to="dashboard" replace />} />
               </Route>
             </Route>

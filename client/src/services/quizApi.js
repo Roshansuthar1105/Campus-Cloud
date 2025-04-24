@@ -52,6 +52,11 @@ const quizAPI = {
     return await api.put(`/submissions/${submissionId}/grade`, gradingData);
   },
 
+  // Get a specific submission
+  getSubmission: async (submissionId) => {
+    return await api.get(`/submissions/${submissionId}`);
+  },
+
   // Export quiz submissions as CSV
   exportQuizSubmissions: async (quizId) => {
     try {

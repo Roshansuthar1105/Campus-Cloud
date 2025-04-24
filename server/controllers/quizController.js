@@ -340,6 +340,159 @@ exports.getQuizSubmissions = async (req, res) => {
   }
 };
 
+// @desc    Get quiz statistics
+// @route   GET /api/quizzes/:id/stats
+// @access  Private (Faculty who created the quiz and Management)
+exports.getQuizStats = async (req, res) => {
+  try {
+    const quiz = await Quiz.findById(req.params.id);
+
+    if (!quiz) {
+      return res.status(404).json({ message: 'Quiz not found' });
+    }
+
+    // Check if user is authorized to view quiz stats
+    if (req.user.role === 'faculty' && quiz.createdBy.toString() !== req.user.id) {
+      const course = await Course.findById(quiz.course);
+      if (!course || !course.faculty.includes(req.user.id)) {
+        return res.status(403).json({ message: 'Not authorized to view stats for this quiz' });
+      }
+    } else if (req.user.role === 'student') {
+      return res.status(403).json({ message: 'Students cannot access quiz statistics' });
+    }
+
+    // Get all submissions for this quiz
+    const submissions = await QuizSubmission.find({ quiz: quiz._id })
+      .populate('student', 'name email');
+
+    // Calculate statistics
+    const totalSubmissions = submissions.length;
+    const gradedSubmissions = submissions.filter(sub => sub.status === 'graded');
+
+    // Get course to calculate completion rate
+    const course = await Course.findById(quiz.course);
+    const totalStudents = course ? course.students.length : 0;
+    const completionRate = totalStudents > 0 ? (totalSubmissions / totalStudents) * 100 : 0;
+
+    // Calculate score statistics
+    let averageScore = 0;
+    let passingRate = 0;
+    let scoreDistribution = {
+      '90-100': 0,
+      '80-89': 0,
+      '70-79': 0,
+      '60-69': 0,
+      'Below 60': 0
+    };
+
+    if (gradedSubmissions.length > 0) {
+      // Calculate average score
+      const totalScore = gradedSubmissions.reduce((sum, sub) => sum + (sub.score || 0), 0);
+      averageScore = totalScore / gradedSubmissions.length;
+
+      // Calculate passing rate
+      const passedSubmissions = gradedSubmissions.filter(sub => (sub.score || 0) >= quiz.passingScore);
+      passingRate = (passedSubmissions.length / gradedSubmissions.length) * 100;
+
+      // Calculate score distribution
+      gradedSubmissions.forEach(sub => {
+        const score = sub.score || 0;
+        if (score >= 90) {
+          scoreDistribution['90-100']++;
+        } else if (score >= 80) {
+          scoreDistribution['80-89']++;
+        } else if (score >= 70) {
+          scoreDistribution['70-79']++;
+        } else if (score >= 60) {
+          scoreDistribution['60-69']++;
+        } else {
+          scoreDistribution['Below 60']++;
+        }
+      });
+    }
+
+    // Calculate question performance
+    const questionPerformance = {};
+
+    if (quiz.questions) {
+      quiz.questions.forEach(question => {
+        if (question.type === 'multiple-choice' || question.type === 'true-false' || question.type === 'multiple-select') {
+          const correctCount = submissions.filter(sub => {
+            if (!sub.answers || !sub.answers[question._id]) return false;
+
+            if (question.type === 'multiple-choice' || question.type === 'true-false') {
+              return sub.answers[question._id] === question.correctAnswer;
+            } else if (question.type === 'multiple-select') {
+              const studentAnswer = Array.isArray(sub.answers[question._id]) ?
+                sub.answers[question._id] :
+                [sub.answers[question._id]];
+
+              const correctAnswer = Array.isArray(question.correctAnswer) ?
+                question.correctAnswer :
+                [question.correctAnswer];
+
+              // Check if arrays are equal (ignoring order)
+              return (
+                studentAnswer.length === correctAnswer.length &&
+                correctAnswer.every(ans => studentAnswer.includes(ans))
+              );
+            }
+            return false;
+          }).length;
+
+          questionPerformance[question._id] = {
+            questionId: question._id,
+            questionText: question.text,
+            questionType: question.type,
+            correctCount,
+            totalAttempts: submissions.filter(sub => sub.answers && sub.answers[question._id]).length,
+            correctPercentage: submissions.filter(sub => sub.answers && sub.answers[question._id]).length > 0 ?
+              (correctCount / submissions.filter(sub => sub.answers && sub.answers[question._id]).length) * 100 : 0
+          };
+        }
+      });
+    }
+
+    // Calculate time statistics
+    const timeStats = {
+      averageTime: 0,
+      fastestTime: 0,
+      slowestTime: 0
+    };
+
+    if (submissions.length > 0) {
+      const times = submissions.map(sub => sub.timeSpent || 0).filter(time => time > 0);
+      if (times.length > 0) {
+        timeStats.averageTime = times.reduce((sum, time) => sum + time, 0) / times.length;
+        timeStats.fastestTime = Math.min(...times);
+        timeStats.slowestTime = Math.max(...times);
+      }
+    }
+
+    // Prepare response data
+    const stats = {
+      totalSubmissions,
+      totalStudents,
+      completionRate,
+      gradedSubmissions: gradedSubmissions.length,
+      averageScore,
+      passingScore: quiz.passingScore,
+      passingRate,
+      scoreDistribution,
+      questionPerformance,
+      timeStats
+    };
+
+    res.status(200).json({
+      success: true,
+      data: stats
+    });
+  } catch (error) {
+    console.error('Error getting quiz stats:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 // Helper function to create notifications for a quiz
 async function createQuizNotifications(quiz, course) {
   try {

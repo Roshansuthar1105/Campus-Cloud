@@ -311,6 +311,56 @@ exports.completeSubmission = async (req, res) => {
   }
 };
 
+// @desc    Get a specific submission
+// @route   GET /api/submissions/:id
+// @access  Private (Faculty, Management, and the student who submitted)
+exports.getSubmission = async (req, res) => {
+  try {
+    const submission = await QuizSubmission.findById(req.params.id)
+      .populate('student', 'name email')
+      .populate('gradedBy', 'name')
+      .populate({
+        path: 'quiz',
+        populate: {
+          path: 'course',
+          select: 'name code'
+        }
+      });
+
+    if (!submission) {
+      return res.status(404).json({ message: 'Submission not found' });
+    }
+
+    // Check if user is authorized to view this submission
+    if (req.user.role === 'student' && submission.student._id.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to view this submission' });
+    }
+
+    if (req.user.role === 'faculty') {
+      // Get the quiz to check if faculty is authorized
+      const quiz = await Quiz.findById(submission.quiz._id);
+      if (!quiz) {
+        return res.status(404).json({ message: 'Quiz not found' });
+      }
+
+      if (quiz.createdBy.toString() !== req.user.id) {
+        const course = await Course.findById(quiz.course);
+        if (!course || !course.faculty.includes(req.user.id)) {
+          return res.status(403).json({ message: 'Not authorized to view this submission' });
+        }
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      data: submission
+    });
+  } catch (error) {
+    console.error('Error getting submission:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 // @desc    Grade a submission
 // @route   PUT /api/submissions/:id/grade
 // @access  Private (Faculty and Management only)

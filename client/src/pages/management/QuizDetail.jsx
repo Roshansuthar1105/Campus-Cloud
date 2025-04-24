@@ -8,7 +8,7 @@ const QuizDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const [quiz, setQuiz] = useState(null);
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,142 +23,42 @@ const QuizDetail = () => {
     const fetchQuizData = async () => {
       try {
         setLoading(true);
-        
-        // In a real app, you would fetch the quiz and submissions data from the API
-        // const quizResponse = await api.get(`/quizzes/${id}`);
-        // const submissionsResponse = await api.get(`/quizzes/${id}/submissions`);
-        // setQuiz(quizResponse.data.data);
-        // setSubmissions(submissionsResponse.data.data);
-        
-        // For now, we'll use mock data
-        const mockQuiz = {
-          _id: id,
-          title: 'Midterm Examination',
-          description: 'Comprehensive midterm covering all topics from weeks 1-8.',
-          course: {
-            _id: 'course123',
-            name: 'Introduction to Computer Science',
-            code: 'CS101'
-          },
-          questions: [
-            {
-              _id: 'q1',
-              text: 'What is the time complexity of binary search?',
-              type: 'multiple-choice',
-              options: [
-                { _id: 'o1', text: 'O(1)' },
-                { _id: 'o2', text: 'O(log n)' },
-                { _id: 'o3', text: 'O(n)' },
-                { _id: 'o4', text: 'O(n log n)' }
-              ],
-              correctAnswer: 'o2',
-              points: 5
-            },
-            {
-              _id: 'q2',
-              text: 'Explain the concept of recursion and provide an example.',
-              type: 'essay',
-              points: 10
-            },
-            {
-              _id: 'q3',
-              text: 'Which of the following are valid data structures? (Select all that apply)',
-              type: 'multiple-select',
-              options: [
-                { _id: 'o1', text: 'Array' },
-                { _id: 'o2', text: 'Linked List' },
-                { _id: 'o3', text: 'Queue' },
-                { _id: 'o4', text: 'Branch' }
-              ],
-              correctAnswer: ['o1', 'o2', 'o3'],
-              points: 5
-            }
-          ],
-          timeLimit: 60,
-          passingScore: 70,
-          startDate: new Date(2023, 10, 1),
-          endDate: new Date(2023, 11, 15),
-          isPublished: true,
-          createdAt: new Date(2023, 9, 15),
-          createdBy: {
-            _id: 'faculty123',
-            name: 'Professor Johnson'
-          }
-        };
-        
-        const mockSubmissions = [
-          {
-            _id: 'sub1',
-            quizId: id,
-            student: {
-              _id: 'student1',
-              name: 'John Doe',
-              email: 'john.doe@example.com'
-            },
-            submittedAt: new Date(2023, 10, 5),
-            score: 85,
-            timeSpent: 45,
-            answers: {
-              q1: 'o2',
-              q2: 'Recursion is a method where the solution to a problem depends on solutions to smaller instances of the same problem. Example: factorial function.',
-              q3: ['o1', 'o2', 'o3']
-            },
-            status: 'graded'
-          },
-          {
-            _id: 'sub2',
-            quizId: id,
-            student: {
-              _id: 'student2',
-              name: 'Jane Smith',
-              email: 'jane.smith@example.com'
-            },
-            submittedAt: new Date(2023, 10, 7),
-            score: 92,
-            timeSpent: 52,
-            answers: {
-              q1: 'o2',
-              q2: 'Recursion is when a function calls itself. A classic example is calculating factorial: n! = n * (n-1)!',
-              q3: ['o1', 'o2', 'o3']
-            },
-            status: 'graded'
-          },
-          {
-            _id: 'sub3',
-            quizId: id,
-            student: {
-              _id: 'student3',
-              name: 'Bob Johnson',
-              email: 'bob.johnson@example.com'
-            },
-            submittedAt: new Date(2023, 10, 10),
-            score: 68,
-            timeSpent: 58,
-            answers: {
-              q1: 'o3',
-              q2: 'Recursion is when a function calls itself until it reaches a base case.',
-              q3: ['o1', 'o2', 'o4']
-            },
-            status: 'graded'
-          }
-        ];
-        
-        setQuiz(mockQuiz);
-        setSubmissions(mockSubmissions);
-        
-        // Calculate statistics
-        const totalStudents = 25; // This would come from the API in a real app
-        const completionRate = (mockSubmissions.length / totalStudents) * 100;
-        const totalScore = mockSubmissions.reduce((sum, sub) => sum + sub.score, 0);
-        const averageScore = totalScore / mockSubmissions.length;
-        
-        setStats({
-          totalSubmissions: mockSubmissions.length,
-          totalStudents,
-          completionRate,
-          averageScore
-        });
-        
+
+        // Fetch quiz data
+        const quizResponse = await api.get(`/quizzes/${id}`);
+        const quizData = quizResponse.data.data;
+        setQuiz(quizData);
+
+        // Fetch submissions data
+        const submissionsResponse = await api.get(`/quizzes/${id}/submissions`);
+        const submissionsData = submissionsResponse.data.data;
+        setSubmissions(submissionsData);
+
+        // Fetch stats data
+        try {
+          const statsResponse = await api.get(`/quizzes/${id}/stats`);
+          const statsData = statsResponse.data.data;
+          setStats(statsData);
+        } catch (statsError) {
+          console.error('Error fetching stats, calculating locally:', statsError);
+
+          // Calculate statistics locally if API fails
+          const totalStudents = quizData.course?.students?.length || 0;
+          const completionRate = totalStudents > 0 ? (submissionsData.length / totalStudents) * 100 : 0;
+
+          // Calculate average score from graded submissions
+          const gradedSubmissions = submissionsData.filter(sub => sub.status === 'graded');
+          const totalScore = gradedSubmissions.reduce((sum, sub) => sum + (sub.score || 0), 0);
+          const averageScore = gradedSubmissions.length > 0 ? totalScore / gradedSubmissions.length : 0;
+
+          setStats({
+            totalSubmissions: submissionsData.length,
+            totalStudents,
+            completionRate,
+            averageScore
+          });
+        }
+
         setError(null);
       } catch (err) {
         console.error('Error fetching quiz data:', err);
@@ -173,11 +73,11 @@ const QuizDetail = () => {
 
   const getQuizStatus = () => {
     if (!quiz) return '';
-    
+
     const now = new Date();
     const startDate = new Date(quiz.startDate);
     const endDate = new Date(quiz.endDate);
-    
+
     if (!quiz.isPublished) {
       return 'draft';
     } else if (now < startDate) {
@@ -303,7 +203,7 @@ const QuizDetail = () => {
                 <dt className="text-sm font-medium text-gray-500">Date Range</dt>
                 <dd className="mt-1 text-sm text-gray-900">
                   <FiCalendar className="inline-block mr-1" />
-                  {new Date(quiz.startDate).toLocaleDateString()} - {new Date(quiz.endDate).toLocaleDateString()}
+                  {quiz.startDate ? new Date(quiz.startDate).toLocaleDateString() : 'Not set'} - {quiz.endDate ? new Date(quiz.endDate).toLocaleDateString() : 'Not set'}
                 </dd>
               </div>
               <div className="sm:col-span-1">
@@ -325,25 +225,25 @@ const QuizDetail = () => {
               <div className="sm:col-span-1">
                 <dt className="text-sm font-medium text-gray-500">Time Limit</dt>
                 <dd className="mt-1 text-sm text-gray-900">
-                  {quiz.timeLimit} minutes
+                  {quiz.timeLimit ? `${quiz.timeLimit} minutes` : 'No time limit'}
                 </dd>
               </div>
               <div className="sm:col-span-1">
                 <dt className="text-sm font-medium text-gray-500">Passing Score</dt>
                 <dd className="mt-1 text-sm text-gray-900">
-                  {quiz.passingScore}%
+                  {quiz.passingScore !== undefined && quiz.passingScore !== null ? `${quiz.passingScore}%` : 'Not set'}
                 </dd>
               </div>
               <div className="sm:col-span-1">
                 <dt className="text-sm font-medium text-gray-500">Created By</dt>
                 <dd className="mt-1 text-sm text-gray-900">
-                  {quiz.createdBy.name}
+                  {quiz.createdBy?.name || 'Unknown'}
                 </dd>
               </div>
               <div className="sm:col-span-1">
                 <dt className="text-sm font-medium text-gray-500">Created On</dt>
                 <dd className="mt-1 text-sm text-gray-900">
-                  {new Date(quiz.createdAt).toLocaleDateString()}
+                  {quiz.createdAt ? new Date(quiz.createdAt).toLocaleDateString() : 'Unknown'}
                 </dd>
               </div>
             </dl>
@@ -359,16 +259,16 @@ const QuizDetail = () => {
             <dl className="grid grid-cols-1 gap-x-4 gap-y-6">
               <div className="sm:col-span-1">
                 <dt className="text-sm font-medium text-gray-500">Total Submissions</dt>
-                <dd className="mt-1 text-3xl font-semibold text-gray-900">{stats.totalSubmissions}</dd>
+                <dd className="mt-1 text-3xl font-semibold text-gray-900">{stats.totalSubmissions || 0}</dd>
               </div>
               <div className="sm:col-span-1">
                 <dt className="text-sm font-medium text-gray-500">Completion Rate</dt>
-                <dd className="mt-1 text-3xl font-semibold text-gray-900">{Math.round(stats.completionRate)}%</dd>
-                <p className="text-sm text-gray-500">{stats.totalSubmissions} out of {stats.totalStudents} students</p>
+                <dd className="mt-1 text-3xl font-semibold text-gray-900">{Math.round(stats.completionRate || 0)}%</dd>
+                <p className="text-sm text-gray-500">{stats.totalSubmissions || 0} out of {stats.totalStudents || 0} students</p>
               </div>
               <div className="sm:col-span-1">
                 <dt className="text-sm font-medium text-gray-500">Average Score</dt>
-                <dd className="mt-1 text-3xl font-semibold text-gray-900">{stats.averageScore.toFixed(1)}%</dd>
+                <dd className="mt-1 text-3xl font-semibold text-gray-900">{(stats.averageScore || 0).toFixed(1)}%</dd>
               </div>
             </dl>
             <div className="mt-6">
@@ -389,7 +289,7 @@ const QuizDetail = () => {
           </div>
           <div className="px-4 py-5 sm:p-6">
             <div className="space-y-6">
-              {quiz.questions.map((question, index) => (
+              {quiz.questions && quiz.questions.length > 0 ? (quiz.questions.map((question, index) => (
                 <div key={question._id} className="border-b border-gray-200 pb-6">
                   <div className="mb-2">
                     <span className="text-lg font-medium text-gray-900 mr-2">{index + 1}.</span>
@@ -397,12 +297,12 @@ const QuizDetail = () => {
                     <span className="ml-2 text-sm text-gray-500">({question.points} points)</span>
                   </div>
 
-                  {question.type === 'multiple-choice' && (
+                  {question.type === 'multiple-choice' && question.options && question.options.length > 0 && (
                     <div className="mt-4 space-y-2">
                       {question.options.map((option) => (
                         <div key={option._id} className="flex items-center">
-                          <div className={`h-4 w-4 rounded-full ${option._id === question.correctAnswer ? 'bg-green-500' : 'border border-gray-300'}`}></div>
-                          <span className={`ml-3 block text-sm ${option._id === question.correctAnswer ? 'font-medium text-gray-900' : 'text-gray-700'}`}>
+                          <div className={`h-4 w-4 rounded-full ${question.correctAnswer && option._id === question.correctAnswer ? 'bg-green-500' : 'border border-gray-300'}`}></div>
+                          <span className={`ml-3 block text-sm ${question.correctAnswer && option._id === question.correctAnswer ? 'font-medium text-gray-900' : 'text-gray-700'}`}>
                             {option.text}
                           </span>
                         </div>
@@ -410,12 +310,12 @@ const QuizDetail = () => {
                     </div>
                   )}
 
-                  {question.type === 'multiple-select' && (
+                  {question.type === 'multiple-select' && question.options && question.options.length > 0 && (
                     <div className="mt-4 space-y-2">
                       {question.options.map((option) => (
                         <div key={option._id} className="flex items-center">
-                          <div className={`h-4 w-4 rounded-sm ${question.correctAnswer.includes(option._id) ? 'bg-green-500' : 'border border-gray-300'}`}></div>
-                          <span className={`ml-3 block text-sm ${question.correctAnswer.includes(option._id) ? 'font-medium text-gray-900' : 'text-gray-700'}`}>
+                          <div className={`h-4 w-4 rounded-sm ${question.correctAnswer && Array.isArray(question.correctAnswer) && question.correctAnswer.includes(option._id) ? 'bg-green-500' : 'border border-gray-300'}`}></div>
+                          <span className={`ml-3 block text-sm ${question.correctAnswer && Array.isArray(question.correctAnswer) && question.correctAnswer.includes(option._id) ? 'font-medium text-gray-900' : 'text-gray-700'}`}>
                             {option.text}
                           </span>
                         </div>
@@ -431,7 +331,9 @@ const QuizDetail = () => {
                     </div>
                   )}
                 </div>
-              ))}
+              ))) : (
+                <p className="text-gray-500 text-center py-4">No questions available for this quiz.</p>
+              )}
             </div>
           </div>
         </div>
@@ -479,33 +381,38 @@ const QuizDetail = () => {
                     {submissions.map((submission) => (
                       <tr key={submission._id}>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">{submission.student.name}</div>
-                          <div className="text-sm text-gray-500">{submission.student.email}</div>
+                          <div className="text-sm font-medium text-gray-900">{submission.student?.name || 'Unknown'}</div>
+                          <div className="text-sm text-gray-500">{submission.student?.email || 'No email'}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
-                            {new Date(submission.submittedAt).toLocaleDateString()}
+                            {submission.submittedAt ? new Date(submission.submittedAt).toLocaleDateString() : 'N/A'}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {new Date(submission.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {submission.submittedAt ? new Date(submission.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
-                            {submission.score}%
+                            {submission.score !== undefined && submission.score !== null ? `${submission.score}%` : 'Not graded'}
                           </div>
-                          <div className="text-sm text-gray-500">
-                            {submission.score >= quiz.passingScore ? 'Passed' : 'Failed'}
-                          </div>
+                          {submission.score !== undefined && submission.score !== null && (
+                            <div className="text-sm text-gray-500">
+                              {submission.score >= quiz.passingScore ? 'Passed' : 'Failed'}
+                            </div>
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {submission.timeSpent} min
+                          {submission.timeSpent ? `${submission.timeSpent} min` : 'N/A'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            submission.status === 'graded' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                            submission.status === 'graded' ? 'bg-green-100 text-green-800' :
+                            submission.status === 'submitted' ? 'bg-yellow-100 text-yellow-800' :
+                            submission.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
+                            'bg-gray-100 text-gray-800'
                           }`}>
-                            {submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}
+                            {submission.status ? submission.status.charAt(0).toUpperCase() + submission.status.slice(1) : 'Unknown'}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
