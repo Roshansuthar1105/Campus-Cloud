@@ -51,6 +51,7 @@ app.use('/api/submissions', require('./routes/submissionFeedback'));
 app.use('/api/preferences', require('./routes/preferences'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/reports', require('./routes/reports'));
 
 // Serve static assets in production
 // Note: For deployed app, we're not serving static files from Express

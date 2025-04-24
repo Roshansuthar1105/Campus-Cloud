@@ -1,12 +1,35 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FiDownload, FiBarChart2, FiPieChart, FiTrendingUp, FiUsers, FiBook, FiClipboard } from 'react-icons/fi';
+import { FiDownload, FiBarChart2, FiTrendingUp, FiUsers, FiClipboard } from 'react-icons/fi';
 import courseAPI from '../../services/courseApi';
-import api from '../../services/api';
-import { useAuth } from '../../context/AuthContext';
+import reportAPI from '../../services/reportApi';
+import { Bar, Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Reports = () => {
-  const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [reportType, setReportType] = useState('quiz-performance');
   const [selectedCourse, setSelectedCourse] = useState('');
@@ -34,74 +57,23 @@ const Reports = () => {
 
   useEffect(() => {
     const fetchReportData = async () => {
-      if (!selectedCourse) return;
+      if (!selectedCourse && reportType !== 'question-analysis') return;
 
       setLoading(true);
       try {
-        // In a real application, you would fetch actual report data from the API
-        // For now, we'll simulate a delay and return mock data
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Fetch real report data from the API
+        const params = {
+          courseId: selectedCourse,
+          reportType,
+          dateRange,
+          ...(dateRange === 'custom' && {
+            startDate: document.getElementById('start-date')?.value,
+            endDate: document.getElementById('end-date')?.value
+          })
+        };
 
-        // Mock data for different report types
-        let mockData;
-
-        switch (reportType) {
-          case 'quiz-performance':
-            mockData = {
-              title: 'Quiz Performance Report',
-              description: 'Average scores across quizzes',
-              labels: ['Quiz 1', 'Quiz 2', 'Quiz 3', 'Quiz 4', 'Quiz 5'],
-              datasets: [
-                {
-                  label: 'Average Score (%)',
-                  data: [78, 82, 75, 89, 92]
-                }
-              ],
-              summary: 'Overall average score: 83.2%'
-            };
-            break;
-          case 'student-engagement':
-            mockData = {
-              title: 'Student Engagement Report',
-              description: 'Student participation metrics',
-              labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
-              datasets: [
-                {
-                  label: 'Quiz Submissions',
-                  data: [45, 42, 38, 40, 43]
-                },
-                {
-                  label: 'Form Responses',
-                  data: [30, 35, 28, 32, 38]
-                }
-              ],
-              summary: 'Average weekly engagement: 76.4%'
-            };
-            break;
-          case 'question-analysis':
-            mockData = {
-              title: 'Question Analysis Report',
-              description: 'Performance breakdown by question type',
-              labels: ['Multiple Choice', 'True/False', 'Short Answer', 'Essay'],
-              datasets: [
-                {
-                  label: 'Average Score (%)',
-                  data: [85, 92, 76, 68]
-                }
-              ],
-              summary: 'Students perform best on True/False questions (92%)'
-            };
-            break;
-          default:
-            mockData = {
-              title: 'No Data Available',
-              description: 'Please select a report type',
-              labels: [],
-              datasets: []
-            };
-        }
-
-        setReportData(mockData);
+        const response = await reportAPI.getFacultyReports(params);
+        setReportData(response.data.data);
         setError(null);
       } catch (err) {
         console.error('Error fetching report data:', err);
@@ -131,6 +103,69 @@ const Reports = () => {
       );
     }
 
+    // Prepare chart data
+    const chartData = {
+      labels: reportData.labels || [],
+      datasets: reportData.datasets || []
+    };
+
+    // Determine which chart type to use based on report type
+    const renderChart = () => {
+      if (!reportData.labels || reportData.labels.length === 0) {
+        return (
+          <div className="text-center py-10">
+            <FiBarChart2 className="mx-auto h-16 w-16 text-indigo-400" />
+            <p className="mt-4 text-gray-500">No data available for visualization.</p>
+          </div>
+        );
+      }
+
+      const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          title: {
+            display: true,
+            text: reportData.title,
+          },
+        },
+      };
+
+      switch (reportType) {
+        case 'quiz-performance':
+          return (
+            <div className="h-80">
+              <Bar data={chartData} options={chartOptions} />
+            </div>
+          );
+        case 'student-engagement':
+          return (
+            <div className="h-80">
+              <Line data={chartData} options={chartOptions} />
+            </div>
+          );
+        case 'question-analysis':
+          return (
+            <div className="h-80">
+              <Bar data={chartData} options={chartOptions} />
+            </div>
+          );
+        default:
+          return (
+            <div className="text-center py-10">
+              <FiBarChart2 className="mx-auto h-16 w-16 text-indigo-400" />
+              <p className="mt-4 text-gray-500">Chart visualization would appear here.</p>
+            </div>
+          );
+      }
+    };
+
+    // Get metrics from report data
+    const metrics = reportData.metrics || {};
+
     return (
       <div>
         <div className="mb-6">
@@ -138,13 +173,9 @@ const Reports = () => {
           <p className="text-gray-600">{reportData.description}</p>
         </div>
 
-        {/* This is a placeholder for where charts would be rendered */}
+        {/* Chart visualization */}
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
-          <div className="text-center py-10">
-            <FiBarChart2 className="mx-auto h-16 w-16 text-indigo-400" />
-            <p className="mt-4 text-gray-500">Chart visualization would appear here.</p>
-            <p className="text-sm text-gray-400">In a real application, this would be rendered using a charting library like Chart.js or Recharts.</p>
-          </div>
+          {renderChart()}
         </div>
 
         {/* Report summary */}
@@ -152,61 +183,185 @@ const Reports = () => {
           <h3 className="text-lg font-medium text-gray-900 mb-4">Summary</h3>
           <p className="text-gray-700">{reportData.summary}</p>
 
-          {/* Sample metrics */}
+          {/* Dynamic metrics based on report type */}
           <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <FiUsers className="h-6 w-6 text-gray-400" />
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Total Students</dt>
-                      <dd>
-                        <div className="text-lg font-medium text-gray-900">48</div>
-                      </dd>
-                    </dl>
+            {reportType === 'quiz-performance' && (
+              <>
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="p-5">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <FiClipboard className="h-6 w-6 text-gray-400" />
+                      </div>
+                      <div className="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt className="text-sm font-medium text-gray-500 truncate">Total Quizzes</dt>
+                          <dd>
+                            <div className="text-lg font-medium text-gray-900">{metrics.totalQuizzes || 0}</div>
+                          </dd>
+                        </dl>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <FiClipboard className="h-6 w-6 text-gray-400" />
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Quiz Completion Rate</dt>
-                      <dd>
-                        <div className="text-lg font-medium text-gray-900">87%</div>
-                      </dd>
-                    </dl>
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="p-5">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <FiUsers className="h-6 w-6 text-gray-400" />
+                      </div>
+                      <div className="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt className="text-sm font-medium text-gray-500 truncate">Total Submissions</dt>
+                          <dd>
+                            <div className="text-lg font-medium text-gray-900">{metrics.totalSubmissions || 0}</div>
+                          </dd>
+                        </dl>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <FiTrendingUp className="h-6 w-6 text-gray-400" />
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Average Score</dt>
-                      <dd>
-                        <div className="text-lg font-medium text-gray-900">83.2%</div>
-                      </dd>
-                    </dl>
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="p-5">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <FiTrendingUp className="h-6 w-6 text-gray-400" />
+                      </div>
+                      <div className="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt className="text-sm font-medium text-gray-500 truncate">Average Score</dt>
+                          <dd>
+                            <div className="text-lg font-medium text-gray-900">{metrics.averageScore || 0}%</div>
+                          </dd>
+                        </dl>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </>
+            )}
+
+            {reportType === 'student-engagement' && (
+              <>
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="p-5">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <FiUsers className="h-6 w-6 text-gray-400" />
+                      </div>
+                      <div className="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt className="text-sm font-medium text-gray-500 truncate">Total Students</dt>
+                          <dd>
+                            <div className="text-lg font-medium text-gray-900">{metrics.totalStudents || 0}</div>
+                          </dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="p-5">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <FiClipboard className="h-6 w-6 text-gray-400" />
+                      </div>
+                      <div className="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt className="text-sm font-medium text-gray-500 truncate">Quiz Submissions</dt>
+                          <dd>
+                            <div className="text-lg font-medium text-gray-900">{metrics.totalQuizSubmissions || 0}</div>
+                          </dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="p-5">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <FiTrendingUp className="h-6 w-6 text-gray-400" />
+                      </div>
+                      <div className="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt className="text-sm font-medium text-gray-500 truncate">Engagement Rate</dt>
+                          <dd>
+                            <div className="text-lg font-medium text-gray-900">{metrics.averageEngagement || 0}%</div>
+                          </dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {reportType === 'question-analysis' && (
+              <>
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="p-5">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <FiClipboard className="h-6 w-6 text-gray-400" />
+                      </div>
+                      <div className="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt className="text-sm font-medium text-gray-500 truncate">Total Questions</dt>
+                          <dd>
+                            <div className="text-lg font-medium text-gray-900">{metrics.totalQuestions || 0}</div>
+                          </dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="p-5">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <FiUsers className="h-6 w-6 text-gray-400" />
+                      </div>
+                      <div className="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt className="text-sm font-medium text-gray-500 truncate">Multiple Choice</dt>
+                          <dd>
+                            <div className="text-lg font-medium text-gray-900">
+                              {metrics.questionCounts?.['multiple-choice'] || 0}
+                            </div>
+                          </dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="p-5">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <FiTrendingUp className="h-6 w-6 text-gray-400" />
+                      </div>
+                      <div className="ml-5 w-0 flex-1">
+                        <dl>
+                          <dt className="text-sm font-medium text-gray-500 truncate">True/False</dt>
+                          <dd>
+                            <div className="text-lg font-medium text-gray-900">
+                              {metrics.questionCounts?.['true-false'] || 0}
+                            </div>
+                          </dd>
+                        </dl>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -222,6 +377,43 @@ const Reports = () => {
         </div>
         <button
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          onClick={async () => {
+            if (!reportData) {
+              setError('Please generate a report first before exporting.');
+              return;
+            }
+
+            try {
+
+              // Use a direct approach for downloading
+              const queryParams = new URLSearchParams();
+              if (selectedCourse) queryParams.append('courseId', selectedCourse);
+              if (reportType) queryParams.append('reportType', reportType);
+              if (dateRange) queryParams.append('dateRange', dateRange);
+              if (dateRange === 'custom') {
+                const startDateValue = document.getElementById('start-date')?.value;
+                const endDateValue = document.getElementById('end-date')?.value;
+                if (startDateValue) queryParams.append('startDate', startDateValue);
+                if (endDateValue) queryParams.append('endDate', endDateValue);
+              }
+              queryParams.append('format', 'csv');
+
+              // Create a link and trigger download
+              const downloadUrl = `/api/reports/faculty/export?${queryParams.toString()}`;
+              const a = document.createElement('a');
+              a.style.display = 'none';
+              a.href = downloadUrl;
+              a.download = `${reportType}-report-${new Date().toISOString().split('T')[0]}.csv`;
+              document.body.appendChild(a);
+              a.click();
+              setTimeout(() => {
+                document.body.removeChild(a);
+              }, 100);
+            } catch (err) {
+              console.error('Error exporting report:', err);
+              setError('Failed to export report. Please try again later.');
+            }
+          }}
         >
           <FiDownload className="mr-2 -ml-1 h-5 w-5" />
           Export Report
@@ -338,6 +530,34 @@ const Reports = () => {
               <button
                 type="button"
                 className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                onClick={() => {
+                  // Trigger report generation
+                  const fetchReportData = async () => {
+                    setLoading(true);
+                    try {
+                      const params = {
+                        courseId: selectedCourse,
+                        reportType,
+                        dateRange,
+                        ...(dateRange === 'custom' && {
+                          startDate: document.getElementById('start-date')?.value,
+                          endDate: document.getElementById('end-date')?.value
+                        })
+                      };
+
+                      const response = await reportAPI.getFacultyReports(params);
+                      setReportData(response.data.data);
+                      setError(null);
+                    } catch (err) {
+                      console.error('Error fetching report data:', err);
+                      setError('Failed to load report data. Please try again later.');
+                    } finally {
+                      setLoading(false);
+                    }
+                  };
+
+                  fetchReportData();
+                }}
               >
                 Generate Report
               </button>
