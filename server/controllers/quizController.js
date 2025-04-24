@@ -364,7 +364,6 @@ exports.getQuizStats = async (req, res) => {
     // Get all submissions for this quiz
     const submissions = await QuizSubmission.find({ quiz: quiz._id })
       .populate('student', 'name email');
-
     // Calculate statistics
     const totalSubmissions = submissions.length;
     const gradedSubmissions = submissions.filter(sub => sub.status === 'graded');
@@ -387,16 +386,16 @@ exports.getQuizStats = async (req, res) => {
 
     if (gradedSubmissions.length > 0) {
       // Calculate average score
-      const totalScore = gradedSubmissions.reduce((sum, sub) => sum + (sub.score || 0), 0);
+      const totalScore = gradedSubmissions.reduce((sum, sub) => sum + (sub.percentage || 0), 0);
       averageScore = totalScore / gradedSubmissions.length;
-
+      
       // Calculate passing rate
-      const passedSubmissions = gradedSubmissions.filter(sub => (sub.score || 0) >= quiz.passingScore);
+      const passedSubmissions = gradedSubmissions.filter(sub => (sub.percentage || 0) >= quiz.passingScore);
       passingRate = (passedSubmissions.length / gradedSubmissions.length) * 100;
 
       // Calculate score distribution
       gradedSubmissions.forEach(sub => {
-        const score = sub.score || 0;
+        const score = sub.percentage || 0;
         if (score >= 90) {
           scoreDistribution['90-100']++;
         } else if (score >= 80) {
@@ -416,21 +415,21 @@ exports.getQuizStats = async (req, res) => {
 
     if (quiz.questions) {
       quiz.questions.forEach(question => {
-        if (question.type === 'multiple-choice' || question.type === 'true-false' || question.type === 'multiple-select') {
+        if (question.questionType === 'multiple-choice' || question.questionType === 'true-false' || question.questionType === 'multiple-select') {
           const correctCount = submissions.filter(sub => {
             if (!sub.answers || !sub.answers[question._id]) return false;
-
-            if (question.type === 'multiple-choice' || question.type === 'true-false') {
+      
+            if (question.questionType === 'multiple-choice' || question.questionType === 'true-false') {
               return sub.answers[question._id] === question.correctAnswer;
-            } else if (question.type === 'multiple-select') {
+            } else if (question.questionType === 'multiple-select') {
               const studentAnswer = Array.isArray(sub.answers[question._id]) ?
                 sub.answers[question._id] :
                 [sub.answers[question._id]];
-
+      
               const correctAnswer = Array.isArray(question.correctAnswer) ?
                 question.correctAnswer :
                 [question.correctAnswer];
-
+      
               // Check if arrays are equal (ignoring order)
               return (
                 studentAnswer.length === correctAnswer.length &&
@@ -439,11 +438,11 @@ exports.getQuizStats = async (req, res) => {
             }
             return false;
           }).length;
-
+      
           questionPerformance[question._id] = {
             questionId: question._id,
-            questionText: question.text,
-            questionType: question.type,
+            questionText: question.questionText,
+            questionType: question.questionType,
             correctCount,
             totalAttempts: submissions.filter(sub => sub.answers && sub.answers[question._id]).length,
             correctPercentage: submissions.filter(sub => sub.answers && sub.answers[question._id]).length > 0 ?
@@ -461,11 +460,30 @@ exports.getQuizStats = async (req, res) => {
     };
 
     if (submissions.length > 0) {
-      const times = submissions.map(sub => sub.timeSpent || 0).filter(time => time > 0);
+      const times = submissions
+        .filter(sub => sub.startTime && sub.endTime)
+        .map(sub => {
+          const timeSpent = Math.floor((new Date(sub.endTime) - new Date(sub.startTime)) / 1000); // Convert to seconds
+          return timeSpent > 0 ? timeSpent : 0;
+        })
+        .filter(time => time > 0);
+    
       if (times.length > 0) {
-        timeStats.averageTime = times.reduce((sum, time) => sum + time, 0) / times.length;
-        timeStats.fastestTime = Math.min(...times);
-        timeStats.slowestTime = Math.max(...times);
+        const formatTimeMinSec = (seconds) => {
+          let minutes = Math.floor(seconds / 60);
+          let remainingSeconds = seconds % 60;
+          minutes = minutes < 10 ? "0"+minutes : minutes;
+          remainingSeconds = remainingSeconds < 10 ? "0"+remainingSeconds : remainingSeconds;
+          return `00:${minutes}:${remainingSeconds}`;
+        };
+    
+        const averageSeconds = Math.floor(times.reduce((sum, time) => sum + time, 0) / times.length);
+        const fastestSeconds = Math.min(...times);
+        const slowestSeconds = Math.max(...times);
+    
+        timeStats.averageTime = formatTimeMinSec(averageSeconds);
+        timeStats.fastestTime = formatTimeMinSec(fastestSeconds);
+        timeStats.slowestTime = formatTimeMinSec(slowestSeconds);
       }
     }
 
