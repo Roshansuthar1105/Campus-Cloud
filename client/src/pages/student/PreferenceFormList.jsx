@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiFileText, FiEye, FiCheckCircle, FiClock, FiCalendar } from 'react-icons/fi';
-import api from '../../services/api';
 import courseAPI from '../../services/courseApi';
-import { useAuth } from '../../context/AuthContext';
+import preferenceAPI from '../../services/preferenceApi';
 
 const PreferenceFormList = () => {
-  const { user } = useAuth();
   const [forms, setForms] = useState([]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,61 +17,129 @@ const PreferenceFormList = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch student courses
         const coursesResponse = await courseAPI.getStudentCourses();
         setCourses(coursesResponse.data.data);
-        
-        // Then fetch preference forms (this is a placeholder - you'll need to implement the actual API)
-        // const formsResponse = await api.get('/preferences/student');
-        // setForms(formsResponse.data.data);
-        
-        // For now, we'll use mock data
-        setForms([
-          {
-            _id: '1',
-            title: 'Course Feedback Form',
-            description: 'End of semester course feedback',
-            course: {
-              _id: coursesResponse.data.data[0]?._id,
-              name: coursesResponse.data.data[0]?.name,
-              code: coursesResponse.data.data[0]?.code
+
+        // Fetch preference forms using the API
+        try {
+          const formsResponse = await preferenceAPI.getPreferenceForms();
+          console.log('Preference forms response:', formsResponse.data);
+
+          // Process the forms to add status information
+          const processedForms = await Promise.all(formsResponse.data.data.map(async form => {
+            try {
+              // Get the form details which includes hasSubmitted property
+              const formDetailsResponse = await preferenceAPI.getPreferenceForm(form._id);
+              const formDetails = formDetailsResponse.data.data;
+
+              // Check if the user has submitted this form
+              const hasSubmitted = formDetails.hasSubmitted || false;
+
+              // Determine the status based on dates and submission status
+              let status = 'not-started';
+              if (hasSubmitted) {
+                status = 'completed';
+              } else {
+                const now = new Date();
+                const startDate = new Date(form.startDate);
+                const endDate = new Date(form.endDate);
+
+                if (now < startDate) {
+                  status = 'upcoming';
+                } else if (now > endDate) {
+                  status = 'expired';
+                } else {
+                  status = 'available';
+                }
+              }
+
+              return {
+                ...form,
+                startDate: new Date(form.startDate),
+                endDate: new Date(form.endDate),
+                status,
+                submittedAt: hasSubmitted ? new Date() : null // We don't have the exact submission time
+              };
+            } catch (error) {
+              console.error(`Error fetching details for form ${form._id}:`, error);
+
+              // If we can't get form details, just use the form data
+              const now = new Date();
+              const startDate = new Date(form.startDate);
+              const endDate = new Date(form.endDate);
+
+              let status = 'not-started';
+              if (now < startDate) {
+                status = 'upcoming';
+              } else if (now > endDate) {
+                status = 'expired';
+              } else {
+                status = 'available';
+              }
+
+              return {
+                ...form,
+                startDate: new Date(form.startDate),
+                endDate: new Date(form.endDate),
+                status,
+                submittedAt: null
+              };
+            }
+          }));
+
+          setForms(processedForms);
+        } catch (formsError) {
+          console.error('Error fetching preference forms:', formsError);
+
+          // Fallback to mock data if API call fails
+          setForms([
+            {
+              _id: '1',
+              title: 'Course Feedback Form',
+              description: 'End of semester course feedback',
+              course: {
+                _id: coursesResponse.data.data[0]?._id,
+                name: coursesResponse.data.data[0]?.name,
+                code: coursesResponse.data.data[0]?.code
+              },
+              startDate: new Date(2023, 10, 1),
+              endDate: new Date(2023, 11, 15),
+              status: 'completed',
+              submittedAt: new Date(2023, 10, 5)
             },
-            startDate: new Date(2023, 10, 1),
-            endDate: new Date(2023, 11, 15),
-            status: 'completed',
-            submittedAt: new Date(2023, 10, 5)
-          },
-          {
-            _id: '2',
-            title: 'Teaching Effectiveness Survey',
-            description: 'Survey to evaluate teaching methods',
-            course: {
-              _id: coursesResponse.data.data[0]?._id,
-              name: coursesResponse.data.data[0]?.name,
-              code: coursesResponse.data.data[0]?.code
+            {
+              _id: '2',
+              title: 'Teaching Effectiveness Survey',
+              description: 'Survey to evaluate teaching methods',
+              course: {
+                _id: coursesResponse.data.data[0]?._id,
+                name: coursesResponse.data.data[0]?.name,
+                code: coursesResponse.data.data[0]?.code
+              },
+              startDate: new Date(2023, 9, 15),
+              endDate: new Date(2023, 10, 30),
+              status: 'pending',
+              submittedAt: null
             },
-            startDate: new Date(2023, 9, 15),
-            endDate: new Date(2023, 10, 30),
-            status: 'pending',
-            submittedAt: null
-          },
-          {
-            _id: '3',
-            title: 'Course Material Evaluation',
-            description: 'Evaluate the quality and relevance of course materials',
-            course: {
-              _id: coursesResponse.data.data[0]?._id,
-              name: coursesResponse.data.data[0]?.name,
-              code: coursesResponse.data.data[0]?.code
-            },
-            startDate: new Date(2023, 11, 1),
-            endDate: new Date(2024, 0, 15),
-            status: 'not-started',
-            submittedAt: null
-          }
-        ]);
-        
+            {
+              _id: '3',
+              title: 'Course Material Evaluation',
+              description: 'Evaluate the quality and relevance of course materials',
+              course: {
+                _id: coursesResponse.data.data[0]?._id,
+                name: coursesResponse.data.data[0]?.name,
+                code: coursesResponse.data.data[0]?.code
+              },
+              startDate: new Date(2023, 11, 1),
+              endDate: new Date(2024, 0, 15),
+              status: 'not-started',
+              submittedAt: null
+            }
+          ]);
+        }
+
         setError(null);
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -87,18 +153,22 @@ const PreferenceFormList = () => {
   }, []);
 
   const getFormStatus = (form) => {
-    if (form.status === 'completed') {
-      return 'completed';
+    // If the form already has a status, use it
+    if (form.status) {
+      return form.status;
     }
-    
+
+    // Otherwise, calculate the status based on dates and submission status
     const now = new Date();
     const startDate = new Date(form.startDate);
     const endDate = new Date(form.endDate);
-    
-    if (now < startDate) {
+
+    if (form.submittedAt) {
+      return 'completed';
+    } else if (now < startDate) {
       return 'upcoming';
     } else if (now >= startDate && now <= endDate) {
-      return form.status === 'pending' ? 'pending' : 'available';
+      return 'available';
     } else {
       return 'expired';
     }
@@ -109,7 +179,7 @@ const PreferenceFormList = () => {
     const matchesCourse = !filterCourse || form.course?._id === filterCourse;
     const formStatus = getFormStatus(form);
     const matchesStatus = !filterStatus || formStatus === filterStatus;
-    
+
     return matchesSearch && matchesCourse && matchesStatus;
   });
 
@@ -223,7 +293,7 @@ const PreferenceFormList = () => {
               let statusColor = 'gray';
               let statusIcon = <FiClock className="h-5 w-5" />;
               let actionText = '';
-              
+
               if (status === 'available') {
                 statusColor = 'blue';
                 statusIcon = <FiFileText className="h-5 w-5" />;
@@ -245,7 +315,7 @@ const PreferenceFormList = () => {
                 statusIcon = <FiClock className="h-5 w-5" />;
                 actionText = '';
               }
-              
+
               return (
                 <li key={form._id} className="p-4 hover:bg-gray-50">
                   <div className="flex items-center justify-between">

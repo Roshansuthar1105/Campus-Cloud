@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiEye, FiTrash2, FiBarChart2, FiFileText } from 'react-icons/fi';
-import api from '../../services/api';
 import courseAPI from '../../services/courseApi';
+import preferenceAPI from '../../services/preferenceApi';
 import { useAuth } from '../../context/AuthContext';
 
 const PreferenceFormList = () => {
@@ -19,61 +19,91 @@ const PreferenceFormList = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch faculty courses
         const coursesResponse = await courseAPI.getFacultyCourses();
         setCourses(coursesResponse.data.data);
-        
-        // Then fetch preference forms (this is a placeholder - you'll need to implement the actual API)
-        // const formsResponse = await api.get('/preferences/faculty');
-        // setForms(formsResponse.data.data);
-        
-        // For now, we'll use mock data
-        setForms([
-          {
-            _id: '1',
-            title: 'Course Feedback Form',
-            description: 'End of semester course feedback',
-            course: {
-              _id: coursesResponse.data.data[0]?._id,
-              name: coursesResponse.data.data[0]?.name,
-              code: coursesResponse.data.data[0]?.code
+
+        // Fetch preference forms using the API
+        try {
+          const formsResponse = await preferenceAPI.getPreferenceForms();
+          console.log('Preference forms response:', formsResponse.data);
+
+          // Process the forms to add response count information
+          const processedForms = await Promise.all(formsResponse.data.data.map(async (form) => {
+            try {
+              // Get submission count for each form
+              const submissionsResponse = await preferenceAPI.getFormSubmissions(form._id);
+              const responseCount = submissionsResponse.data.data.length;
+
+              return {
+                ...form,
+                startDate: new Date(form.startDate),
+                endDate: new Date(form.endDate),
+                responses: responseCount
+              };
+            } catch (submissionError) {
+              console.error(`Error fetching submissions for form ${form._id}:`, submissionError);
+              return {
+                ...form,
+                startDate: new Date(form.startDate),
+                endDate: new Date(form.endDate),
+                responses: 0
+              };
+            }
+          }));
+
+          setForms(processedForms);
+        } catch (formsError) {
+          console.error('Error fetching preference forms:', formsError);
+
+          // Fallback to mock data if API call fails
+          setForms([
+            {
+              _id: '1',
+              title: 'Course Feedback Form',
+              description: 'End of semester course feedback',
+              course: {
+                _id: coursesResponse.data.data[0]?._id,
+                name: coursesResponse.data.data[0]?.name,
+                code: coursesResponse.data.data[0]?.code
+              },
+              startDate: new Date(2023, 10, 1),
+              endDate: new Date(2023, 11, 15),
+              isPublished: true,
+              responses: 12
             },
-            startDate: new Date(2023, 10, 1),
-            endDate: new Date(2023, 11, 15),
-            isPublished: true,
-            responses: 12
-          },
-          {
-            _id: '2',
-            title: 'Teaching Effectiveness Survey',
-            description: 'Survey to evaluate teaching methods',
-            course: {
-              _id: coursesResponse.data.data[0]?._id,
-              name: coursesResponse.data.data[0]?.name,
-              code: coursesResponse.data.data[0]?.code
+            {
+              _id: '2',
+              title: 'Teaching Effectiveness Survey',
+              description: 'Survey to evaluate teaching methods',
+              course: {
+                _id: coursesResponse.data.data[0]?._id,
+                name: coursesResponse.data.data[0]?.name,
+                code: coursesResponse.data.data[0]?.code
+              },
+              startDate: new Date(2023, 9, 15),
+              endDate: new Date(2023, 10, 30),
+              isPublished: true,
+              responses: 8
             },
-            startDate: new Date(2023, 9, 15),
-            endDate: new Date(2023, 10, 30),
-            isPublished: true,
-            responses: 8
-          },
-          {
-            _id: '3',
-            title: 'Course Material Evaluation',
-            description: 'Evaluate the quality and relevance of course materials',
-            course: {
-              _id: coursesResponse.data.data[0]?._id,
-              name: coursesResponse.data.data[0]?.name,
-              code: coursesResponse.data.data[0]?.code
-            },
-            startDate: new Date(2023, 11, 1),
-            endDate: new Date(2024, 0, 15),
-            isPublished: false,
-            responses: 0
-          }
-        ]);
-        
+            {
+              _id: '3',
+              title: 'Course Material Evaluation',
+              description: 'Evaluate the quality and relevance of course materials',
+              course: {
+                _id: coursesResponse.data.data[0]?._id,
+                name: coursesResponse.data.data[0]?.name,
+                code: coursesResponse.data.data[0]?.code
+              },
+              startDate: new Date(2023, 11, 1),
+              endDate: new Date(2024, 0, 15),
+              isPublished: false,
+              responses: 0
+            }
+          ]);
+        }
+
         setError(null);
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -90,10 +120,10 @@ const PreferenceFormList = () => {
     if (!window.confirm('Are you sure you want to delete this preference form? This action cannot be undone.')) {
       return;
     }
-    
+
     try {
-      // await api.delete(`/preferences/${id}`);
-      
+      await preferenceAPI.deletePreferenceForm(id);
+
       // Update the forms list
       setForms(forms.filter(form => form._id !== id));
     } catch (err) {
@@ -106,7 +136,7 @@ const PreferenceFormList = () => {
     const now = new Date();
     const startDate = new Date(form.startDate);
     const endDate = new Date(form.endDate);
-    
+
     if (!form.isPublished) {
       return 'draft';
     } else if (now < startDate) {
@@ -123,7 +153,7 @@ const PreferenceFormList = () => {
     const matchesCourse = !filterCourse || form.course?._id === filterCourse;
     const formStatus = getFormStatus(form);
     const matchesStatus = !filterStatus || formStatus === filterStatus;
-    
+
     return matchesSearch && matchesCourse && matchesStatus;
   });
 
@@ -280,7 +310,7 @@ const PreferenceFormList = () => {
                   if (status === 'upcoming') statusColor = 'yellow';
                   if (status === 'ended') statusColor = 'red';
                   if (status === 'draft') statusColor = 'gray';
-                  
+
                   return (
                     <tr key={form._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">

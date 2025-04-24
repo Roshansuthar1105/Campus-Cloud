@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiSave, FiPlus, FiTrash2, FiMove } from 'react-icons/fi';
-import api from '../../services/api';
 import courseAPI from '../../services/courseApi';
+import preferenceAPI from '../../services/preferenceApi';
 import { useAuth } from '../../context/AuthContext';
 
 const PreferenceFormCreate = () => {
@@ -10,13 +10,13 @@ const PreferenceFormCreate = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isEditMode = !!id;
-  
+
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -24,6 +24,7 @@ const PreferenceFormCreate = () => {
     startDate: '',
     endDate: '',
     isPublished: false,
+    targetAudience: 'students', // Default to students for faculty forms
     questions: []
   });
 
@@ -31,62 +32,65 @@ const PreferenceFormCreate = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch faculty courses
         const coursesResponse = await courseAPI.getFacultyCourses();
         setCourses(coursesResponse.data.data);
-        
+
         if (isEditMode) {
-          // In a real app, you would fetch the form data from the API
-          // const formResponse = await api.get(`/preferences/${id}`);
-          // const formData = formResponse.data.data;
-          
-          // For now, we'll use mock data
-          const mockForm = {
-            _id: id,
-            title: 'Course Feedback Form',
-            description: 'Please provide your feedback on the course content, teaching methods, and overall experience.',
-            course: coursesResponse.data.data[0]?._id,
-            startDate: '2023-11-01',
-            endDate: '2023-12-15',
-            isPublished: false,
-            questions: [
-              {
-                _id: 'q1',
-                text: 'How would you rate the overall quality of the course?',
-                type: 'rating',
-                required: true,
-                options: [1, 2, 3, 4, 5]
-              },
-              {
-                _id: 'q2',
-                text: 'How would you rate the clarity of the course materials?',
-                type: 'rating',
-                required: true,
-                options: [1, 2, 3, 4, 5]
-              },
-              {
-                _id: 'q3',
-                text: 'What aspects of the course did you find most valuable?',
-                type: 'text',
-                required: false
-              },
-              {
-                _id: 'q4',
-                text: 'Would you recommend this course to other students?',
-                type: 'multiple-choice',
-                required: true,
-                options: [
-                  { _id: 'o1', text: 'Yes, definitely' },
-                  { _id: 'o2', text: 'Yes, with some reservations' },
-                  { _id: 'o3', text: 'No, not really' },
-                  { _id: 'o4', text: 'No, definitely not' }
-                ]
-              }
-            ]
-          };
-          
-          setFormData(mockForm);
+          try {
+            // Fetch the form data from the API
+            const formResponse = await preferenceAPI.getPreferenceForm(id);
+            setFormData(formResponse.data.data);
+          } catch (formError) {
+            console.error('Error fetching form data:', formError);
+            // If there's an error fetching the form, use mock data as fallback
+            const mockForm = {
+              _id: id,
+              title: 'Course Feedback Form',
+              description: 'Please provide your feedback on the course content, teaching methods, and overall experience.',
+              course: coursesResponse.data.data[0]?._id,
+              startDate: '2023-11-01',
+              endDate: '2023-12-15',
+              isPublished: false,
+              questions: [
+                {
+                  _id: 'q1',
+                  text: 'How would you rate the overall quality of the course?',
+                  type: 'rating',
+                  required: true,
+                  options: [1, 2, 3, 4, 5]
+                },
+                {
+                  _id: 'q2',
+                  text: 'How would you rate the clarity of the course materials?',
+                  type: 'rating',
+                  required: true,
+                  options: [1, 2, 3, 4, 5]
+                },
+                {
+                  _id: 'q3',
+                  text: 'What aspects of the course did you find most valuable?',
+                  type: 'text',
+                  required: false
+                },
+                {
+                  _id: 'q4',
+                  text: 'Would you recommend this course to other students?',
+                  type: 'multiple-choice',
+                  required: true,
+                  options: [
+                    { _id: 'o1', text: 'Yes, definitely' },
+                    { _id: 'o2', text: 'Yes, with some reservations' },
+                    { _id: 'o3', text: 'No, not really' },
+                    { _id: 'o4', text: 'No, definitely not' }
+                  ]
+                }
+              ]
+            };
+
+            setFormData(mockForm);
+          }
         } else if (coursesResponse.data.data.length > 0) {
           // Set default course if available
           setFormData(prev => ({
@@ -94,7 +98,7 @@ const PreferenceFormCreate = () => {
             course: coursesResponse.data.data[0]._id
           }));
         }
-        
+
         setError(null);
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -130,7 +134,7 @@ const PreferenceFormCreate = () => {
   const handleOptionChange = (questionIndex, optionIndex, value) => {
     const updatedQuestions = [...formData.questions];
     const question = updatedQuestions[questionIndex];
-    
+
     if (question.type === 'rating') {
       // For rating questions, options are just numbers
       const options = [...question.options];
@@ -151,7 +155,7 @@ const PreferenceFormCreate = () => {
         options
       };
     }
-    
+
     setFormData({
       ...formData,
       questions: updatedQuestions
@@ -165,7 +169,7 @@ const PreferenceFormCreate = () => {
       type: 'text',
       required: false
     };
-    
+
     setFormData({
       ...formData,
       questions: [...formData.questions, newQuestion]
@@ -184,7 +188,7 @@ const PreferenceFormCreate = () => {
   const addOption = (questionIndex) => {
     const updatedQuestions = [...formData.questions];
     const question = updatedQuestions[questionIndex];
-    
+
     if (question.type === 'rating') {
       // For rating questions, add the next number
       const currentMax = Math.max(...question.options, 0);
@@ -203,7 +207,7 @@ const PreferenceFormCreate = () => {
         options: question.options ? [...question.options, newOption] : [newOption]
       };
     }
-    
+
     setFormData({
       ...formData,
       questions: updatedQuestions
@@ -213,15 +217,15 @@ const PreferenceFormCreate = () => {
   const removeOption = (questionIndex, optionIndex) => {
     const updatedQuestions = [...formData.questions];
     const question = updatedQuestions[questionIndex];
-    
+
     const options = [...question.options];
     options.splice(optionIndex, 1);
-    
+
     updatedQuestions[questionIndex] = {
       ...question,
       options
     };
-    
+
     setFormData({
       ...formData,
       questions: updatedQuestions
@@ -231,7 +235,7 @@ const PreferenceFormCreate = () => {
   const handleTypeChange = (index, newType) => {
     const updatedQuestions = [...formData.questions];
     const question = updatedQuestions[index];
-    
+
     // Initialize appropriate options based on type
     let options;
     if (newType === 'rating') {
@@ -244,13 +248,13 @@ const PreferenceFormCreate = () => {
     } else {
       options = undefined;
     }
-    
+
     updatedQuestions[index] = {
       ...question,
       type: newType,
       options
     };
-    
+
     setFormData({
       ...formData,
       questions: updatedQuestions
@@ -264,12 +268,12 @@ const PreferenceFormCreate = () => {
     ) {
       return;
     }
-    
+
     const updatedQuestions = [...formData.questions];
     const newIndex = direction === 'up' ? index - 1 : index + 1;
-    
+
     [updatedQuestions[index], updatedQuestions[newIndex]] = [updatedQuestions[newIndex], updatedQuestions[index]];
-    
+
     setFormData({
       ...formData,
       questions: updatedQuestions
@@ -281,46 +285,51 @@ const PreferenceFormCreate = () => {
       setError('Form title is required');
       return false;
     }
-    
-    if (!formData.course) {
-      setError('Please select a course');
+
+    if (!formData.targetAudience) {
+      setError('Please select a target audience');
       return false;
     }
-    
+
+    if (formData.targetAudience === 'specific-course' && !formData.course) {
+      setError('Please select a course for the specific course target audience');
+      return false;
+    }
+
     if (!formData.startDate) {
       setError('Start date is required');
       return false;
     }
-    
+
     if (!formData.endDate) {
       setError('End date is required');
       return false;
     }
-    
+
     if (new Date(formData.startDate) > new Date(formData.endDate)) {
       setError('End date must be after start date');
       return false;
     }
-    
+
     if (formData.questions.length === 0) {
       setError('Form must have at least one question');
       return false;
     }
-    
+
     for (let i = 0; i < formData.questions.length; i++) {
       const question = formData.questions[i];
-      
+
       if (!question.text.trim()) {
         setError(`Question ${i + 1} text is required`);
         return false;
       }
-      
+
       if (question.type === 'multiple-choice') {
         if (!question.options || question.options.length < 2) {
           setError(`Question ${i + 1} must have at least 2 options`);
           return false;
         }
-        
+
         for (let j = 0; j < question.options.length; j++) {
           if (!question.options[j].text.trim()) {
             setError(`Option ${j + 1} for Question ${i + 1} text is required`);
@@ -329,41 +338,69 @@ const PreferenceFormCreate = () => {
         }
       }
     }
-    
+
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setSaving(true);
     setError(null);
     setSuccess(null);
-    
+
     try {
-      // In a real app, you would submit the form data to the API
-      // if (isEditMode) {
-      //   await api.put(`/preferences/${id}`, formData);
-      // } else {
-      //   await api.post('/preferences', formData);
-      // }
-      
-      // For now, we'll just simulate a delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      // Transform the form data to match the server's expected structure
+      const transformedFormData = {
+        title: formData.title,
+        description: formData.description,
+        course: formData.course,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        isPublished: formData.isPublished,
+        targetAudience: formData.targetAudience,
+        questions: formData.questions.map(question => ({
+          questionText: question.text,
+          questionType: question.type,
+          isRequired: question.required,
+          options: question.type === 'multiple-choice'
+            ? question.options.map(option => ({
+                text: option.text,
+                value: option._id
+              }))
+            : question.type === 'rating'
+              ? question.options.map(option => ({
+                  text: option.toString(),
+                  value: option.toString()
+                }))
+              : []
+        }))
+      };
+
+      // Submit the transformed form data to the API
+      if (isEditMode) {
+        await preferenceAPI.updatePreferenceForm(id, transformedFormData);
+      } else {
+        await preferenceAPI.createPreferenceForm(transformedFormData);
+      }
+
       setSuccess(`Form ${isEditMode ? 'updated' : 'created'} successfully!`);
-      
+
       // Redirect to the form list after a short delay
       setTimeout(() => {
         navigate('/faculty/preferences');
       }, 2000);
     } catch (err) {
       console.error('Error saving form:', err);
-      setError(`Failed to ${isEditMode ? 'update' : 'create'} form. Please try again.`);
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(`Failed to ${isEditMode ? 'update' : 'create'} form: ${err.response.data.message}`);
+      } else {
+        setError(`Failed to ${isEditMode ? 'update' : 'create'} form. Please try again.`);
+      }
     } finally {
       setSaving(false);
     }
@@ -466,8 +503,27 @@ const PreferenceFormCreate = () => {
               </div>
 
               <div className="sm:col-span-3">
+                <label htmlFor="targetAudience" className="block text-sm font-medium text-gray-700">
+                  Target Audience *
+                </label>
+                <div className="mt-1">
+                  <select
+                    id="targetAudience"
+                    name="targetAudience"
+                    value={formData.targetAudience}
+                    onChange={handleInputChange}
+                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  >
+                    <option value="students">Students</option>
+                    <option value="all">All Users</option>
+                    <option value="specific-course">Specific Course</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="sm:col-span-3">
                 <label htmlFor="course" className="block text-sm font-medium text-gray-700">
-                  Course *
+                  Course {formData.targetAudience === 'specific-course' ? '*' : ''}
                 </label>
                 <div className="mt-1">
                   <select
@@ -475,7 +531,8 @@ const PreferenceFormCreate = () => {
                     name="course"
                     value={formData.course}
                     onChange={handleInputChange}
-                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                    disabled={formData.targetAudience !== 'specific-course'}
+                    className={`shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md ${formData.targetAudience !== 'specific-course' ? 'bg-gray-100' : ''}`}
                   >
                     <option value="">Select a course</option>
                     {courses.map((course) => (

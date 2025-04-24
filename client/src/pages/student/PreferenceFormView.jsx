@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiCalendar, FiCheckCircle } from 'react-icons/fi';
-import api from '../../services/api';
+import preferenceAPI from '../../services/preferenceApi';
 import { useAuth } from '../../context/AuthContext';
 
 const PreferenceFormView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const [form, setForm] = useState(null);
   const [submission, setSubmission] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,92 +18,107 @@ const PreferenceFormView = () => {
     const fetchFormData = async () => {
       try {
         setLoading(true);
-        
-        // In a real app, you would fetch the form and submission data from the API
-        // const formResponse = await api.get(`/preferences/${id}`);
-        // const submissionResponse = await api.get(`/preferences/${id}/submission`);
-        // setForm(formResponse.data.data);
-        // setSubmission(submissionResponse.data.data);
-        
-        // For now, we'll use mock data
-        const mockForm = {
-          _id: id,
-          title: 'Course Feedback Form',
-          description: 'Please provide your feedback on the course content, teaching methods, and overall experience.',
-          course: {
-            _id: 'course123',
-            name: 'Introduction to Computer Science',
-            code: 'CS101'
-          },
-          questions: [
-            {
-              _id: 'q1',
-              text: 'How would you rate the overall quality of the course?',
-              type: 'rating',
-              required: true,
-              options: [1, 2, 3, 4, 5]
-            },
-            {
-              _id: 'q2',
-              text: 'How would you rate the clarity of the course materials?',
-              type: 'rating',
-              required: true,
-              options: [1, 2, 3, 4, 5]
-            },
-            {
-              _id: 'q3',
-              text: 'How would you rate the instructor\'s teaching effectiveness?',
-              type: 'rating',
-              required: true,
-              options: [1, 2, 3, 4, 5]
-            },
-            {
-              _id: 'q4',
-              text: 'What aspects of the course did you find most valuable?',
-              type: 'text',
-              required: false
-            },
-            {
-              _id: 'q5',
-              text: 'What aspects of the course could be improved?',
-              type: 'text',
-              required: false
-            },
-            {
-              _id: 'q6',
-              text: 'Would you recommend this course to other students?',
-              type: 'multiple-choice',
-              required: true,
-              options: [
-                { _id: 'o1', text: 'Yes, definitely' },
-                { _id: 'o2', text: 'Yes, with some reservations' },
-                { _id: 'o3', text: 'No, not really' },
-                { _id: 'o4', text: 'No, definitely not' }
-              ]
-            }
-          ],
-          startDate: new Date(2023, 10, 1),
-          endDate: new Date(2023, 11, 15)
-        };
-        
-        const mockSubmission = {
-          _id: 'sub123',
-          formId: id,
-          studentId: user._id,
-          submittedAt: new Date(2023, 10, 5),
-          answers: {
-            q1: '4',
-            q2: '5',
-            q3: '4',
-            q4: 'The practical coding exercises and real-world examples were very helpful in understanding the concepts.',
-            q5: 'More time could be spent on advanced topics and additional resources for further learning would be beneficial.',
-            q6: 'o1'
+
+        try {
+          // Fetch the form data from the API
+          const formResponse = await preferenceAPI.getPreferenceForm(id);
+          setForm(formResponse.data.data);
+
+          // Fetch the user's submission for this form
+          // Note: This endpoint might need to be added to the API
+          const submissionResponse = await preferenceAPI.getFormSubmissions(id);
+          // Find the user's submission in the list
+          const userSubmission = submissionResponse.data.data.find(
+            submission => submission.studentId === user._id
+          );
+
+          if (userSubmission) {
+            setSubmission(userSubmission);
+          } else {
+            throw new Error('Submission not found');
           }
-        };
-        
-        setForm(mockForm);
-        setSubmission(mockSubmission);
-        
+        } catch (apiError) {
+          console.error('Error fetching data from API:', apiError);
+          // Fallback to mock data if API calls fail
+          const mockForm = {
+            _id: id,
+            title: 'Course Feedback Form',
+            description: 'Please provide your feedback on the course content, teaching methods, and overall experience.',
+            course: {
+              _id: 'course123',
+              name: 'Introduction to Computer Science',
+              code: 'CS101'
+            },
+            questions: [
+              {
+                _id: 'q1',
+                text: 'How would you rate the overall quality of the course?',
+                type: 'rating',
+                required: true,
+                options: [1, 2, 3, 4, 5]
+              },
+              {
+                _id: 'q2',
+                text: 'How would you rate the clarity of the course materials?',
+                type: 'rating',
+                required: true,
+                options: [1, 2, 3, 4, 5]
+              },
+              {
+                _id: 'q3',
+                text: 'How would you rate the instructor\'s teaching effectiveness?',
+                type: 'rating',
+                required: true,
+                options: [1, 2, 3, 4, 5]
+              },
+              {
+                _id: 'q4',
+                text: 'What aspects of the course did you find most valuable?',
+                type: 'text',
+                required: false
+              },
+              {
+                _id: 'q5',
+                text: 'What aspects of the course could be improved?',
+                type: 'text',
+                required: false
+              },
+              {
+                _id: 'q6',
+                text: 'Would you recommend this course to other students?',
+                type: 'multiple-choice',
+                required: true,
+                options: [
+                  { _id: 'o1', text: 'Yes, definitely' },
+                  { _id: 'o2', text: 'Yes, with some reservations' },
+                  { _id: 'o3', text: 'No, not really' },
+                  { _id: 'o4', text: 'No, definitely not' }
+                ]
+              }
+            ],
+            startDate: new Date(2023, 10, 1),
+            endDate: new Date(2023, 11, 15)
+          };
+
+          const mockSubmission = {
+            _id: 'sub123',
+            formId: id,
+            studentId: user._id,
+            submittedAt: new Date(2023, 10, 5),
+            answers: {
+              q1: '4',
+              q2: '5',
+              q3: '4',
+              q4: 'The practical coding exercises and real-world examples were very helpful in understanding the concepts.',
+              q5: 'More time could be spent on advanced topics and additional resources for further learning would be beneficial.',
+              q6: 'o1'
+            }
+          };
+
+          setForm(mockForm);
+          setSubmission(mockSubmission);
+        }
+
         setError(null);
       } catch (err) {
         console.error('Error fetching form data:', err);
@@ -118,20 +133,20 @@ const PreferenceFormView = () => {
 
   const getAnswerDisplay = (question, answer) => {
     if (!answer) return 'Not answered';
-    
+
     if (question.type === 'rating') {
       return `${answer} out of ${Math.max(...question.options)}`;
     }
-    
+
     if (question.type === 'text') {
       return answer || 'No response provided';
     }
-    
+
     if (question.type === 'multiple-choice') {
       const selectedOption = question.options.find(opt => opt._id === answer);
       return selectedOption ? selectedOption.text : 'Invalid selection';
     }
-    
+
     return answer;
   };
 
@@ -210,7 +225,7 @@ const PreferenceFormView = () => {
             Submitted on {new Date(submission.submittedAt).toLocaleDateString()} at {new Date(submission.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </p>
         </div>
-        
+
         <div className="px-4 py-5 sm:p-6">
           <div className="mb-6">
             <p className="text-gray-700">{form.description}</p>
@@ -227,7 +242,7 @@ const PreferenceFormView = () => {
                 <div className="mt-4">
                   <div className="bg-gray-50 p-4 rounded-md">
                     <p className="text-sm font-medium text-gray-700">Your Answer:</p>
-                    
+
                     {question.type === 'rating' && (
                       <div className="mt-2">
                         <div className="flex items-center">

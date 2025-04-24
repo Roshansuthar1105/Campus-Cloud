@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiSave, FiCheckCircle } from 'react-icons/fi';
-import api from '../../services/api';
+import preferenceAPI from '../../services/preferenceApi';
 import { useAuth } from '../../context/AuthContext';
 
 const PreferenceForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const [form, setForm] = useState(null);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
@@ -20,81 +20,93 @@ const PreferenceForm = () => {
     const fetchFormData = async () => {
       try {
         setLoading(true);
-        
-        // In a real app, you would fetch the form data from the API
-        // const response = await api.get(`/preferences/${id}`);
-        // setForm(response.data.data);
-        
-        // For now, we'll use mock data
-        const mockForm = {
-          _id: id,
-          title: 'Course Feedback Form',
-          description: 'Please provide your feedback on the course content, teaching methods, and overall experience.',
-          course: {
-            _id: 'course123',
-            name: 'Introduction to Computer Science',
-            code: 'CS101'
-          },
-          questions: [
-            {
-              _id: 'q1',
-              text: 'How would you rate the overall quality of the course?',
-              type: 'rating',
-              required: true,
-              options: [1, 2, 3, 4, 5]
+
+        try {
+          // Fetch the form data from the API
+          const response = await preferenceAPI.getPreferenceForm(id);
+          const formData = response.data.data;
+          setForm(formData);
+
+          // Initialize answers object
+          const initialAnswers = {};
+          formData.questions.forEach(question => {
+            initialAnswers[question._id] = '';
+          });
+          setAnswers(initialAnswers);
+          console.log("data......",formData)
+        } catch (formError) {
+          console.error('Error fetching form data from API:', formError);
+          // Fallback to mock data if API call fails
+          const mockForm = {
+            _id: id,
+            title: 'Course Feedback Form',
+            description: 'Please provide your feedback on the course content, teaching methods, and overall experience.',
+            course: {
+              _id: 'course123',
+              name: 'Introduction to Computer Science',
+              code: 'CS101'
             },
-            {
-              _id: 'q2',
-              text: 'How would you rate the clarity of the course materials?',
-              type: 'rating',
-              required: true,
-              options: [1, 2, 3, 4, 5]
-            },
-            {
-              _id: 'q3',
-              text: 'How would you rate the instructor\'s teaching effectiveness?',
-              type: 'rating',
-              required: true,
-              options: [1, 2, 3, 4, 5]
-            },
-            {
-              _id: 'q4',
-              text: 'What aspects of the course did you find most valuable?',
-              type: 'text',
-              required: false
-            },
-            {
-              _id: 'q5',
-              text: 'What aspects of the course could be improved?',
-              type: 'text',
-              required: false
-            },
-            {
-              _id: 'q6',
-              text: 'Would you recommend this course to other students?',
-              type: 'multiple-choice',
-              required: true,
-              options: [
-                { _id: 'o1', text: 'Yes, definitely' },
-                { _id: 'o2', text: 'Yes, with some reservations' },
-                { _id: 'o3', text: 'No, not really' },
-                { _id: 'o4', text: 'No, definitely not' }
-              ]
-            }
-          ],
-          startDate: new Date(2023, 10, 1),
-          endDate: new Date(2023, 11, 15)
-        };
-        
-        setForm(mockForm);
-        
-        // Initialize answers object
-        const initialAnswers = {};
-        mockForm.questions.forEach(question => {
-          initialAnswers[question._id] = '';
-        });
-        setAnswers(initialAnswers);
-        
+            questions: [
+              {
+                _id: 'q1',
+                text: 'How would you rate the overall quality of the course?',
+                type: 'rating',
+                required: true,
+                options: [1, 2, 3, 4, 5]
+              },
+              {
+                _id: 'q2',
+                text: 'How would you rate the clarity of the course materials?',
+                type: 'rating',
+                required: true,
+                options: [1, 2, 3, 4, 5]
+              },
+              {
+                _id: 'q3',
+                text: 'How would you rate the instructor\'s teaching effectiveness?',
+                type: 'rating',
+                required: true,
+                options: [1, 2, 3, 4, 5]
+              },
+              {
+                _id: 'q4',
+                text: 'What aspects of the course did you find most valuable?',
+                type: 'text',
+                required: false
+              },
+              {
+                _id: 'q5',
+                text: 'What aspects of the course could be improved?',
+                type: 'text',
+                required: false
+              },
+              {
+                _id: 'q6',
+                text: 'Would you recommend this course to other students?',
+                type: 'multiple-choice',
+                required: true,
+                options: [
+                  { _id: 'o1', text: 'Yes, definitely' },
+                  { _id: 'o2', text: 'Yes, with some reservations' },
+                  { _id: 'o3', text: 'No, not really' },
+                  { _id: 'o4', text: 'No, definitely not' }
+                ]
+              }
+            ],
+            startDate: new Date(2023, 10, 1),
+            endDate: new Date(2023, 11, 15)
+          };
+
+          setForm(mockForm);
+
+          // Initialize answers object
+          const initialAnswers = {};
+          mockForm.questions.forEach(question => {
+            initialAnswers[question._id] = '';
+          });
+          setAnswers(initialAnswers);
+        }
+
         setError(null);
       } catch (err) {
         console.error('Error fetching form data:', err);
@@ -117,42 +129,60 @@ const PreferenceForm = () => {
   const validateForm = () => {
     const requiredQuestions = form.questions.filter(q => q.required);
     const unansweredQuestions = requiredQuestions.filter(q => !answers[q._id]);
-    
+
     if (unansweredQuestions.length > 0) {
       setError(`Please answer all required questions. (${unansweredQuestions.length} remaining)`);
       return false;
     }
-    
+
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setSubmitting(true);
     setError(null);
     setSuccess(null);
-    
+
     try {
-      // In a real app, you would submit the form data to the API
-      // await api.post(`/preferences/${id}/submit`, { answers });
-      
-      // For now, we'll just simulate a delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      // Transform answers to match the server's expected format
+      const formattedAnswers = Object.keys(answers).map(questionId => {
+        const question = form.questions.find(q => q._id === questionId);
+        const answer = answers[questionId];
+
+        return {
+          questionId,
+          questionText: question.text,
+          selectedOptions: question.questionType === 'multiple-choice' ? [answer] : [],
+          textAnswer: question.questionType === 'text' ? answer : '',
+          ratingValue: question.questionType === 'rating' ? parseInt(answer, 10) : null
+        };
+      });
+
+      // Submit the form data to the API
+      await preferenceAPI.submitPreferenceForm(id, {
+        answers: formattedAnswers,
+        isAnonymous: false // Add option for anonymous submission if needed
+      });
+
       setSuccess('Form submitted successfully!');
-      
+
       // Redirect to the form list after a short delay
       setTimeout(() => {
         navigate('/student/preferences');
       }, 2000);
     } catch (err) {
       console.error('Error submitting form:', err);
-      setError('Failed to submit form. Please try again.');
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(`Failed to submit form: ${err.response.data.message}`);
+      } else {
+        setError('Failed to submit form. Please try again.');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -235,13 +265,14 @@ const PreferenceForm = () => {
                 <div key={question._id} className="border-b border-gray-200 pb-6">
                   <div className="mb-2 flex items-baseline">
                     <span className="text-lg font-medium text-gray-900 mr-2">{index + 1}.</span>
-                    <span className="text-lg text-gray-900">{question.text}</span>
-                    {question.required && (
+                    <span className="text-lg text-gray-900">{question.questionText}</span>
+                    {question.isRequired && (
                       <span className="ml-1 text-red-500">*</span>
                     )}
                   </div>
 
-                  {question.type === 'rating' && (
+                  {/* {question.questionType === 'rating' && ( */}
+                  {question.questionType === 'rating' && (
                     <div className="mt-4">
                       <div className="flex items-center justify-between max-w-md">
                         <span className="text-sm text-gray-500">Poor</span>
@@ -249,23 +280,23 @@ const PreferenceForm = () => {
                       </div>
                       <div className="mt-1 flex items-center justify-between max-w-md">
                         {question.options.map((option) => (
-                          <label key={option} className="flex flex-col items-center">
+                          <label key={option._id} className="flex flex-col items-center">
                             <input
                               type="radio"
                               name={`question_${question._id}`}
-                              value={option}
-                              checked={answers[question._id] === option.toString()}
-                              onChange={() => handleInputChange(question._id, option.toString())}
+                              value={option.value}
+                              checked={answers[question._id] === option.value}
+                              onChange={() => handleInputChange(question._id, option.value)}
                               className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
                             />
-                            <span className="mt-1 text-sm text-gray-700">{option}</span>
+                            <span className="mt-1 text-sm text-gray-700">{option.text}</span>
                           </label>
                         ))}
                       </div>
                     </div>
                   )}
 
-                  {question.type === 'text' && (
+                  {question.questionType === 'text' && (
                     <div className="mt-4">
                       <textarea
                         rows={4}
@@ -277,7 +308,7 @@ const PreferenceForm = () => {
                     </div>
                   )}
 
-                  {question.type === 'multiple-choice' && (
+                  {question.questionType === 'multiple-choice' && (
                     <div className="mt-4 space-y-2">
                       {question.options.map((option) => (
                         <div key={option._id} className="flex items-center">
@@ -285,9 +316,9 @@ const PreferenceForm = () => {
                             id={`question_${question._id}_option_${option._id}`}
                             name={`question_${question._id}`}
                             type="radio"
-                            value={option._id}
-                            checked={answers[question._id] === option._id}
-                            onChange={() => handleInputChange(question._id, option._id)}
+                            value={option.value}
+                            checked={answers[question._id] === option.value}
+                            onChange={() => handleInputChange(question._id, option.value)}
                             className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
                           />
                           <label
