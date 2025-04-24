@@ -302,7 +302,7 @@ const getQuizPerformanceReport = async (courses, dateFilter) => {
     labels.push(quiz.title);
 
     if (quizSubs.length > 0) {
-      const totalScore = quizSubs.reduce((sum, sub) => sum + (sub.score || 0), 0);
+      const totalScore = quizSubs.reduce((sum, sub) => sum + (sub.percentage || 0), 0);
       scores.push(parseFloat((totalScore / quizSubs.length).toFixed(1)));
     } else {
       scores.push(0);

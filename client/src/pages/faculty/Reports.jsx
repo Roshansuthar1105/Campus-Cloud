@@ -71,7 +71,7 @@ const Reports = () => {
             endDate: document.getElementById('end-date')?.value
           })
         };
-
+        // console.log("params....",params)
         const response = await reportAPI.getFacultyReports(params);
         setReportData(response.data.data);
         setError(null);
@@ -165,7 +165,6 @@ const Reports = () => {
 
     // Get metrics from report data
     const metrics = reportData.metrics || {};
-
     return (
       <div>
         <div className="mb-6">
@@ -376,48 +375,53 @@ const Reports = () => {
           <p className="text-gray-600">Generate and view analytics for your courses</p>
         </div>
         <button
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          onClick={async () => {
-            if (!reportData) {
-              setError('Please generate a report first before exporting.');
-              return;
-            }
+  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+  onClick={async () => {
+    if (!reportData) {
+      setError('Please generate a report first before exporting.');
+      return;
+    }
 
-            try {
+    try {
+      const params = {
+        courseId: selectedCourse,
+        reportType: reportType,
+        dateRange: dateRange,
+        format: 'csv'
+      };
 
-              // Use a direct approach for downloading
-              const queryParams = new URLSearchParams();
-              if (selectedCourse) queryParams.append('courseId', selectedCourse);
-              if (reportType) queryParams.append('reportType', reportType);
-              if (dateRange) queryParams.append('dateRange', dateRange);
-              if (dateRange === 'custom') {
-                const startDateValue = document.getElementById('start-date')?.value;
-                const endDateValue = document.getElementById('end-date')?.value;
-                if (startDateValue) queryParams.append('startDate', startDateValue);
-                if (endDateValue) queryParams.append('endDate', endDateValue);
-              }
-              queryParams.append('format', 'csv');
+      if (dateRange === 'custom') {
+        params.startDate = document.getElementById('start-date')?.value;
+        params.endDate = document.getElementById('end-date')?.value;
+      }
 
-              // Create a link and trigger download
-              const downloadUrl = `/api/reports/faculty/export?${queryParams.toString()}`;
-              const a = document.createElement('a');
-              a.style.display = 'none';
-              a.href = downloadUrl;
-              a.download = `${reportType}-report-${new Date().toISOString().split('T')[0]}.csv`;
-              document.body.appendChild(a);
-              a.click();
-              setTimeout(() => {
-                document.body.removeChild(a);
-              }, 100);
-            } catch (err) {
-              console.error('Error exporting report:', err);
-              setError('Failed to export report. Please try again later.');
-            }
-          }}
-        >
-          <FiDownload className="mr-2 -ml-1 h-5 w-5" />
-          Export Report
-        </button>
+      const response = await reportAPI.exportFacultyReport(params);
+      
+      // Create a blob from the response data
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      
+      // Create URL for the blob
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create temporary link and trigger download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${reportType}-report-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Error exporting report:', err);
+      setError('Failed to export report. Please try again later.');
+    }
+  }}
+>
+  <FiDownload className="mr-2 -ml-1 h-5 w-5" />
+  Export Report
+</button>
       </div>
 
       {error && (
@@ -564,7 +568,7 @@ const Reports = () => {
             </div>
           </div>
 
-          <div className="bg-white shadow rounded-lg p-6 mt-6">
+          {/* <div className="bg-white shadow rounded-lg p-6 mt-6">
             <h2 className="text-lg font-medium text-gray-900 mb-4">Saved Reports</h2>
             <ul className="divide-y divide-gray-200">
               <li className="py-3">
@@ -586,7 +590,7 @@ const Reports = () => {
                 <p className="text-sm text-gray-500">Generated on March 30, 2023</p>
               </li>
             </ul>
-          </div>
+          </div> */}
         </div>
 
         {/* Report content */}

@@ -11,7 +11,6 @@ const reportAPI = {
     if (params.dateRange) queryParams.append('dateRange', params.dateRange);
     if (params.startDate) queryParams.append('startDate', params.startDate);
     if (params.endDate) queryParams.append('endDate', params.endDate);
-    
     const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
     return await api.get(`/reports/faculty${queryString}`);
   },
