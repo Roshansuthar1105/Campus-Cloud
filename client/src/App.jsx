@@ -14,6 +14,7 @@ import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import AuthCallback from './pages/AuthCallback';
+import GoogleAuthComplete from './pages/GoogleAuthComplete';
 
 // Student Pages
 import StudentDashboard from './pages/student/StudentDashboard';
@@ -113,6 +114,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:resetToken" element={<ResetPassword />} />
             <Route path="/auth-callback" element={<AuthCallback />} />
+            <Route path="/google-auth-complete" element={<GoogleAuthComplete />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/work-in-progress" element={<WorkInProgress />} />
             <Route path="/coming-soon" element={<WorkInProgress title="Coming Soon" message="This feature will be available soon. We're working on it!" />} />
