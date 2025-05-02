@@ -3,3 +3,6 @@ node_modules
 .env.production
 *.env.production
 bugs.txt
+*.bak
+*_new*
+# 8a5723f1-d9ab-4873-a06b-1dbda9d87ad2
