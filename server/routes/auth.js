@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const sendLoginNotification = require('../utils/loginNotification');
 const {
   register,
   login,
@@ -61,7 +63,7 @@ router.get(
       failureRedirect: '/'
     })(req, res, next);
   },
-  (req, res) => {
+  async(req, res) => {
     try {
       console.log('=== Google Authentication Successful ===');
       console.log('User ID:', req.user.id);
@@ -83,6 +85,30 @@ router.get(
       const isNewUser = req.user.isGoogleAccount && !req.user.password;
       console.log('Is new Google user that needs to complete profile:', isNewUser);
       console.log('Redirect destination:', isNewUser ? 'Google Auth Complete page' : 'Dashboard');
+
+      // Update last login time
+      try {
+        const user = await User.findById(req.user.id);
+        if (user) {
+          user.lastLogin = Date.now();
+          await user.save();
+
+          // Only send login notification for returning users (not new users)
+          if (!isNewUser) {
+            // Send login notification email
+            try {
+              await sendLoginNotification(user, req);
+              console.log('Login notification email sent for Google login');
+            } catch (emailError) {
+              console.error('Error sending login notification for Google login:', emailError);
+              // Continue with login even if email fails
+            }
+          }
+        }
+      } catch (updateError) {
+        console.error('Error updating last login time:', updateError);
+        // Continue with login even if update fails
+      }
 
       // For production deployment with different domains, we need to handle cookies differently
       if (process.env.NODE_ENV === 'production') {

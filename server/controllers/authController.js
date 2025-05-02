@@ -2,6 +2,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sendEmail = require('../utils/emailService');
+const sendLoginNotification = require('../utils/loginNotification');
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -36,7 +37,8 @@ const sendTokenResponse = (user, statusCode, res) => {
         avatar: user.avatar,
         role: user.role,
         department: user.department,
-        isGoogleAccount: user.isGoogleAccount
+        isGoogleAccount: user.isGoogleAccount,
+        lastLogin: user.lastLogin
       }
     });
 };
@@ -113,17 +115,29 @@ exports.login = async (req, res, next) => {
     }
 
     // Check if user is a Google account
-    if (user.isGoogleAccount) {
-      return res.status(400).json({
-        message: 'This account uses Google Sign-In. Please login with Google.'
-      });
-    }
+    // if (user.isGoogleAccount) {
+    //   return res.status(400).json({
+    //     message: 'This account uses Google Sign-In. Please login with Google.'
+    //   });
+    // }
 
     // Check if password matches
     const isMatch = await user.matchPassword(password);
 
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Update last login time
+    user.lastLogin = Date.now();
+    await user.save();
+
+    // Send login notification email
+    try {
+      await sendLoginNotification(user, req);
+    } catch (emailError) {
+      console.error('Error sending login notification:', emailError);
+      // Continue with login even if email fails
     }
 
     sendTokenResponse(user, 200, res);
@@ -175,13 +189,6 @@ exports.forgotPassword = async (req, res, next) => {
       return res.status(404).json({ message: 'No user with that email' });
     }
 
-    // Check if user is a Google account
-    if (user.isGoogleAccount) {
-      return res.status(400).json({
-        message: 'This account uses Google Sign-In. Password reset is not available.'
-      });
-    }
-
     // Get reset token
     const resetToken = crypto.randomBytes(20).toString('hex');
 
@@ -192,37 +199,119 @@ exports.forgotPassword = async (req, res, next) => {
       .digest('hex');
 
     // Set expire
-    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    user.resetPasswordExpires = Date.now() + 30 * 60 * 1000; // 30 minutes
 
     await user.save();
 
     // Create reset URL
     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
+    // Create a more user-friendly email template
     const message = `
-      <h1>Password Reset</h1>
-      <p>You are receiving this email because you (or someone else) has requested the reset of a password.</p>
-      <p>Please click on the following link to reset your password:</p>
-      <a href="${resetUrl}" target="_blank">Reset Password</a>
-      <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+          }
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+          }
+          .header {
+            background-color: #4f46e5;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px 5px 0 0;
+            text-align: center;
+          }
+          .content {
+            padding: 20px;
+          }
+          .button {
+            display: inline-block;
+            background-color: #4f46e5;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+          }
+          .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Password Reset</h1>
+          </div>
+          <div class="content">
+            <p>Hello ${user.name},</p>
+            <p>You are receiving this email because a password reset was requested for your account at Campus Cloud.</p>
+            <p>Please click the button below to reset your password. This link will expire in 30 minutes.</p>
+            <p style="text-align: center;">
+              <a href="${resetUrl}" class="button" target="_blank">Reset Your Password</a>
+            </p>
+            <p>If you did not request this password reset, please ignore this email and your password will remain unchanged.</p>
+            <p>If the button above doesn't work, copy and paste the following URL into your browser:</p>
+            <p>${resetUrl}</p>
+          </div>
+          <div class="footer">
+            <p>This is an automated email, please do not reply.</p>
+            <p>&copy; ${new Date().getFullYear()} Campus Cloud. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
     `;
 
     try {
-      await sendEmail({
+      // Try to send the email
+      const emailResult = await sendEmail({
         email: user.email,
-        subject: 'Password Reset',
+        subject: 'Password Reset Request - Campus Cloud',
         html: message
       });
 
-      res.status(200).json({ success: true, message: 'Email sent' });
+      // Check if this is a test email or a real email
+      if (emailResult.isTestEmail && emailResult.previewUrl) {
+        console.log('Email preview URL:', emailResult.previewUrl);
+        return res.status(200).json({
+          success: true,
+          message: 'Email sent (test mode)',
+          previewUrl: emailResult.previewUrl
+        });
+      }
+
+      // If it's a real email
+      return res.status(200).json({
+        success: true,
+        message: 'Password reset email sent to your email address. Please check your inbox and follow the instructions to reset your password.'
+      });
     } catch (err) {
-      console.error(err);
+      console.error('Unexpected error in forgot password flow:', err);
+
+      // Reset the token fields since the email failed
       user.resetPasswordToken = undefined;
       user.resetPasswordExpires = undefined;
-
       await user.save();
 
-      return res.status(500).json({ message: 'Email could not be sent' });
+      // Return a generic error message
+      return res.status(500).json({
+        message: 'An unexpected error occurred. Please try again later.',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+      });
     }
   } catch (error) {
     console.error(error);
@@ -247,7 +336,7 @@ exports.resetPassword = async (req, res, next) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: 'Invalid token' });
+      return res.status(400).json({ message: 'Invalid or expired token. Please request a new password reset.' });
     }
 
     // Set new password
@@ -255,7 +344,33 @@ exports.resetPassword = async (req, res, next) => {
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
 
+    // If this is a Google account, we're now setting a password for it
+    // This doesn't affect their ability to sign in with Google
+    if (user.isGoogleAccount) {
+      // We don't need to change isGoogleAccount flag as they can still use Google to sign in
+      console.log(`Setting password for Google account user: ${user.email}`);
+    }
+
     await user.save();
+
+    // Create a notification for the user
+    try {
+      const Notification = require('../models/Notification');
+
+      const notification = new Notification({
+        title: 'Password Updated',
+        message: 'Your password has been successfully updated. If you did not make this change, please contact support immediately.',
+        type: 'system',
+        priority: 'high',
+        recipients: [{ user: user._id, read: false }],
+        targetRole: user.role
+      });
+
+      await notification.save();
+    } catch (notificationError) {
+      console.error('Error creating password reset notification:', notificationError);
+      // Continue with the password reset even if notification creation fails
+    }
 
     sendTokenResponse(user, 200, res);
   } catch (error) {

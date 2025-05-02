@@ -57,7 +57,16 @@ const UserSchema = new mongoose.Schema({
     type: Date
   },
   lastLogin: {
-    type: Date
+    type: Date,
+    default: null
+  },
+  receiveLoginNotifications: {
+    type: Boolean,
+    default: true
+  },
+  receiveEmailUpdates: {
+    type: Boolean,
+    default: true
   },
   createdAt: {
     type: Date,

@@ -57,6 +57,64 @@ router.put('/password', protect, async (req, res) => {
   }
 });
 
+// @desc    Get user settings
+// @route   GET /api/users/settings
+// @access  Private
+router.get('/settings', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Return user settings
+    res.status(200).json({
+      success: true,
+      settings: {
+        receiveLoginNotifications: user.receiveLoginNotifications !== false, // Default to true if not set
+        receiveEmailUpdates: user.receiveEmailUpdates !== false // Default to true if not set
+      }
+    });
+  } catch (error) {
+    console.error('Error getting user settings:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @desc    Update user settings
+// @route   PUT /api/users/settings
+// @access  Private
+router.put('/settings', protect, async (req, res) => {
+  try {
+    const { receiveLoginNotifications, receiveEmailUpdates } = req.body;
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update user settings
+    user.receiveLoginNotifications = receiveLoginNotifications;
+    user.receiveEmailUpdates = receiveEmailUpdates;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Settings updated successfully',
+      settings: {
+        receiveLoginNotifications: user.receiveLoginNotifications,
+        receiveEmailUpdates: user.receiveEmailUpdates
+      }
+    });
+  } catch (error) {
+    console.error('Error updating user settings:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Management-only routes
 router.route('/')
   .get(protect, authorize('management'), getUsers);

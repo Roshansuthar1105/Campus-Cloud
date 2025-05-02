@@ -121,9 +121,29 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const response = await authAPI.forgotPassword(email);
-      return response.data;
+
+      // Return the full response so we can access previewUrl if in test mode
+      return response;
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send reset email');
+      console.error('Forgot password error:', err);
+
+      // Provide more detailed error information
+      let errorMessage = 'Failed to send reset email';
+
+      if (err.response && err.response.data && err.response.data.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        // If we have a message directly on the error object
+        errorMessage = err.message;
+      }
+
+      setError(errorMessage);
+
+      // If we have additional error details in development mode, log them
+      if (err.response?.data?.error) {
+        console.error('Error details:', err.response.data.error);
+      }
+
       throw err;
     } finally {
       setIsLoading(false);

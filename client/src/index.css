@@ -33,4 +33,20 @@
   .form-error {
     @apply text-red-600 text-sm mt-1;
   }
+
+  /* Toggle Switch */
+  .toggle-checkbox {
+    @apply right-0 border-2 border-gray-300;
+    transition: all 0.3s;
+    z-index: 1;
+  }
+
+  .toggle-checkbox:checked {
+    @apply right-0 border-indigo-600 transform translate-x-full;
+  }
+
+  .toggle-label {
+    @apply bg-gray-300;
+    transition: background-color 0.3s;
+  }
 }
