@@ -263,3 +263,91 @@ exports.resetPassword = async (req, res, next) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+// @desc    Complete Google OAuth user registration
+// @route   PUT /api/auth/google-complete
+// @access  Private
+exports.completeGoogleAuth = async (req, res, next) => {
+  console.log('Google Auth Completion endpoint called');
+
+  try {
+    // Get user from middleware
+    console.log('User ID from token:', req.user.id);
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      console.log('User not found in database');
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    console.log('Processing Google account completion for user:', user.email);
+    console.log('Is Google Account:', user.isGoogleAccount);
+    console.log('Has password:', !!user.password);
+
+    // Check if user is a Google account
+    if (!user.isGoogleAccount) {
+      console.log('Rejected: User is not a Google account');
+      return res.status(400).json({
+        message: 'This endpoint is only for Google accounts'
+      });
+    }
+
+    // Check if user already has a password set
+    if (user.password) {
+      console.log('Rejected: Google account already has a password set');
+      return res.status(400).json({
+        message: 'Google account profile is already complete'
+      });
+    }
+
+    console.log('Google account validation passed, proceeding with profile completion');
+
+    const {
+      password,
+      role,
+      department,
+      studentId,
+      facultyId,
+      employeeId
+    } = req.body;
+
+    // Validate role - only allow student or faculty roles
+    if (!['student', 'faculty'].includes(role)) {
+      console.log('Rejected: Invalid role specified or attempted to set management role:', role);
+      return res.status(400).json({ message: 'Invalid role specified. Only student or faculty roles are allowed.' });
+    }
+
+    // Update user information
+    user.password = password;
+    user.role = role;
+    user.department = department || '';
+
+    // Clear existing IDs
+    user.studentId = undefined;
+    user.facultyId = undefined;
+    // Don't clear employeeId as it's not settable through this endpoint
+
+    // Set role-specific ID
+    if (role === 'student' && studentId) {
+      user.studentId = studentId;
+    } else if (role === 'faculty' && facultyId) {
+      user.facultyId = facultyId;
+    }
+    // Management role and employeeId cannot be set through this endpoint
+
+    await user.save();
+
+    console.log('Google account profile completed successfully');
+    console.log('Updated user role:', user.role);
+    console.log('Updated user department:', user.department);
+    console.log('ID field set based on role:',
+      user.role === 'student' ? `studentId: ${user.studentId}` :
+      user.role === 'faculty' ? `facultyId: ${user.facultyId}` :
+      'No ID field (management role not allowed)');
+
+    sendTokenResponse(user, 200, res);
+  } catch (error) {
+    console.error('Error completing Google account profile:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

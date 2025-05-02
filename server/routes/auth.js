@@ -8,7 +8,8 @@ const {
   getMe,
   logout,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  completeGoogleAuth
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 
@@ -21,6 +22,9 @@ router.get('/logout', logout);
 // Password reset routes
 router.post('/forgotpassword', forgotPassword);
 router.put('/resetpassword/:resettoken', resetPassword);
+
+// Google OAuth completion route
+router.put('/google-complete', protect, completeGoogleAuth);
 
 // Google OAuth routes
 router.get(
@@ -59,19 +63,34 @@ router.get(
   },
   (req, res) => {
     try {
-      console.log('Google authentication successful');
-      console.log('User:', req.user);
+      console.log('=== Google Authentication Successful ===');
+      console.log('User ID:', req.user.id);
+      console.log('User Email:', req.user.email);
+      console.log('User Name:', req.user.name);
+      console.log('Is Google Account:', req.user.isGoogleAccount);
+      console.log('Has Password:', !!req.user.password);
+      console.log('Current Role:', req.user.role);
+      console.log('Department:', req.user.department || 'Not set');
 
       // Generate JWT token
+      console.log('Generating JWT token...');
       const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRE
       });
+      console.log('Token generated successfully');
+
+      // Check if this is a new Google user that needs to complete profile
+      const isNewUser = req.user.isGoogleAccount && !req.user.password;
+      console.log('Is new Google user that needs to complete profile:', isNewUser);
+      console.log('Redirect destination:', isNewUser ? 'Google Auth Complete page' : 'Dashboard');
 
       // For production deployment with different domains, we need to handle cookies differently
       if (process.env.NODE_ENV === 'production') {
         // In production, we'll redirect with the token in the URL
         // This is because cross-domain cookies won't work between Netlify and Render
-        const redirectUrl = `${process.env.CLIENT_URL}/auth-callback?token=${token}`;
+        const redirectUrl = isNewUser
+          ? `${process.env.CLIENT_URL}/google-auth-complete?token=${token}`
+          : `${process.env.CLIENT_URL}/auth-callback?token=${token}`;
         console.log('Production redirect with token in URL:', redirectUrl);
         return res.redirect(redirectUrl);
       } else {
@@ -89,7 +108,9 @@ router.get(
 
       // Redirect to frontend (only for development, production redirect is handled above)
       if (process.env.NODE_ENV !== 'production') {
-        const redirectUrl = `${process.env.CLIENT_URL}/dashboard`;
+        const redirectUrl = isNewUser
+          ? `${process.env.CLIENT_URL}/google-auth-complete`
+          : `${process.env.CLIENT_URL}/dashboard`;
         console.log('Development: Redirecting to:', redirectUrl);
         res.redirect(redirectUrl);
       }

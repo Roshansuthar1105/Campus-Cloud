@@ -27,15 +27,12 @@ const getTokenFromCookies = () => {
 // Add request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    console.log('%c API Request ', 'background: #3498db; color: white; font-weight: bold;', config.url);
     // First check localStorage
     let token = localStorage.getItem('token');
-    console.log('Token from localStorage:', token ? 'exists' : 'not found');
 
     // If not in localStorage, check cookies
     if (!token) {
       token = getTokenFromCookies();
-      console.log('Token from cookies:', token ? 'exists' : 'not found');
       // If found in cookies, save to localStorage for future use
       if (token) {
         localStorage.setItem('token', token);
@@ -44,27 +41,6 @@ api.interceptors.request.use(
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('%c Token Found ', 'background: #2ecc71; color: white; font-weight: bold;');
-      console.log('Token value:', token);
-      console.log('Authorization header:', `Bearer ${token.substring(0, 10)}...`);
-
-      try {
-        // Try to decode the token to show user info
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-
-        const decodedToken = JSON.parse(jsonPayload);
-        console.log('Decoded token:', decodedToken);
-        console.log('User ID:', decodedToken.id);
-        console.log('Token expiration:', new Date(decodedToken.exp * 1000).toLocaleString());
-      } catch (e) {
-        console.log('Could not decode token:', e.message);
-      }
-    } else {
-      console.warn('%c No Token Found ', 'background: #e74c3c; color: white; font-weight: bold;', 'for request:', config.url);
     }
 
     return config;
@@ -72,32 +48,13 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Add response interceptor for debugging
+// Add response interceptor for error handling
 api.interceptors.response.use(
   (response) => {
-    console.log('%c API Response Success ', 'background: #2ecc71; color: white; font-weight: bold;');
-    console.log('URL:', response.config.url);
-    console.log('Status:', response.status);
-    console.log('Data:', response.data);
     return response;
   },
   (error) => {
-    console.log('%c API Response Error ', 'background: #e74c3c; color: white; font-weight: bold;');
-    console.log('URL:', error.config?.url);
-    console.log('Status:', error.response?.status);
-    console.log('Error data:', error.response?.data);
-
-    // Check for authentication errors
-    if (error.response?.status === 401) {
-      console.warn('Authentication error detected. Token may be invalid or expired.');
-    }
-
-    // Check for authorization errors
-    if (error.response?.status === 403) {
-      console.warn('Authorization error detected. User may not have required permissions.');
-      console.log('User role required:', error.response?.data?.message);
-    }
-
+    // Handle specific error cases if needed
     return Promise.reject(error);
   }
 );
@@ -141,6 +98,21 @@ export const authAPI = {
   // Reset password
   resetPassword: async (resetToken, password) => {
     return await api.put(`/auth/resetpassword/${resetToken}`, { password });
+  },
+
+  // Complete Google OAuth registration
+  completeGoogleAuth: async (userData) => {
+    try {
+      const response = await api.put('/auth/google-complete', userData);
+
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+      }
+
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   },
 };
 

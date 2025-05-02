@@ -21,18 +21,18 @@ const AuthCallback = () => {
           return;
         }
 
-        console.log('Token received from URL:', token.substring(0, 10) + '...');
-        
+        // Store token without logging it
+
         // Store token in localStorage
         localStorage.setItem('token', token);
-        
+
         // Update auth context
         if (typeof updateUser === 'function') {
           updateUser();
         }
-        
+
         setMessage('Authentication successful! Redirecting...');
-        
+
         // Redirect to dashboard
         setTimeout(() => navigate('/dashboard'), 1000);
       } catch (error) {
