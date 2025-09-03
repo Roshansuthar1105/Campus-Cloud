@@ -1,6 +1,7 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { FiBookOpen, FiUsers, FiClipboard, FiAward } from 'react-icons/fi';
+import React from "react";
+import { Link } from "react-router-dom";
+import { FiBookOpen, FiUsers, FiClipboard, FiAward } from "react-icons/fi";
+import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram } from "react-icons/fa";
 
 const Home = () => {
   return (
@@ -13,7 +14,8 @@ const Home = () => {
               Campus Cloud Quiz Management System
             </h1>
             <p className="text-xl md:text-2xl mb-8">
-              A comprehensive platform for creating, managing, and taking quizzes in an educational environment
+              A comprehensive platform for creating, managing, and taking
+              quizzes in an educational environment
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link
@@ -43,36 +45,48 @@ const Home = () => {
             <div className="text-purple-600 mb-4">
               <FiBookOpen className="h-10 w-10" />
             </div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">Course Management</h3>
+            <h3 className="text-xl font-semibold mb-2 text-gray-800">
+              Course Management
+            </h3>
             <p className="text-gray-600">
-              Create and manage courses, enroll students, and assign faculty members
+              Create and manage courses, enroll students, and assign faculty
+              members
             </p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="text-purple-600 mb-4">
               <FiClipboard className="h-10 w-10" />
             </div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">Quiz Creation</h3>
+            <h3 className="text-xl font-semibold mb-2 text-gray-800">
+              Quiz Creation
+            </h3>
             <p className="text-gray-600">
-              Create quizzes with multiple question types, set time limits, and customize scoring
+              Create quizzes with multiple question types, set time limits, and
+              customize scoring
             </p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="text-purple-600 mb-4">
               <FiUsers className="h-10 w-10" />
             </div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">Role-Based Access</h3>
+            <h3 className="text-xl font-semibold mb-2 text-gray-800">
+              Role-Based Access
+            </h3>
             <p className="text-gray-600">
-              Different interfaces and permissions for students, faculty, and management
+              Different interfaces and permissions for students, faculty, and
+              management
             </p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="text-purple-600 mb-4">
               <FiAward className="h-10 w-10" />
             </div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">Grading & Analytics</h3>
+            <h3 className="text-xl font-semibold mb-2 text-gray-800">
+              Grading & Analytics
+            </h3>
             <p className="text-gray-600">
-              Automatic grading for objective questions and detailed performance analytics
+              Automatic grading for objective questions and detailed performance
+              analytics
             </p>
           </div>
         </div>
@@ -89,27 +103,36 @@ const Home = () => {
               <div className="bg-purple-100 text-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold">1</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-gray-800">Create Courses</h3>
+              <h3 className="text-xl font-semibold mb-2 text-gray-800">
+                Create Courses
+              </h3>
               <p className="text-gray-600">
-                Set up courses, add learning materials, and invite students and faculty
+                Set up courses, add learning materials, and invite students and
+                faculty
               </p>
             </div>
             <div className="text-center">
               <div className="bg-purple-100 text-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold">2</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-gray-800">Design Quizzes</h3>
+              <h3 className="text-xl font-semibold mb-2 text-gray-800">
+                Design Quizzes
+              </h3>
               <p className="text-gray-600">
-                Create engaging quizzes with various question types and customizable settings
+                Create engaging quizzes with various question types and
+                customizable settings
               </p>
             </div>
             <div className="text-center">
               <div className="bg-purple-100 text-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold">3</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-gray-800">Analyze Results</h3>
+              <h3 className="text-xl font-semibold mb-2 text-gray-800">
+                Analyze Results
+              </h3>
               <p className="text-gray-600">
-                Review performance data, track progress, and identify areas for improvement
+                Review performance data, track progress, and identify areas for
+                improvement
               </p>
             </div>
           </div>
@@ -125,19 +148,27 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-md">
               <p className="text-gray-600 mb-4">
-                "Campus Cloud has transformed how we administer assessments. The platform is intuitive and the analytics help us improve our teaching methods."
+                "Campus Cloud has transformed how we administer assessments. The
+                platform is intuitive and the analytics help us improve our
+                teaching methods."
               </p>
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-purple-200 rounded-full mr-4"></div>
                 <div>
-                  <h4 className="font-semibold text-gray-800">Dr. Sarah Johnson</h4>
-                  <p className="text-gray-500 text-sm">Professor of Computer Science</p>
+                  <h4 className="font-semibold text-gray-800">
+                    Dr. Sarah Johnson
+                  </h4>
+                  <p className="text-gray-500 text-sm">
+                    Professor of Computer Science
+                  </p>
                 </div>
               </div>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
               <p className="text-gray-600 mb-4">
-                "As a student, I appreciate how organized all my courses and quizzes are. The interface is clean and it's easy to track my progress."
+                "As a student, I appreciate how organized all my courses and
+                quizzes are. The interface is clean and it's easy to track my
+                progress."
               </p>
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-purple-200 rounded-full mr-4"></div>
@@ -149,12 +180,16 @@ const Home = () => {
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
               <p className="text-gray-600 mb-4">
-                "The administrative features have streamlined our department's assessment process. We've seen improved student engagement and performance."
+                "The administrative features have streamlined our department's
+                assessment process. We've seen improved student engagement and
+                performance."
               </p>
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-purple-200 rounded-full mr-4"></div>
                 <div>
-                  <h4 className="font-semibold text-gray-800">Dr. Robert Williams</h4>
+                  <h4 className="font-semibold text-gray-800">
+                    Dr. Robert Williams
+                  </h4>
                   <p className="text-gray-500 text-sm">Department Chair</p>
                 </div>
               </div>
@@ -167,11 +202,10 @@ const Home = () => {
       <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-6">
-              Ready to get started?
-            </h2>
+            <h2 className="text-3xl font-bold mb-6">Ready to get started?</h2>
             <p className="text-xl mb-8">
-              Join thousands of educational institutions already using Campus Cloud
+              Join thousands of educational institutions already using Campus
+              Cloud
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link
@@ -192,25 +226,123 @@ const Home = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <h3 className="text-xl font-bold">Campus Cloud</h3>
-              <p className="text-gray-400">© 2023 All rights reserved</p>
-            </div>
-            <div className="flex space-x-6">
-              <Link to="/about" className="hover:text-purple-400 transition duration-300">
-                About
-              </Link>
-              <Link to="/contact" className="hover:text-purple-400 transition duration-300">
-                Contact
-              </Link>
-              <Link to="/privacy" className="hover:text-purple-400 transition duration-300">
-                Privacy Policy
-              </Link>
+      <footer className="bg-gray-900 text-gray-300 py-10">
+        <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Logo & About */}
+          <div>
+            <h3 className="text-2xl font-bold text-white">Campus Cloud</h3>
+            <p className="mt-3 text-gray-400">
+              Transforming education through innovative assessment technology.
+            </p>
+          </div>
+
+          {/* Quick Links */}
+          <div>
+            <h4 className="text-lg font-semibold text-white mb-4">
+              Quick Links
+            </h4>
+            <ul className="space-y-2">
+              <li>
+                <Link
+                  to="/"
+                  className="hover:text-purple-400 transition duration-300"
+                >
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/about"
+                  className="hover:text-purple-400 transition duration-300"
+                >
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/contact"
+                  className="hover:text-purple-400 transition duration-300"
+                >
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/privacy"
+                  className="hover:text-purple-400 transition duration-300"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Resources */}
+          <div>
+            <h4 className="text-lg font-semibold text-white mb-4">Resources</h4>
+            <ul className="space-y-2">
+              <li>
+                <Link
+                  to="/blog"
+                  className="hover:text-purple-400 transition duration-300"
+                >
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/faq"
+                  className="hover:text-purple-400 transition duration-300"
+                >
+                  FAQs
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/support"
+                  className="hover:text-purple-400 transition duration-300"
+                >
+                  Support
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Social Media */}
+          <div>
+            <h4 className="text-lg font-semibold text-white mb-4">Follow Us</h4>
+            <div className="flex space-x-4">
+              <a
+                aria-label="Facebook"
+                className="hover:text-purple-400 transition"
+              >
+                <FaFacebook className="w-5 h-5" />
+              </a>
+              <a
+                aria-label="Twitter"
+                className="hover:text-purple-400 transition"
+              >
+                <FaTwitter className="w-5 h-5" />
+              </a>
+              <a
+                aria-label="LinkedIn"
+                className="hover:text-purple-400 transition"
+              >
+                <FaLinkedin className="w-5 h-5" />
+              </a>
+              <a
+                aria-label="Instagram"
+                className="hover:text-purple-400 transition"
+              >
+                <FaInstagram className="w-5 h-5" />
+              </a>
             </div>
           </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="border-t border-gray-700 mt-10 pt-5 text-center text-gray-500 text-sm">
+          © 2023 Campus Cloud. All rights reserved.
         </div>
       </footer>
     </div>
