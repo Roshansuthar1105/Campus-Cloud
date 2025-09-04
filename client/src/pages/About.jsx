@@ -4,7 +4,7 @@ import { FiTarget, FiEye, FiAward, FiUsers } from 'react-icons/fi';
 
 const About = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50  dark:bg-gray-900 dark:text-gray-200">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
         <div className="container mx-auto px-4 py-16 md:py-24">
@@ -50,9 +50,9 @@ const About = () => {
       </div>
 
       {/* Our Story Section */}
-      <div className="bg-white py-16">
+      <div className="bg-white py-16  dark:bg-gray-900 dark:text-gray-200">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800  dark:bg-gray-900 dark:text-gray-200">
             Our Story
           </h2>
           <div className="max-w-3xl mx-auto">
@@ -75,9 +75,9 @@ const About = () => {
       </div>
 
       {/* Our Values Section */}
-      <div className="bg-gray-100 py-16">
+      <div className="bg-gray-100 py-16  dark:bg-gray-900 dark:text-gray-200">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800  dark:bg-gray-900 dark:text-gray-200">
             Our Values
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -126,9 +126,9 @@ const About = () => {
       </div>
 
       {/* Team Section */}
-      <div className="bg-white py-16">
+      <div className="bg-white py-16  dark:bg-gray-900 dark:text-gray-200">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800  dark:bg-gray-900 dark:text-gray-200">
             Our Team
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

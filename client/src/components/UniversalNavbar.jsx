@@ -15,11 +15,13 @@ import {
   FiX,
   FiCheck,
   FiInfo,
-  FiAlertCircle
+  FiAlertCircle,
+  FiMoon,
+  FiSun
 } from 'react-icons/fi';
 import notificationAPI from '../services/notificationApi';
 
-const UniversalNavbar = () => {
+const UniversalNavbar = ({ darkMode, setDarkMode }) => {
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -36,6 +38,7 @@ const UniversalNavbar = () => {
   const mobileNotificationRef = useRef(null);
   const profileMenuRef = useRef(null);
   const mobileProfileMenuRef = useRef(null);
+
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -148,8 +151,8 @@ const UniversalNavbar = () => {
     const handleClickOutside = (event) => {
       // Check if notification is open and click is outside both desktop and mobile notification refs
       if (isNotificationsOpen &&
-          ((notificationRef.current && !notificationRef.current.contains(event.target)) ||
-           (mobileNotificationRef.current && !mobileNotificationRef.current.contains(event.target)))) {
+        ((notificationRef.current && !notificationRef.current.contains(event.target)) ||
+          (mobileNotificationRef.current && !mobileNotificationRef.current.contains(event.target)))) {
         setIsNotificationsOpen(false);
       }
     };
@@ -169,8 +172,8 @@ const UniversalNavbar = () => {
     const handleClickOutside = (event) => {
       // Check if profile menu is open and click is outside both desktop and mobile profile refs
       if (isProfileMenuOpen &&
-          ((profileMenuRef.current && !profileMenuRef.current.contains(event.target)) ||
-           (mobileProfileMenuRef.current && !mobileProfileMenuRef.current.contains(event.target)))) {
+        ((profileMenuRef.current && !profileMenuRef.current.contains(event.target)) ||
+          (mobileProfileMenuRef.current && !mobileProfileMenuRef.current.contains(event.target)))) {
         setIsProfileMenuOpen(false);
       }
     };
@@ -346,7 +349,7 @@ const UniversalNavbar = () => {
   const navLinks = getNavLinks();
 
   return (
-    <nav className="bg-white shadow-md fixed w-full top-0 left-0 ">
+    <nav className="bg-white dark:bg-gray-900 dark:text-white shadow-md fixed w-full top-0 left-0 transition-colors">
       <div className="container mx-auto px-4">
         <div className="flex justify-between h-16">
           {/* Logo and brand */}
@@ -362,11 +365,10 @@ const UniversalNavbar = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`px-3 py-2 rounded-md text-sm font-medium flex items-center ${
-                  location.pathname === link.path || location.pathname.startsWith(`${link.path}/`)
-                    ? 'text-purple-600 bg-purple-50'
-                    : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50'
-                }`}
+                className={`px-3 py-2 rounded-md text-sm font-medium flex items-center ${location.pathname === link.path || location.pathname.startsWith(`${link.path}/`)
+                  ? 'text-purple-600 bg-purple-50 dark:text-purple-400 dark:bg-gray-800'
+                  : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50 dark:text-gray-300 dark:hover:text-purple-400 dark:hover:bg-gray-800'
+                  }`}
               >
                 <span className="mr-1.5">{link.icon}</span>
                 {link.name}
@@ -376,6 +378,12 @@ const UniversalNavbar = () => {
 
           {/* User profile and authentication buttons */}
           <div className="hidden md:flex md:items-center">
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 transition"
+            >
+              {darkMode ? <FiSun className="text-yellow-400" /> : <FiMoon className="text-gray-800" />}
+            </button>
             {isAuthenticated && user ? (
               <div className="ml-4 relative flex items-center">
                 {/* Notification Bell */}
@@ -503,7 +511,7 @@ const UniversalNavbar = () => {
                     <div className="h-8 w-8 rounded-full bg-purple-200 flex items-center justify-center text-purple-600">
                       {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                     </div>
-                    <span className="ml-2 text-gray-700">{user.name || 'User'}</span>
+                    <span className="ml-2 text-gray-700 dark:text-gray-200">{user.name || 'User'}</span>
                   </button>
 
                   {/* Profile dropdown */}
@@ -542,18 +550,19 @@ const UniversalNavbar = () => {
               <div className="flex items-center space-x-2">
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-purple-600"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-purple-600 dark:text-gray-200"
                 >
                   Log in
                 </Link>
                 <Link
                   to="/register"
-                  className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700"
+                  className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 dark:text-gray-200"
                 >
                   Sign up
                 </Link>
               </div>
             )}
+
           </div>
 
           {/* Mobile menu button */}
@@ -645,47 +654,49 @@ const UniversalNavbar = () => {
                   )}
                 </div>
                 <div className="mr-2" ref={mobileProfileMenuRef}>
-                <button
-                  onClick={toggleProfileMenu}
-                  className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                >
-                  <span className="sr-only">Open user menu</span>
-                  <div className="h-8 w-8 rounded-full bg-purple-200 flex items-center justify-center text-purple-600">
-                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                  </div>
-                </button>
-
-                {/* Mobile profile dropdown */}
-                {isProfileMenuOpen && (
-                  <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
-                    <div className="py-1">
-                      <Link
-                        to={`${basePath}/profile`}
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsProfileMenuOpen(false)}
-                      >
-                        Your Profile
-                      </Link>
-                      <Link
-                        to={`${basePath}/settings`}
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsProfileMenuOpen(false)}
-                      >
-                        Settings
-                      </Link>
-                      <button
-                        onClick={() => {
-                          setIsProfileMenuOpen(false);
-                          handleLogout();
-                        }}
-                        className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Sign out
-                      </button>
+                  <button
+                    onClick={toggleProfileMenu}
+                    className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                  >
+                    <span className="sr-only">Open user menu</span>
+                    <div className="h-8 w-8 rounded-full bg-purple-200 flex items-center justify-center text-purple-600">
+                      {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                     </div>
-                  </div>
-                )}
-              </div>
+                  </button>
+
+                  {/* Mobile profile dropdown */}
+                  {isProfileMenuOpen && (
+                    <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                      <div className="py-1">
+                        <Link
+                          to={`${basePath}/profile`}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                        >
+                          Your Profile
+                        </Link>
+                        <Link
+                          to={`${basePath}/settings`}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                        >
+                          Settings
+                        </Link>
+                        <button
+                          onClick={() => {
+                            setIsProfileMenuOpen(false);
+                            handleLogout();
+                          }}
+                          className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Sign out
+                        </button>
+                      </div>
+
+                    </div>
+                  )}
+
+                </div>
               </>
             )}
             <button
@@ -707,11 +718,10 @@ const UniversalNavbar = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`px-3 py-2 rounded-md text-base font-medium flex items-center ${
-                  location.pathname === link.path || location.pathname.startsWith(`${link.path}/`)
-                    ? 'text-purple-600 bg-purple-50'
-                    : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50'
-                }`}
+                className={`px-3 py-2 rounded-md text-base font-medium flex items-center ${location.pathname === link.path || location.pathname.startsWith(`${link.path}/`)
+                  ? 'text-purple-600 bg-purple-50'
+                  : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50'
+                  }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <span className="mr-2">{link.icon}</span>
@@ -734,8 +744,16 @@ const UniversalNavbar = () => {
                 >
                   Sign up
                 </Link>
+
               </>
             )}
+            {/* 🌙 Dark/Light toggle */}
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="mt-3 w-full flex items-center justify-center px-3 py-2 rounded-md text-base font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition"
+            >
+              {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
+            </button>
             {isAuthenticated && (
               <button
                 onClick={() => {

@@ -4,7 +4,7 @@ import { FiBookOpen, FiUsers, FiClipboard, FiAward } from 'react-icons/fi';
 
 const Home = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 dark:text-gray-200">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
         <div className="container mx-auto px-4 py-16 md:py-24">
@@ -35,15 +35,15 @@ const Home = () => {
 
       {/* Features Section */}
       <div className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
+        <h2 className="text-3xl font-bold text-center mb-12 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
           Key Features
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 ">
+          <div className="bg-white p-6 rounded-lg shadow-md ">
             <div className="text-purple-600 mb-4">
               <FiBookOpen className="h-10 w-10" />
             </div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">Course Management</h3>
+            <h3 className="text-xl font-semibold mb-2 text-gray-800 ">Course Management</h3>
             <p className="text-gray-600">
               Create and manage courses, enroll students, and assign faculty members
             </p>
@@ -79,9 +79,9 @@ const Home = () => {
       </div>
 
       {/* How It Works Section */}
-      <div className="bg-white py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
+      <div className="bg-white py-16  dark:bg-gray-900 dark:text-gray-200">
+        <div className="container mx-auto px-4 ">
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800  dark:bg-gray-900 dark:text-gray-200">
             How It Works
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -89,8 +89,8 @@ const Home = () => {
               <div className="bg-purple-100 text-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold">1</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-gray-800">Create Courses</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold mb-2 text-gray-800  dark:bg-gray-900 dark:text-gray-200">Create Courses</h3>
+              <p className="text-gray-600  dark:bg-gray-900 dark:text-gray-200">
                 Set up courses, add learning materials, and invite students and faculty
               </p>
             </div>
@@ -98,8 +98,8 @@ const Home = () => {
               <div className="bg-purple-100 text-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold">2</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-gray-800">Design Quizzes</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold mb-2 text-gray-800  dark:bg-gray-900 dark:text-gray-200">Design Quizzes</h3>
+              <p className="text-gray-600  dark:bg-gray-900 dark:text-gray-200">
                 Create engaging quizzes with various question types and customizable settings
               </p>
             </div>
@@ -107,8 +107,8 @@ const Home = () => {
               <div className="bg-purple-100 text-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold">3</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-gray-800">Analyze Results</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold mb-2 text-gray-800  dark:bg-gray-900 dark:text-gray-200">Analyze Results</h3>
+              <p className="text-gray-600  dark:bg-gray-900 dark:text-gray-200">
                 Review performance data, track progress, and identify areas for improvement
               </p>
             </div>
@@ -117,9 +117,9 @@ const Home = () => {
       </div>
 
       {/* Testimonials Section */}
-      <div className="bg-gray-100 py-16">
+      <div className="bg-gray-100 py-16  dark:bg-gray-900 dark:text-gray-200">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800  dark:bg-gray-900 dark:text-gray-200">
             What Our Users Say
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

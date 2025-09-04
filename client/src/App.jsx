@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './context/AuthContext';
 import { RoleRoute } from './components/RoleRoute';
+import { useState,useEffect } from 'react';
 
 // Layouts
 import StudentLayout from './components/layouts/StudentLayout';
@@ -80,6 +81,8 @@ import Privacy from './pages/Privacy';
 import WorkInProgress from './components/WorkInProgress';
 import ExampleWIPUsage from './pages/ExampleWIPUsage';
 // Redirect based on user role
+
+
 const RoleBasedRedirect = () => {
   const { user } = useAuth();
 
@@ -98,11 +101,27 @@ const RoleBasedRedirect = () => {
 };
 
 function App() {
+const [darkMode, setDarkMode] = useState(() => {
+  // Get theme from localStorage or default to light
+  const savedTheme = localStorage.getItem("theme");
+  return savedTheme === "dark";
+});
+
+useEffect(() => {
+  if (darkMode) {
+    document.documentElement.classList.add("dark");
+    localStorage.setItem("theme", "dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+    localStorage.setItem("theme", "light");
+  }
+}, [darkMode]);
+
   return (
     <AuthProvider>
       <Router>
-        <UniversalNavbar/>
-        <div className="min-h-screen flex flex-col mt-16">
+        <div className="min-h-screen flex flex-col mt-16 transition-colors duration-300">
+        <UniversalNavbar darkMode={darkMode} setDarkMode={setDarkMode}/>
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<RoleBasedRedirect />} />
