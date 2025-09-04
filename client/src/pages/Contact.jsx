@@ -46,7 +46,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50  dark:bg-gray-900 dark:text-gray-200">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
         <div className="container mx-auto px-4 py-16 md:py-24">
@@ -202,33 +202,33 @@ const Contact = () => {
       </div>
 
       {/* FAQ Section */}
-      <div className="bg-white py-16">
+      <div className="bg-white py-16  dark:bg-gray-900 dark:text-gray-200">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800  dark:bg-gray-900 dark:text-gray-200">
             Frequently Asked Questions
           </h2>
           <div className="max-w-3xl mx-auto">
             <div className="mb-6">
-              <h3 className="text-xl font-semibold mb-2 text-gray-800">How quickly can I expect a response?</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold mb-2 text-gray-800  dark:bg-gray-900 dark:text-gray-200">How quickly can I expect a response?</h3>
+              <p className="text-gray-600  dark:bg-gray-900 dark:text-gray-200">
                 We typically respond to all inquiries within 24-48 business hours. For urgent matters, please call our support hotline.
               </p>
             </div>
             <div className="mb-6">
-              <h3 className="text-xl font-semibold mb-2 text-gray-800">Do you offer demos of the platform?</h3>
+              <h3 className="text-xl font-semibold mb-2 text-gray-800  dark:bg-gray-900 dark:text-gray-200">Do you offer demos of the platform?</h3>
               <p className="text-gray-600">
                 Yes! We offer personalized demos for educational institutions. Please contact us to schedule a demo with one of our product specialists.
               </p>
             </div>
             <div className="mb-6">
-              <h3 className="text-xl font-semibold mb-2 text-gray-800">What kind of support do you provide?</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold mb-2 text-gray-800  dark:bg-gray-900 dark:text-gray-200">What kind of support do you provide?</h3>
+              <p className="text-gray-600  dark:bg-gray-900 dark:text-gray-200">
                 We offer comprehensive support including email, phone, and live chat. Our support team is available Monday through Friday, 9 AM to 6 PM EST.
               </p>
             </div>
             <div className="mb-6">
-              <h3 className="text-xl font-semibold mb-2 text-gray-800">Do you offer training for new users?</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold mb-2 text-gray-800  dark:bg-gray-900 dark:text-gray-200">Do you offer training for new users?</h3>
+              <p className="text-gray-600  dark:bg-gray-900 dark:text-gray-200">
                 Absolutely! We provide onboarding training for all new institutions, as well as ongoing training resources including webinars, documentation, and video tutorials.
               </p>
             </div>
