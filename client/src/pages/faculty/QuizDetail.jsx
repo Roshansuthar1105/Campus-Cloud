@@ -59,6 +59,8 @@ const QuizDetail = () => {
           console.log("Using mock data in development mode");
 
           // Mock quiz data
+          // Mock Quiz Data for Web Development Fundamentals Midterm Exam
+
           const mockQuiz = {
             _id: id,
             title: "Midterm Exam: Web Development Fundamentals",
@@ -69,7 +71,7 @@ const QuizDetail = () => {
               name: "Web Development Fundamentals",
               code: "CS301",
             },
-            timeLimit: 60, // in minutes
+            timeLimit: 60, // Time limit in minutes
             totalPoints: 100,
             passingScore: 70,
             dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
@@ -130,13 +132,13 @@ const QuizDetail = () => {
             createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // 14 days ago
           };
 
-          // Mock stats data
+          // Mock statistics for the quiz
           const mockStats = {
             totalSubmissions: 45,
             averageScore: 78.5,
             highestScore: 98,
             lowestScore: 52,
-            completionRate: 85, // percentage
+            completionRate: 85, // percentage of students who completed the quiz
           };
 
           setQuiz(mockQuiz);

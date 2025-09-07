@@ -54,51 +54,51 @@ const PreferenceFormList = () => {
           setForms(processedForms);
         } catch (formsError) {
           console.error('Error fetching preference forms:', formsError);
-
+          
           // Fallback to mock data if API call fails
           setForms([
             {
-              _id: '1',
-              title: 'Course Feedback Form',
-              description: 'End of semester course feedback',
+              _id: "1",
+              title: "Course Feedback Form",
+              description: "End of semester course feedback",
               course: {
                 _id: coursesResponse.data.data[0]?._id,
                 name: coursesResponse.data.data[0]?.name,
-                code: coursesResponse.data.data[0]?.code
+                code: coursesResponse.data.data[0]?.code,
               },
-              startDate: new Date(2023, 10, 1),
-              endDate: new Date(2023, 11, 15),
+              startDate: new Date(2023, 10, 1), // November 1, 2023
+              endDate: new Date(2023, 11, 15),   // December 15, 2023
               isPublished: true,
-              responses: 12
+              responses: 12, // Number of responses received
             },
             {
-              _id: '2',
-              title: 'Teaching Effectiveness Survey',
-              description: 'Survey to evaluate teaching methods',
+              _id: "2",
+              title: "Teaching Effectiveness Survey",
+              description: "Survey to evaluate teaching methods",
               course: {
                 _id: coursesResponse.data.data[1]?._id,
                 name: coursesResponse.data.data[1]?.name,
-                code: coursesResponse.data.data[1]?.code
+                code: coursesResponse.data.data[1]?.code,
               },
-              startDate: new Date(2023, 9, 15),
-              endDate: new Date(2023, 10, 30),
+              startDate: new Date(2023, 9, 15),  // October 15, 2023
+              endDate: new Date(2023, 10, 30),   // November 30, 2023
               isPublished: true,
-              responses: 8
+              responses: 8,
             },
             {
-              _id: '3',
-              title: 'Course Material Evaluation',
-              description: 'Evaluate the quality and relevance of course materials',
+              _id: "3",
+              title: "Course Material Evaluation",
+              description: "Evaluate the quality and relevance of course materials",
               course: {
                 _id: coursesResponse.data.data[0]?._id,
                 name: coursesResponse.data.data[0]?.name,
-                code: coursesResponse.data.data[0]?.code
+                code: coursesResponse.data.data[0]?.code,
               },
-              startDate: new Date(2023, 11, 1),
-              endDate: new Date(2024, 0, 15),
+              startDate: new Date(2023, 11, 1), // December 1, 2023
+              endDate: new Date(2024, 0, 15),   // January 15, 2024
               isPublished: false,
-              responses: 0
-            }
+              responses: 0,
+            },
           ]);
         }
 

@@ -36,46 +36,49 @@ const Announcements = () => {
         // Mock data
         setAnnouncements([
           {
-            _id: '1',
-            title: 'System Maintenance Notice',
-            content: 'The system will be down for maintenance on Saturday, November 25th from 2:00 AM to 5:00 AM EST.',
-            createdBy: {
-              _id: '101',
-              name: 'Admin User'
-            },
-            targetAudience: 'all',
-            createdAt: new Date(2023, 10, 20),
-            sentToEmail: true
+          _id: "1",
+          title: "System Maintenance Notice",
+          content:
+            "The system will be unavailable for scheduled maintenance on Saturday, November 25th, from 2:00 AM to 5:00 AM EST. Please plan accordingly.",
+          createdBy: {
+            _id: "101",
+            name: "Admin User",
           },
-          {
-            _id: '2',
-            title: 'New Feature: Quiz Analytics',
-            content: 'We\'ve added a new feature that allows faculty to view detailed analytics for quiz performance. Check it out in the Reports section!',
-            createdBy: {
-              _id: '101',
-              name: 'Admin User'
-            },
-            targetAudience: 'role',
-            role: 'faculty',
-            createdAt: new Date(2023, 10, 15),
-            sentToEmail: false
+          targetAudience: "all",
+          createdAt: new Date(2023, 10, 20),
+          sentToEmail: true,
+        },
+        {
+          _id: "2",
+          title: "New Feature: Quiz Analytics",
+          content:
+            "A new feature has been added, enabling faculty to access detailed analytics for quiz performance. Explore this functionality in the Reports section to gain insights into student learning outcomes.",
+          createdBy: {
+            _id: "101",
+            name: "Admin User",
           },
-          {
-            _id: '3',
-            title: 'Final Exam Schedule Posted',
-            content: 'The final exam schedule for the Fall 2023 semester has been posted. Please check your course pages for specific dates and times.',
-            createdBy: {
-              _id: '102',
-              name: 'Department Head'
-            },
-            targetAudience: 'course',
-            course: {
-              _id: coursesResponse.data.data[0]?._id,
-              name: coursesResponse.data.data[0]?.name
-            },
-            createdAt: new Date(2023, 10, 10),
-            sentToEmail: true
-          }
+          targetAudience: "role",
+          role: "faculty",
+          createdAt: new Date(2023, 10, 15),
+          sentToEmail: false,
+        },
+        {
+          _id: "3",
+          title: "Final Exam Schedule Posted",
+          content:
+            "The final exam schedule for the Fall 2023 semester has been published. Students are advised to check their individual course pages for specific dates and times to ensure proper planning.",
+          createdBy: {
+            _id: "102",
+            name: "Department Head",
+          },
+          targetAudience: "course",
+          course: {
+            _id: coursesResponse?.data?.data[0]?._id || null,
+            name: coursesResponse?.data?.data[0]?.name || "N/A",
+          },
+          createdAt: new Date(2023, 10, 10),
+          sentToEmail: true,
+        }
         ]);
         
         setError(null);

@@ -48,7 +48,7 @@ const Home = () => {
             <h3 className="text-xl font-semibold mb-2 text-gray-800">
               Course Management
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-justify">
               Create and manage courses, enroll students, and assign faculty
               members
             </p>
@@ -60,7 +60,7 @@ const Home = () => {
             <h3 className="text-xl font-semibold mb-2 text-gray-800">
               Quiz Creation
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-justify">
               Create quizzes with multiple question types, set time limits, and
               customize scoring
             </p>
@@ -72,7 +72,7 @@ const Home = () => {
             <h3 className="text-xl font-semibold mb-2 text-gray-800">
               Role-Based Access
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-justify">
               Different interfaces and permissions for students, faculty, and
               management
             </p>
@@ -84,7 +84,7 @@ const Home = () => {
             <h3 className="text-xl font-semibold mb-2 text-gray-800">
               Grading & Analytics
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-justify">
               Automatic grading for objective questions and detailed performance
               analytics
             </p>
@@ -147,7 +147,7 @@ const Home = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-md">
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 mb-4 text-justify">
                 "Campus Cloud has transformed how we administer assessments. The
                 platform is intuitive and the analytics help us improve our
                 teaching methods."
@@ -165,7 +165,7 @@ const Home = () => {
               </div>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 mb-4 text-justify">
                 "As a student, I appreciate how organized all my courses and
                 quizzes are. The interface is clean and it's easy to track my
                 progress."
@@ -179,7 +179,7 @@ const Home = () => {
               </div>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 mb-4 text-justify">
                 "The administrative features have streamlined our department's
                 assessment process. We've seen improved student engagement and
                 performance."
@@ -203,7 +203,7 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">Ready to get started?</h2>
-            <p className="text-xl mb-8">
+            <p className="text-xl mb-8 text-justify">
               Join thousands of educational institutions already using Campus
               Cloud
             </p>

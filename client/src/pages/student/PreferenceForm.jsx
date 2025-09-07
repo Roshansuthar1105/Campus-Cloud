@@ -38,63 +38,64 @@ const PreferenceForm = () => {
           console.error('Error fetching form data from API:', formError);
           // Fallback to mock data if API call fails
           const mockForm = {
-            _id: id,
-            title: 'Course Feedback Form',
-            description: 'Please provide your feedback on the course content, teaching methods, and overall experience.',
+            _id: id, // Unique identifier for the form
+            title: "Course Feedback Form",
+            description:
+              "Please provide your feedback on the course content, teaching methods, and overall experience.",
             course: {
-              _id: 'course123',
-              name: 'Introduction to Computer Science',
-              code: 'CS101'
+              _id: "course123",
+              name: "Introduction to Computer Science",
+              code: "CS101",
             },
             questions: [
               {
-                _id: 'q1',
-                text: 'How would you rate the overall quality of the course?',
-                type: 'rating',
+                _id: "q1",
+                text: "How would you rate the overall quality of the course?",
+                type: "rating",
                 required: true,
-                options: [1, 2, 3, 4, 5]
+                options: [1, 2, 3, 4, 5], // 1 = Poor, 5 = Excellent
               },
               {
-                _id: 'q2',
-                text: 'How would you rate the clarity of the course materials?',
-                type: 'rating',
+                _id: "q2",
+                text: "How would you rate the clarity of the course materials?",
+                type: "rating",
                 required: true,
-                options: [1, 2, 3, 4, 5]
+                options: [1, 2, 3, 4, 5],
               },
               {
-                _id: 'q3',
-                text: 'How would you rate the instructor\'s teaching effectiveness?',
-                type: 'rating',
+                _id: "q3",
+                text: "How would you rate the instructor's teaching effectiveness?",
+                type: "rating",
                 required: true,
-                options: [1, 2, 3, 4, 5]
+                options: [1, 2, 3, 4, 5],
               },
               {
-                _id: 'q4',
-                text: 'What aspects of the course did you find most valuable?',
-                type: 'text',
-                required: false
+                _id: "q4",
+                text: "What aspects of the course did you find most valuable?",
+                type: "text",
+                required: false, // Optional open-ended question
               },
               {
-                _id: 'q5',
-                text: 'What aspects of the course could be improved?',
-                type: 'text',
-                required: false
+                _id: "q5",
+                text: "What aspects of the course could be improved?",
+                type: "text",
+                required: false,
               },
               {
-                _id: 'q6',
-                text: 'Would you recommend this course to other students?',
-                type: 'multiple-choice',
+                _id: "q6",
+                text: "Would you recommend this course to other students?",
+                type: "multiple-choice",
                 required: true,
                 options: [
-                  { _id: 'o1', text: 'Yes, definitely' },
-                  { _id: 'o2', text: 'Yes, with some reservations' },
-                  { _id: 'o3', text: 'No, not really' },
-                  { _id: 'o4', text: 'No, definitely not' }
-                ]
-              }
+                  { _id: "o1", text: "Yes, definitely" },
+                  { _id: "o2", text: "Yes, with some reservations" },
+                  { _id: "o3", text: "No, not really" },
+                  { _id: "o4", text: "No, definitely not" },
+                ],
+              },
             ],
-            startDate: new Date(2023, 10, 1),
-            endDate: new Date(2023, 11, 15)
+            startDate: new Date(2023, 10, 1), // November 1, 2023
+            endDate: new Date(2023, 11, 15),  // December 15, 2023
           };
 
           setForm(mockForm);

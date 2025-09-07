@@ -41,78 +41,82 @@ const PreferenceFormView = () => {
           console.error('Error fetching data from API:', apiError);
           // Fallback to mock data if API calls fail
           const mockForm = {
-            _id: id,
-            title: 'Course Feedback Form',
-            description: 'Please provide your feedback on the course content, teaching methods, and overall experience.',
+            _id: id, // Unique identifier for the form
+            title: "Course Feedback Form",
+            description:
+              "Please provide your feedback on the course content, teaching methods, and overall experience.",
             course: {
-              _id: 'course123',
-              name: 'Introduction to Computer Science',
-              code: 'CS101'
+              _id: "course123",
+              name: "Introduction to Computer Science",
+              code: "CS101",
             },
             questions: [
               {
-                _id: 'q1',
-                text: 'How would you rate the overall quality of the course?',
-                type: 'rating',
+                _id: "q1",
+                text: "How would you rate the overall quality of the course?",
+                type: "rating",
                 required: true,
-                options: [1, 2, 3, 4, 5]
+                options: [1, 2, 3, 4, 5], // 1 = Poor, 5 = Excellent
               },
               {
-                _id: 'q2',
-                text: 'How would you rate the clarity of the course materials?',
-                type: 'rating',
+                _id: "q2",
+                text: "How would you rate the clarity of the course materials?",
+                type: "rating",
                 required: true,
-                options: [1, 2, 3, 4, 5]
+                options: [1, 2, 3, 4, 5],
               },
               {
-                _id: 'q3',
-                text: 'How would you rate the instructor\'s teaching effectiveness?',
-                type: 'rating',
+                _id: "q3",
+                text: "How would you rate the instructor's teaching effectiveness?",
+                type: "rating",
                 required: true,
-                options: [1, 2, 3, 4, 5]
+                options: [1, 2, 3, 4, 5],
               },
               {
-                _id: 'q4',
-                text: 'What aspects of the course did you find most valuable?',
-                type: 'text',
-                required: false
+                _id: "q4",
+                text: "What aspects of the course did you find most valuable?",
+                type: "text",
+                required: false, // Optional open-ended feedback
               },
               {
-                _id: 'q5',
-                text: 'What aspects of the course could be improved?',
-                type: 'text',
-                required: false
+                _id: "q5",
+                text: "What aspects of the course could be improved?",
+                type: "text",
+                required: false,
               },
               {
-                _id: 'q6',
-                text: 'Would you recommend this course to other students?',
-                type: 'multiple-choice',
+                _id: "q6",
+                text: "Would you recommend this course to other students?",
+                type: "multiple-choice",
                 required: true,
                 options: [
-                  { _id: 'o1', text: 'Yes, definitely' },
-                  { _id: 'o2', text: 'Yes, with some reservations' },
-                  { _id: 'o3', text: 'No, not really' },
-                  { _id: 'o4', text: 'No, definitely not' }
-                ]
-              }
+                  { _id: "o1", text: "Yes, definitely" },
+                  { _id: "o2", text: "Yes, with some reservations" },
+                  { _id: "o3", text: "No, not really" },
+                  { _id: "o4", text: "No, definitely not" },
+                ],
+              },
             ],
-            startDate: new Date(2023, 10, 1),
-            endDate: new Date(2023, 11, 15)
+            startDate: new Date(2023, 10, 1), // November 1, 2023
+            endDate: new Date(2023, 11, 15),  // December 15, 2023
           };
 
+          // Mock Submission for the Form
           const mockSubmission = {
-            _id: 'sub123',
-            formId: id,
-            studentId: user._id,
-            submittedAt: new Date(2023, 10, 5),
+            _id: "sub123", // Unique submission identifier
+            formId: id,    // Associated form ID
+            studentId: user._id, // ID of the submitting student
+            submittedAt: new Date(2023, 10, 5), // Submission date
             answers: {
-              q1: '4',
-              q2: '5',
-              q3: '4',
-              q4: 'The practical coding exercises and real-world examples were very helpful in understanding the concepts.',
-              q5: 'More time could be spent on advanced topics and additional resources for further learning would be beneficial.',
-              q6: 'o1'
-            }
+              q1: "4",
+              q2: "5",
+              q3: "4",
+              q4:
+                "The practical coding exercises and real-world examples were very helpful in understanding the concepts.",
+              q5:
+                "More time could be spent on advanced topics and additional resources for further learning would be beneficial.",
+              q6: "o1", // Multiple-choice selection
+            },
           };
 
           setForm(mockForm);

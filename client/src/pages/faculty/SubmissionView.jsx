@@ -71,100 +71,103 @@ export const SubmissionView = () => {
 
           // Mock quiz data
           const mockQuiz = {
-            _id: 'quiz123',
-            title: 'Midterm Exam: Web Development Fundamentals',
-            course: {
-              _id: 'course123',
-              name: 'Web Development Fundamentals',
-              code: 'CS301'
+          _id: "quiz123",
+          title: "Midterm Exam: Web Development Fundamentals",
+          course: {
+            _id: "course123",
+            name: "Web Development Fundamentals",
+            code: "CS301",
+          },
+          totalPoints: 100,
+          passingScore: 70,
+          questions: [
+            {
+              _id: "q1",
+              text: "What does HTML stand for?",
+              type: "multiple-choice",
+              points: 5,
+              options: [
+                { _id: "o1", text: "Hyper Text Markup Language" },
+                { _id: "o2", text: "High Tech Multi Language" },
+                { _id: "o3", text: "Hyper Transfer Markup Language" },
+                { _id: "o4", text: "Home Tool Markup Language" },
+              ],
+              correctAnswer: "o1",
             },
-            totalPoints: 100,
-            passingScore: 70,
-            questions: [
-              {
-                _id: 'q1',
-                text: 'What does HTML stand for?',
-                type: 'multiple-choice',
-                points: 5,
-                options: [
-                  { _id: 'o1', text: 'Hyper Text Markup Language' },
-                  { _id: 'o2', text: 'High Tech Multi Language' },
-                  { _id: 'o3', text: 'Hyper Transfer Markup Language' },
-                  { _id: 'o4', text: 'Home Tool Markup Language' }
-                ],
-                correctAnswer: 'o1'
-              },
-              {
-                _id: 'q2',
-                text: 'Which CSS property is used to control the spacing between elements?',
-                type: 'multiple-choice',
-                points: 5,
-                options: [
-                  { _id: 'o1', text: 'spacing' },
-                  { _id: 'o2', text: 'margin' },
-                  { _id: 'o3', text: 'padding' },
-                  { _id: 'o4', text: 'border' }
-                ],
-                correctAnswer: 'o2'
-              },
-              {
-                _id: 'q3',
-                text: 'Explain the difference between let, const, and var in JavaScript.',
-                type: 'essay',
-                points: 10
-              },
-              {
-                _id: 'q4',
-                text: 'What is the purpose of media queries in CSS?',
-                type: 'essay',
-                points: 10
-              },
-              {
-                _id: 'q5',
-                text: 'Select all valid ways to create a JavaScript object:',
-                type: 'multiple-select',
-                points: 10,
-                options: [
-                  { _id: 'o1', text: 'const obj = {};' },
-                  { _id: 'o2', text: 'const obj = new Object();' },
-                  { _id: 'o3', text: 'const obj = Object.create(null);' },
-                  { _id: 'o4', text: 'const obj = Object.instance();' }
-                ],
-                correctAnswers: ['o1', 'o2', 'o3']
-              }
-            ]
-          };
+            {
+              _id: "q2",
+              text: "Which CSS property is used to control the spacing between elements?",
+              type: "multiple-choice",
+              points: 5,
+              options: [
+                { _id: "o1", text: "spacing" },
+                { _id: "o2", text: "margin" },
+                { _id: "o3", text: "padding" },
+                { _id: "o4", text: "border" },
+              ],
+              correctAnswer: "o2",
+            },
+            {
+              _id: "q3",
+              text: "Explain the difference between let, const, and var in JavaScript.",
+              type: "essay",
+              points: 10,
+            },
+            {
+              _id: "q4",
+              text: "What is the purpose of media queries in CSS?",
+              type: "essay",
+              points: 10,
+            },
+            {
+              _id: "q5",
+              text: "Select all valid ways to create a JavaScript object:",
+              type: "multiple-select",
+              points: 10,
+              options: [
+                { _id: "o1", text: "const obj = {};" },
+                { _id: "o2", text: "const obj = new Object();" },
+                { _id: "o3", text: "const obj = Object.create(null);" },
+                { _id: "o4", text: "const obj = Object.instance();" },
+              ],
+              correctAnswers: ["o1", "o2", "o3"],
+            },
+          ],
+        };
 
-          // Mock submission data
-          const mockSubmission = {
-            _id: id,
-            quiz: mockQuiz,
-            student: {
-              _id: 'student1',
-              name: 'John Doe',
-              email: 'john.doe@example.com',
-              avatar: null
-            },
-            answers: {
-              q1: 'o1', // correct
-              q2: 'o3', // incorrect
-              q3: 'In JavaScript, let allows you to declare variables that are limited to the scope of a block statement, or expression on which it is used. const is similar to let, but the value cannot be reassigned. var is the oldest way to declare variables in JavaScript and is function scoped rather than block scoped.',
-              q4: 'Media queries in CSS are used to apply different styles for different devices or screen sizes. They are a key component of responsive web design, allowing the layout to adapt to the viewing environment.',
-              q5: ['o1', 'o2', 'o4'] // partially correct
-            },
-            feedback: {
-              q1: { score: 5, comment: 'Correct answer.' },
-              q2: { score: 0, comment: 'Incorrect. The correct answer is "margin".' },
-              q3: { score: 9, comment: 'Good explanation, but could have mentioned more about hoisting differences.' },
-              q4: { score: 10, comment: 'Excellent explanation of media queries.' },
-              q5: { score: 7, comment: 'Partially correct. "Object.instance()" is not a valid way to create objects.' }
-            },
-            score: 85,
-            status: 'graded',
-            submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-            gradedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-            timeSpent: 45 // minutes
-          };
+        // Mock Submission Data
+        const mockSubmission = {
+          _id: "submission123",
+          quiz: mockQuiz,
+          student: {
+            _id: "student1",
+            name: "John Doe",
+            email: "john.doe@example.com",
+            avatar: null,
+          },
+          answers: {
+            q1: "o1", // Correct
+            q2: "o3", // Incorrect
+            q3: `In JavaScript, let allows you to declare variables that are limited to the scope of a block statement. 
+                const is similar to let, but the value cannot be reassigned. 
+                var is function-scoped and is the older way to declare variables.`,
+            q4: `Media queries in CSS are used to apply different styles for different devices or screen sizes. 
+                They enable responsive web design by adapting layouts to the viewing environment.`,
+            q5: ["o1", "o2", "o4"], // Partially correct
+          },
+          feedback: {
+            q1: { score: 5, comment: "Correct answer." },
+            q2: { score: 0, comment: 'Incorrect. The correct answer is "margin".' },
+            q3: { score: 9, comment: "Good explanation, could include more on hoisting differences." },
+            q4: { score: 10, comment: "Excellent explanation of media queries." },
+            q5: { score: 7, comment: 'Partially correct. "Object.instance()" is not valid.' },
+          },
+          score: 85,
+          status: "graded",
+          submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+          gradedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+          timeSpent: 45, // in minutes
+        };
 
           setSubmission(mockSubmission);
           setQuiz(mockSubmission.quiz);

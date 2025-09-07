@@ -1,252 +1,292 @@
 # CampusCloud - College Learning Management System
 
-![CampusCloud Logo](./public/images/logo.png)
-
-A comprehensive MERN stack application for managing college courses, quizzes, and preference forms with role-based access control. CampusCloud streamlines educational workflows for students, faculty, and management.
+A comprehensive **MERN stack application** for managing college courses, quizzes, and preference forms with **role-based access control**.  
+CampusCloud streamlines educational workflows for **students, faculty, and management**.
 
 **Live Demo:** [https://campuscloud.netlify.app](https://campuscloud.netlify.app)
 
-## � Table of Contents
+---
 
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Role-Based Access](#role-based-access)
-- [Screenshots](#screenshots)
-- [Technology Stack](#technology-stack)
-- [Project Structure](#project-structure)
-- [Setup Instructions](#setup-instructions)
-- [Security Features](#security-features)
-- [Contributors](#contributors)
-- [License](#license)
-- [Contact](#contact)
+## 📑 Table of Contents
+
+- [CampusCloud - College Learning Management System](#campuscloud---college-learning-management-system)
+  - [📑 Table of Contents](#-table-of-contents)
+  - [🌟 Overview](#-overview)
+  - [🚀 Key Features](#-key-features)
+    - [🔐 Authentication \& Authorization](#-authentication--authorization)
+    - [📝 Quiz Management](#-quiz-management)
+    - [📋 Preference Forms](#-preference-forms)
+    - [📚 Course Management](#-course-management)
+    - [📊 Reporting \& Analytics](#-reporting--analytics)
+    - [🔔 Notifications](#-notifications)
+  - [🚦 Role-Based Access](#-role-based-access)
+    - [👨‍🎓 Student](#-student)
+    - [👨‍🏫 Faculty](#-faculty)
+    - [🏛️ Management](#️-management)
+  - [🖥️ Technology Stack](#️-technology-stack)
+    - [Backend](#backend)
+    - [Frontend](#frontend)
+  - [🗂️ Project Structure](#️-project-structure)
+  - [🛠️ Setup Instructions](#️-setup-instructions)
+    - [Prerequisites](#prerequisites)
+  - [Backend Setup](#backend-setup)
+    - [Navigate to the backend server directory](#navigate-to-the-backend-server-directory)
+    - [Install dependencies](#install-dependencies)
+    - [Create a .env file with the required environment variables](#create-a-env-file-with-the-required-environment-variables)
+    - [Example:](#example)
+    - [Start the backend development server](#start-the-backend-development-server)
+  - [Frontend Setup](#frontend-setup)
+    - [Navigate to the React client directory](#navigate-to-the-react-client-directory)
+    - [Install dependencies](#install-dependencies-1)
+  - [Create a .env file in the client folder](#create-a-env-file-in-the-client-folder)
+    - [Example:](#example-1)
+  - [Start the frontend development server](#start-the-frontend-development-server)
+  - [Running the Application](#running-the-application)
+
+
+---
 
 ## 🌟 Overview
 
-CampusCloud is a modern learning management system designed to enhance the educational experience for all stakeholders. It provides a centralized platform for course management, assessments, feedback collection, and performance analytics.
+CampusCloud is a modern **Learning Management System (LMS)** designed to enhance the educational experience for all stakeholders.  
+It provides a centralized platform for **course management, assessments, feedback collection, and performance analytics**.
 
-![Dashboard Overview](./public/images/dashboard-overview.png)
+<!-- ![Dashboard Overview](/client/public/Dashboard.png) -->
+
+---
 
 ## 🚀 Key Features
 
-### Authentication & Authorization
-- Secure email/password authentication
-- Google OAuth integration for simplified login
-- Role-based access control (Student, Faculty, Management)
-- Password reset functionality with email verification
+### 🔐 Authentication & Authorization
+- Secure **email/password authentication**  
+- **Google OAuth** integration for simplified login  
+- **Role-based access control** (Student, Faculty, Management)  
+- Password reset functionality with **email verification**  
 
-![Authentication](./public/images/auth-screen.png)
+<!-- ![Authentication](/client/public/Auth.png) -->
 
-### Quiz Management
-- Create quizzes with multiple question types:
-  - Multiple choice (single answer)
-  - Multiple choice (multiple answers)
-  - True/False
-  - Short answer
-- Set time limits, passing scores, and availability dates
-- Randomize questions for enhanced assessment integrity
-- Auto-grading for objective questions
-- Manual grading with feedback for subjective questions
+---
 
-![Quiz Creation](./public/images/quiz-creation.png)
+### 📝 Quiz Management
+- Create quizzes with multiple question types:  
+  - Multiple choice (single answer)  
+  - Multiple choice (multiple answers)  
+  - True/False  
+  - Short answer  
+- Set **time limits, passing scores, and availability dates**  
+- Randomize questions for integrity  
+- **Auto-grading** for objective questions  
+- **Manual grading** with instructor feedback  
 
-### Preference Forms
-- Create customizable feedback and preference forms
-- Multiple question types (text, rating, multiple-choice)
-- Anonymous submission options
-- Detailed analytics and reporting
-- Schedule forms with specific start/end dates
+<!-- ![Quiz Creation](/client/public/quiz-creation.png) -->
 
-![Preference Forms](./public/images/preference-forms.png)
+---
 
-### Course Management
-- Comprehensive course creation and management
-- Student enrollment and tracking
-- Faculty assignment to courses
-- Course materials and resources organization
+### 📋 Preference Forms
+- Create **customizable feedback and preference forms**  
+- Support for multiple question types (text, rating, multiple-choice)  
+- **Anonymous submission** options  
+- Detailed analytics and reporting  
+- Schedule forms with **start/end dates**  
 
-![Course Management](./public/images/course-management.png)
+<!-- ![Preference Forms](/client/public/preference-forms.png) -->
 
-### Reporting & Analytics
-- Detailed quiz performance metrics
-- Student progress tracking
-- Course-level analytics
-- Exportable reports for further analysis
-- Visual data representation with charts and graphs
+---
 
-![Analytics Dashboard](./public/images/analytics-dashboard.png)
+### 📚 Course Management
+- End-to-end **course creation and management**  
+- **Student enrollment** and tracking  
+- Faculty assignment to courses  
+- Course materials and resources organization  
 
-### Notifications
-- Real-time in-app notification system
-- Email notifications for important events
-- Deadline reminders for quizzes and forms
-- Grading notifications for students
+<!-- ![Course Management](/client/public/course-management.png) -->
 
-![Notifications](./public/images/notifications.png)
+---
+
+### 📊 Reporting & Analytics
+- Detailed **quiz performance metrics**  
+- Student **progress tracking**  
+- Course-level analytics  
+- Exportable reports for analysis  
+- **Visual charts & graphs**  
+
+<!-- ![Analytics Dashboard](/client/public/analytics-dashboard.png) -->
+
+---
+
+### 🔔 Notifications
+- Real-time **in-app notifications**  
+- **Email alerts** for important events  
+- **Deadline reminders** for quizzes and forms  
+- **Grading notifications** for students  
+
+<!-- ![Notifications](/client/public/notifications.png) -->
+
+---
 
 ## 🚦 Role-Based Access
 
-### Student
-- View and take assigned quizzes with real-time feedback
-- Submit preference forms for courses
-- View detailed quiz results and instructor feedback
-- Track personal academic progress
-- Access course materials and resources
-- Receive notifications for new assignments and grades
+### 👨‍🎓 Student
+- Attempt assigned quizzes with real-time feedback  
+- Submit **preference/feedback forms**  
+- View **quiz results** and instructor feedback  
+- Track **personal academic progress**  
+- Access course resources  
+- Receive **notifications** for assignments and grades  
 
-![Student Dashboard](./public/images/student-dashboard.png)
+<!-- ![Student Dashboard](/client/public/student-dashboard.png) -->
 
-### Faculty
-- Create and manage quizzes for assigned courses
-- Grade student submissions with detailed feedback
-- Create preference forms to gather student feedback
-- View comprehensive reports for their courses
-- Manage course content and materials
-- Track student performance and engagement
+---
 
-![Faculty Dashboard](./public/images/faculty-dashboard.png)
+### 👨‍🏫 Faculty
+- Create and manage quizzes for assigned courses  
+- Grade submissions with detailed feedback  
+- Collect insights via preference forms  
+- Access **course-level reports**  
+- Manage course content and resources  
+- Track **student engagement**  
 
-### Management
-- System-wide administration and oversight
-- Manage all courses, departments, and academic programs
-- Create and assign faculty to courses
-- Generate comprehensive institutional reports
-- User management across all roles
-- System configuration and settings management
+<!-- ![Faculty Dashboard](/client/public/faculty-dashboard.png) -->
 
-![Management Dashboard](./public/images/management-dashboard.png)
+---
 
-## � Screenshots
+### 🏛️ Management
+- Oversee **system-wide administration**  
+- Manage all courses, departments, and programs  
+- Assign faculty to courses  
+- Generate **institutional reports**  
+- Manage users across all roles  
+- Configure system settings  
+
+<!-- ![Management Dashboard](/client/public/management-dashboard.png) -->
+
+---
+
+<!--
+## 📸 Screenshots
 
 ### Student Experience
-![Student Quiz List](./public/images/student-quiz-list.png)
-![Taking a Quiz](./public/images/quiz-taking.png)
-![Quiz Results](./public/images/quiz-results.png)
-![Student Preference Forms](./public/images/student-preference-forms.png)
+![Student Quiz List](/client/public/student-quiz-list.png)  
+![Taking a Quiz](/client/public/quiz-taking.png)  
+![Quiz Results](/client/public/quiz-results.png)  
+![Student Preference Forms](/client/public/student-preference-forms.png)  
 
 ### Faculty Experience
-![Faculty Quiz Management](./public/images/faculty-quiz-management.png)
-![Grading Interface](./public/images/grading-interface.png)
-![Faculty Reports](./public/images/faculty-reports.png)
-![Creating Preference Forms](./public/images/create-preference-form.png)
+![Faculty Quiz Management](/client/public/faculty-quiz-management.png)  
+![Grading Interface](/client/public/grading-interface.png)  
+![Faculty Reports](/client/public/faculty-reports.png)  
+![Creating Preference Forms](/client/public/create-preference-form.png)  
 
 ### Management Experience
-![User Management](./public/images/user-management.png)
-![Course Creation](./public/images/course-creation.png)
-![System Reports](./public/images/system-reports.png)
-![Management Analytics](./public/images/management-analytics.png)
+![User Management](/client/public/user-management.png)  
+![Course Creation](/client/public/course-creation.png)  
+![System Reports](/client/public/system-reports.png)  
+![Management Analytics](/client/public/management-analytics.png)  
+-->
 
-## � Technology Stack
+---
+
+## 🖥️ Technology Stack
 
 ### Backend
-- **Node.js** - JavaScript runtime
-- **Express** - Web framework
-- **MongoDB** - NoSQL database
-- **Mongoose** - MongoDB object modeling
-- **JWT** - Authentication
-- **Passport.js** - Google OAuth integration
-- **Bcrypt** - Password hashing
-- **Nodemailer** - Email functionality
+- **Node.js** – JavaScript runtime  
+- **Express.js** – Web framework  
+- **MongoDB** – NoSQL database  
+- **Mongoose** – Data modeling  
+- **JWT** – Secure authentication  
+- **Passport.js** – Google OAuth integration  
+- **Bcrypt** – Password hashing  
+- **Nodemailer** – Email service  
 
 ### Frontend
-- **React** - UI library
-- **Tailwind CSS** - Utility-first CSS framework
-- **React Router** - Client-side routing
-- **Axios** - HTTP client
-- **React Icons** - Icon library
-- **Context API** - State management
-- **Chart.js** - Data visualization
+- **React.js** – UI library  
+- **Tailwind CSS** – Utility-first CSS framework  
+- **React Router** – Client-side routing  
+- **Axios** – API client  
+- **React Icons** – Icon library  
+- **Context API** – State management  
+- **Chart.js** – Data visualization  
 
-## 📝 Project Structure
+---
 
-```
+## 🗂️ Project Structure
+
+```text
 ├── client/                 # React frontend
 │   ├── public/             # Static files and images
 │   └── src/
 │       ├── components/     # Reusable components
-│       ├── context/        # React context providers
+│       ├── context/        # Global context providers
 │       ├── pages/          # Page components
 │       │   ├── student/    # Student-specific pages
 │       │   ├── faculty/    # Faculty-specific pages
 │       │   └── management/ # Management-specific pages
-│       ├── services/       # API service functions
+│       ├── services/       # API service handlers
 │       └── utils/          # Utility functions
 │
 └── server/                 # Node.js backend
     ├── config/             # Configuration files
-    ├── controllers/        # Request handlers
+    ├── controllers/        # Route handlers
     ├── middleware/         # Custom middleware
-    ├── models/             # Mongoose models
+    ├── models/             # Mongoose schemas
     └── routes/             # API routes
+
 ```
 
 ## 🛠️ Setup Instructions
 
 ### Prerequisites
-- Node.js (v14+) and npm
-- MongoDB (local or Atlas)
-- Google OAuth credentials (optional for OAuth login)
+- **Node.js (v14 or later)** and **npm**
+- **MongoDB** (local instance or MongoDB Atlas)
+- **Google OAuth credentials** (optional, only needed if you want Google login enabled)
 
-### Backend Setup
+---
 
-```bash
-# Navigate to server directory
-cd server
+## Backend Setup
 
-# Install dependencies
-npm install
+### Navigate to the backend server directory
+`cd server`
 
-# Create .env file with required variables
-# See .env.example for reference
+### Install dependencies
+`npm install`
 
-# Start development server
-npm run dev
-```
+### Create a .env file with the required environment variables
 
-### Frontend Setup
+### Example:
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/campuscloud
+JWT_SECRET=your_jwt_secret
+EMAIL_USER=your_email@example.com
+EMAIL_PASS=your_email_password
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 
-```bash
-# Navigate to client directory
-cd client
+### Start the backend development server
+`npm run dev`
 
-# Install dependencies
-npm install
+---
 
-# Create .env file
-# VITE_API_URL=http://localhost:5000/api
+## Frontend Setup
 
-# Start development server
-npm run dev
-```
+### Navigate to the React client directory
+`cd client`
 
-## 📱 Responsive Design
+### Install dependencies
+`npm install`
 
-CampusCloud is fully responsive and works seamlessly across:
-- Desktop computers
-- Tablets
-- Mobile devices
+## Create a .env file in the client folder
 
-![Responsive Design](./public/images/responsive-design.png)
+### Example:
+`VITE_API_URL=http://localhost:5000/api`
 
-## 🔒 Security Features
+## Start the frontend development server
+`npm run dev`
 
-- **JWT-based Authentication**: Secure token-based user sessions
-- **Password Hashing**: Bcrypt for secure password storage
-- **HTTP-only Cookies**: Protection against XSS attacks
-- **CORS Protection**: Configured for secure cross-origin requests
-- **Input Validation**: Comprehensive validation for all user inputs
-- **Rate Limiting**: Protection against brute force attacks
-- **Role-Based Access Control**: Granular permissions based on user roles
+---
 
-## 👥 Contributors
+## Running the Application
 
-- Roshan Suthar - Lead Developer
+- The **backend** will run on: http://localhost:5000  
+- The **frontend** will run on: http://localhost:5173 (default Vite port)  
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 📧 Contact
-
-For questions or support, please contact:
-- Email: sroshan2931@gmail.com
-- GitHub: [GitHub Profile](https://github.com/yourusername)
+⚠️ Ensure **MongoDB is running locally** or that your **MongoDB Atlas cluster** is accessible.

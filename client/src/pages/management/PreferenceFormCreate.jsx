@@ -46,48 +46,49 @@ const PreferenceFormCreate = () => {
             console.error('Error fetching form data:', formError);
             // If there's an error fetching the form, use mock data as fallback
             const mockForm = {
-              _id: id,
-              title: 'Course Feedback Form',
-              description: 'Please provide your feedback on the course content, teaching methods, and overall experience.',
-              course: coursesResponse.data.data[0]?._id,
-              startDate: '2023-11-01',
-              endDate: '2023-12-15',
-              isPublished: false,
-              questions: [
-                {
-                  _id: 'q1',
-                  text: 'How would you rate the overall quality of the course?',
-                  type: 'rating',
-                  required: true,
-                  options: [1, 2, 3, 4, 5]
-                },
-                {
-                  _id: 'q2',
-                  text: 'How would you rate the clarity of the course materials?',
-                  type: 'rating',
-                  required: true,
-                  options: [1, 2, 3, 4, 5]
-                },
-                {
-                  _id: 'q3',
-                  text: 'What aspects of the course did you find most valuable?',
-                  type: 'text',
-                  required: false
-                },
-                {
-                  _id: 'q4',
-                  text: 'Would you recommend this course to other students?',
-                  type: 'multiple-choice',
-                  required: true,
-                  options: [
-                    { _id: 'o1', text: 'Yes, definitely' },
-                    { _id: 'o2', text: 'Yes, with some reservations' },
-                    { _id: 'o3', text: 'No, not really' },
-                    { _id: 'o4', text: 'No, definitely not' }
-                  ]
-                }
-              ]
-            };
+            _id: id, // Form identifier
+            title: "Course Feedback Form",
+            description:
+              "Please provide your feedback on the course content, teaching methods, and overall experience.",
+            course: coursesResponse.data.data[0]?._id, // Linked course ID from API response
+            startDate: "2023-11-01", // ISO date format
+            endDate: "2023-12-15",
+            isPublished: false, // Form publication status
+            questions: [
+              {
+                _id: "q1",
+                text: "How would you rate the overall quality of the course?",
+                type: "rating",
+                required: true,
+                options: [1, 2, 3, 4, 5], // Rating scale: 1 = Poor, 5 = Excellent
+              },
+              {
+                _id: "q2",
+                text: "How would you rate the clarity of the course materials?",
+                type: "rating",
+                required: true,
+                options: [1, 2, 3, 4, 5],
+              },
+              {
+                _id: "q3",
+                text: "What aspects of the course did you find most valuable?",
+                type: "text",
+                required: false, // Optional open-ended question
+              },
+              {
+                _id: "q4",
+                text: "Would you recommend this course to other students?",
+                type: "multiple-choice",
+                required: true,
+                options: [
+                  { _id: "o1", text: "Yes, definitely" },
+                  { _id: "o2", text: "Yes, with some reservations" },
+                  { _id: "o3", text: "No, not really" },
+                  { _id: "o4", text: "No, definitely not" },
+                ],
+              },
+            ],
+          };
 
             setFormData(mockForm);
           }
