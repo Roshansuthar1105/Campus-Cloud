@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FiTarget, FiEye, FiAward, FiUsers } from "react-icons/fi";
 import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram } from "react-icons/fa";
+import ScrollToTop from "./ScrollToTop"
 
 const About = () => {
   return (
@@ -372,6 +373,7 @@ const About = () => {
           © 2023 Campus Cloud. All rights reserved.
         </div>
       </footer>
+      <ScrollToTop/>
     </div>
   );
 };

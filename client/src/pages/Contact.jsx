@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FiMail, FiPhone, FiMapPin, FiMessageSquare } from "react-icons/fi";
 import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram } from "react-icons/fa";
+import ScrollToTop from "./ScrollToTop"
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -397,6 +398,7 @@ const Contact = () => {
           © 2023 Campus Cloud. All rights reserved.
         </div>
       </footer>
+      <ScrollToTop/>
     </div>
   );
 };

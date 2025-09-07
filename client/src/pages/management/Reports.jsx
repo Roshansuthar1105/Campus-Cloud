@@ -5,6 +5,7 @@ import courseAPI from '../../services/courseApi';
 import reportAPI from '../../services/reportApi';
 import { useAuth } from '../../context/AuthContext';
 import { Bar, Pie, Line } from 'react-chartjs-2';
+import ScrollToTop from "../ScrollToTop";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -599,6 +600,7 @@ const Reports = () => {
           </div>
         </div>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

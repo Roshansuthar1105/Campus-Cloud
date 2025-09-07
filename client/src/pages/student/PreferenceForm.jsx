@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiSave, FiCheckCircle } from 'react-icons/fi';
 import preferenceAPI from '../../services/preferenceApi';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop"
 
 const PreferenceForm = () => {
   const { id } = useParams();
@@ -360,6 +361,7 @@ const PreferenceForm = () => {
           </form>
         </div>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

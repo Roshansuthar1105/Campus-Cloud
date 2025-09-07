@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiEye, FiTrash2, FiBarChart2, FiFileText } from 'react-icons/fi';
 import courseAPI from '../../services/courseApi';
 import preferenceAPI from '../../services/preferenceApi';
+import ScrollToTop from "../ScrollToTop";
 
 const PreferenceFormList = () => {
   const [forms, setForms] = useState([]);
@@ -366,6 +367,7 @@ const PreferenceFormList = () => {
           </div>
         )}
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

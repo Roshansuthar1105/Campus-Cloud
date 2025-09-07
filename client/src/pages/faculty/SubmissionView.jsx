@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiUser, FiClock, FiCalendar, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import quizAPI from '../../services/quizApi';
+import ScrollToTop from "../ScrollToTop"
 // import { useAuth } from '../../context/AuthContext';
 
 export const SubmissionView = () => {
@@ -750,6 +751,7 @@ export const SubmissionView = () => {
           </div>
         </div>
       )}
+      <ScrollToTop/>
     </div>
   );
 };

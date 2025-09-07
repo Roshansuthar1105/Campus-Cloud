@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FiBookOpen, FiUsers, FiClipboard, FiAward } from "react-icons/fi";
 import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram } from "react-icons/fa";
+import ScrollToTop from "./ScrollToTop"
 
 const Home = () => {
   return (
@@ -345,6 +346,7 @@ const Home = () => {
           © 2023 Campus Cloud. All rights reserved.
         </div>
       </footer>
+      <ScrollToTop/>
     </div>
   );
 };

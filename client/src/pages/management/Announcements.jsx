@@ -3,6 +3,7 @@ import { FiPlus, FiEdit2, FiTrash2, FiSend, FiUsers, FiCalendar, FiMessageSquare
 import api from '../../services/api';
 import courseAPI from '../../services/courseApi';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop";
 
 const Announcements = () => {
   const { user } = useAuth();
@@ -437,6 +438,7 @@ const Announcements = () => {
           </ul>
         )}
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

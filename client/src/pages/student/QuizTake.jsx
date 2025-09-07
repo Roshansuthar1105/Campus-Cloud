@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiClock, FiArrowLeft, FiArrowRight, FiSave, FiCheckCircle } from 'react-icons/fi';
 import quizAPI from '../../services/quizApi';
+import ScrollToTop from "../ScrollToTop"
 
 const QuizTake = () => {
   const { id } = useParams();
@@ -454,6 +455,7 @@ const QuizTake = () => {
           </div>
         </div>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

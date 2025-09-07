@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiTrash2, FiSave, FiArrowLeft } from 'react-icons/fi';
 import quizAPI from '../../services/quizApi';
 import courseAPI from '../../services/courseApi';
+import ScrollToTop from "../ScrollToTop"
 
 const QuizCreate = () => {
   const navigate = useNavigate();
@@ -708,6 +709,7 @@ const QuizCreate = () => {
           </button>
         </div>
       </form>
+      <ScrollToTop/>
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { userAPI } from "../services/api";
 import { FiUser, FiMail, FiLock } from "react-icons/fi";
+import ScrollToTop from "./ScrollToTop";
 
 const Dashboard = () => {
   const { user, updateUser, isAuthenticated, isLoading } = useAuth();
@@ -296,6 +297,7 @@ const Dashboard = () => {
           </div>
         </div>
       )}
+      <ScrollToTop/>
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { FiArrowLeft, FiSave, FiPlus, FiTrash2, FiMove } from 'react-icons/fi';
 import courseAPI from '../../services/courseApi';
 import preferenceAPI from '../../services/preferenceApi';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop"
 
 const PreferenceFormCreate = () => {
   const { id } = useParams();
@@ -790,6 +791,7 @@ const PreferenceFormCreate = () => {
           </button>
         </div>
       </form>
+      <ScrollToTop/>
     </div>
   );
 };

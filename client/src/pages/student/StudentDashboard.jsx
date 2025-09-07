@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FiCalendar, FiClock, FiClipboard, FiFileText, FiBarChart2 } from 'react-icons/fi';
 import dashboardAPI from '../../services/dashboardApi';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop"
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -232,6 +233,7 @@ const StudentDashboard = () => {
           )}
         </div>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

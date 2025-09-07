@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FiPlus, FiTrash2, FiSave, FiArrowLeft } from 'react-icons/fi';
 import quizAPI from '../../services/quizApi';
 import courseAPI from '../../services/courseApi';
+import ScrollToTop from "../ScrollToTop"
 
 const QuizEdit = () => {
   const { id } = useParams();
@@ -769,6 +770,7 @@ const QuizEdit = () => {
           </button>
         </div>
       </form>
+      <ScrollToTop/>
     </div>
   );
 };

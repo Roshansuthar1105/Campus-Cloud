@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiEye, FiTrash2, FiClock, FiUsers, FiCheckCircle } from 'react-icons/fi';
 import quizAPI from '../../services/quizApi';
 import courseAPI from '../../services/courseApi';
+import ScrollToTop from "../ScrollToTop"
 
 const QuizList = () => {
   const [quizzes, setQuizzes] = useState([]);
@@ -263,6 +264,7 @@ const QuizList = () => {
           </div>
         )}
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

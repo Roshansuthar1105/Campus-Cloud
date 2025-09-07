@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FiUsers, FiBook, FiClipboard, FiFileText, FiBarChart2, FiPieChart } from 'react-icons/fi';
 import dashboardAPI from '../../services/dashboardApi';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop";
 
 const ManagementDashboard = () => {
   const { user } = useAuth();
@@ -278,6 +279,7 @@ const ManagementDashboard = () => {
           )}
         </div>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

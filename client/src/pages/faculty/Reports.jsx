@@ -3,6 +3,7 @@ import { FiDownload, FiBarChart2, FiTrendingUp, FiUsers, FiClipboard } from 'rea
 import courseAPI from '../../services/courseApi';
 import reportAPI from '../../services/reportApi';
 import { Bar, Line } from 'react-chartjs-2';
+import ScrollToTop from "../ScrollToTop"
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -600,6 +601,7 @@ const Reports = () => {
           </div>
         </div>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

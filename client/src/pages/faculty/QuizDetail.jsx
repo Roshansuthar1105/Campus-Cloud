@@ -11,6 +11,7 @@ import {
   FiXCircle,
 } from "react-icons/fi";
 import quizAPI from "../../services/quizApi";
+import ScrollToTop from "../ScrollToTop"
 // import { useAuth } from '../../context/AuthContext';
 
 const QuizDetail = () => {
@@ -483,6 +484,7 @@ const QuizDetail = () => {
           </div>
         </div>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

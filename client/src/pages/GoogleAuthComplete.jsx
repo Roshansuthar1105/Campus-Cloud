@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { FiUser, FiLock, FiBriefcase, FiBookmark, FiHash } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
 import { authAPI } from '../services/api';
+import ScrollToTop from "./ScrollToTop"
 
 const GoogleAuthComplete = () => {
   const { user, updateUser } = useAuth();
@@ -364,6 +365,7 @@ const GoogleAuthComplete = () => {
           </div>
         </form>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

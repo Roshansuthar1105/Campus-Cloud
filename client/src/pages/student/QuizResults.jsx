@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FiArrowLeft, FiCheckCircle, FiXCircle, FiHelpCircle } from 'react-icons/fi';
 import quizAPI from '../../services/quizApi';
+import ScrollToTop from "../ScrollToTop"
 
 const QuizResults = () => {
   const { id } = useParams();
@@ -398,6 +399,7 @@ const QuizResults = () => {
           Return to Quizzes
         </Link>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

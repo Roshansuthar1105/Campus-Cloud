@@ -1,4 +1,5 @@
 import React from 'react';
+import ScrollToTop from "./ScrollToTop"
 
 const Privacy = () => {
   return (
@@ -73,6 +74,7 @@ const Privacy = () => {
           <strong>Address:</strong> 123 Education Street, Academic City, AC 12345
         </p>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };
