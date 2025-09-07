@@ -4,6 +4,7 @@ import { FiPlus, FiEdit2, FiEye, FiTrash2, FiBarChart2, FiFileText } from 'react
 import courseAPI from '../../services/courseApi';
 import preferenceAPI from '../../services/preferenceApi';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop"
 
 const PreferenceFormList = () => {
   const { user } = useAuth();
@@ -374,6 +375,7 @@ const PreferenceFormList = () => {
           </div>
         )}
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

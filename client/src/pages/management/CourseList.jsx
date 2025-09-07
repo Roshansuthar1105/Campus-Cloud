@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiEye, FiTrash2, FiUsers, FiBook } from 'react-icons/fi';
 import courseAPI from '../../services/courseApi';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop";
 
 const CourseList = () => {
   const navigate = useNavigate();
@@ -256,6 +257,7 @@ const CourseList = () => {
           </div>
         )}
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

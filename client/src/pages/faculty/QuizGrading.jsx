@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiSave, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import quizAPI from '../../services/quizApi';
+import ScrollToTop from "../ScrollToTop"
 
 const QuizGrading = () => {
   const { id } = useParams();
@@ -442,6 +443,7 @@ const QuizGrading = () => {
           </button>
         </div>
       </form>
+      <ScrollToTop/>
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import Profile from '../../components/Profile';
+import ScrollToTop from "../ScrollToTop"
 
 const FacultyProfile = () => {
   return (
@@ -9,6 +10,7 @@ const FacultyProfile = () => {
       </div>
       
       <Profile />
+      <ScrollToTop/>
     </div>
   );
 };

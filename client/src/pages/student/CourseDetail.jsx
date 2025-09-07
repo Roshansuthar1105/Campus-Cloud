@@ -4,6 +4,7 @@ import { FiArrowLeft, FiClipboard, FiUsers, FiCalendar, FiFileText, FiBook, FiCl
 import courseAPI from '../../services/courseApi';
 import quizAPI from '../../services/quizApi';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop"
 
 const CourseDetail = () => {
   const { id } = useParams();
@@ -341,6 +342,7 @@ const CourseDetail = () => {
           </div>
         </div>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

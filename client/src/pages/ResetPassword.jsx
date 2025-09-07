@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ScrollToTop from "./ScrollToTop"
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
@@ -156,6 +157,7 @@ const ResetPassword = () => {
           </p>
         </div>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

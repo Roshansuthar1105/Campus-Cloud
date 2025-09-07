@@ -4,6 +4,7 @@ import { FiDownload, FiBarChart2, FiPieChart, FiTrendingUp, FiBook, FiClipboard,
 import courseAPI from '../../services/courseApi';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop"
 
 const Reports = () => {
   const { user } = useAuth();
@@ -399,6 +400,7 @@ const Reports = () => {
           </div>
         </div>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

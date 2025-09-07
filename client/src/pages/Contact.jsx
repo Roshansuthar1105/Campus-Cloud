@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FiMail, FiPhone, FiMapPin, FiMessageSquare } from "react-icons/fi";
 import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram } from "react-icons/fa";
+import ScrollToTop from "./ScrollToTop"
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -28,10 +29,7 @@ const Contact = () => {
     setSubmitError(null);
 
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Simulate successful submission
       setSubmitSuccess(true);
       setFormData({
         name: "",
@@ -41,7 +39,7 @@ const Contact = () => {
       });
     } catch (error) {
       setSubmitError(
-        "There was an error sending your message. Please try again."
+        "An error occurred while sending your message. Please try again."
       );
     } finally {
       setIsSubmitting(false);
@@ -56,7 +54,8 @@ const Contact = () => {
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Contact Us</h1>
             <p className="text-xl md:text-2xl mb-8">
-              We'd love to hear from you. Get in touch with our team.
+              Connect with our team to discuss your institution’s needs and
+              explore our solutions.
             </p>
           </div>
         </div>
@@ -72,14 +71,14 @@ const Contact = () => {
             <h3 className="text-xl font-semibold mb-2 text-gray-800">
               Email Us
             </h3>
-            <p className="text-gray-600 mb-2">For general inquiries:</p>
+            <p className="text-gray-600 mb-2">General inquiries:</p>
             <a
               href="mailto:info@campuscloud.com"
               className="text-purple-600 hover:text-purple-800"
             >
               info@campuscloud.com
             </a>
-            <p className="text-gray-600 mt-2 mb-2">For support:</p>
+            <p className="text-gray-600 mt-2 mb-2">Technical support:</p>
             <a
               href="mailto:support@campuscloud.com"
               className="text-purple-600 hover:text-purple-800"
@@ -139,8 +138,8 @@ const Contact = () => {
             {submitSuccess ? (
               <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6">
                 <p>
-                  Thank you for your message! We'll get back to you as soon as
-                  possible.
+                  Thank you for reaching out! We will respond promptly to your
+                  message.
                 </p>
               </div>
             ) : (
@@ -251,39 +250,36 @@ const Contact = () => {
               <h3 className="text-xl font-semibold mb-2 text-gray-800">
                 How quickly can I expect a response?
               </h3>
-              <p className="text-gray-600">
-                We typically respond to all inquiries within 24-48 business
-                hours. For urgent matters, please call our support hotline.
+              <p className="text-gray-600 text-justify">
+                We respond to inquiries within 24-48 business hours. For urgent
+                requests, please call our support hotline.
               </p>
             </div>
             <div className="mb-6">
               <h3 className="text-xl font-semibold mb-2 text-gray-800">
                 Do you offer demos of the platform?
               </h3>
-              <p className="text-gray-600">
-                Yes! We offer personalized demos for educational institutions.
-                Please contact us to schedule a demo with one of our product
-                specialists.
+              <p className="text-gray-600 text-justify">
+                Yes, we provide personalized demos for institutions. Contact us
+                to schedule a session with one of our product specialists.
               </p>
             </div>
             <div className="mb-6">
               <h3 className="text-xl font-semibold mb-2 text-gray-800">
                 What kind of support do you provide?
               </h3>
-              <p className="text-gray-600">
-                We offer comprehensive support including email, phone, and live
-                chat. Our support team is available Monday through Friday, 9 AM
-                to 6 PM EST.
+              <p className="text-gray-600 text-justify">
+                We provide email, phone, and live chat support. Our team is
+                available Monday through Friday, 9 AM to 6 PM EST.
               </p>
             </div>
             <div className="mb-6">
               <h3 className="text-xl font-semibold mb-2 text-gray-800">
                 Do you offer training for new users?
               </h3>
-              <p className="text-gray-600">
-                Absolutely! We provide onboarding training for all new
-                institutions, as well as ongoing training resources including
-                webinars, documentation, and video tutorials.
+              <p className="text-gray-600 text-justify">
+                Absolutely. We provide onboarding training, along with ongoing
+                resources like webinars, tutorials, and detailed documentation.
               </p>
             </div>
           </div>
@@ -293,15 +289,13 @@ const Contact = () => {
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-10">
         <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Logo & About */}
           <div>
             <h3 className="text-2xl font-bold text-white">Campus Cloud</h3>
             <p className="mt-3 text-gray-400">
-              Transforming education through innovative assessment technology.
+              Driving innovation in education with smart and efficient
+              assessment solutions.
             </p>
           </div>
-
-          {/* Quick Links */}
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">
               Quick Links
@@ -341,8 +335,6 @@ const Contact = () => {
               </li>
             </ul>
           </div>
-
-          {/* Resources */}
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Resources</h4>
             <ul className="space-y-2">
@@ -372,8 +364,6 @@ const Contact = () => {
               </li>
             </ul>
           </div>
-
-          {/* Social Media */}
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Follow Us</h4>
             <div className="flex space-x-4">
@@ -404,12 +394,11 @@ const Contact = () => {
             </div>
           </div>
         </div>
-
-        {/* Bottom Bar */}
         <div className="border-t border-gray-700 mt-10 pt-5 text-center text-gray-500 text-sm">
           © 2023 Campus Cloud. All rights reserved.
         </div>
       </footer>
+      <ScrollToTop/>
     </div>
   );
 };

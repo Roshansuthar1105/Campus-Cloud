@@ -4,6 +4,7 @@ import { FiArrowLeft, FiSave, FiPlus, FiTrash2, FiMove } from 'react-icons/fi';
 import courseAPI from '../../services/courseApi';
 import preferenceAPI from '../../services/preferenceApi';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop"
 
 const PreferenceFormCreate = () => {
   const { id } = useParams();
@@ -55,36 +56,36 @@ const PreferenceFormCreate = () => {
               isPublished: false,
               questions: [
                 {
-                  _id: 'q1',
-                  text: 'How would you rate the overall quality of the course?',
-                  type: 'rating',
+                  _id: "q1",
+                  text: "How would you rate the overall quality of the course?",
+                  type: "rating",
                   required: true,
-                  options: [1, 2, 3, 4, 5]
+                  options: [1, 2, 3, 4, 5], // 1 = Poor, 5 = Excellent
                 },
                 {
-                  _id: 'q2',
-                  text: 'How would you rate the clarity of the course materials?',
-                  type: 'rating',
+                  _id: "q2",
+                  text: "How would you rate the clarity of the course materials?",
+                  type: "rating",
                   required: true,
-                  options: [1, 2, 3, 4, 5]
+                  options: [1, 2, 3, 4, 5],
                 },
                 {
-                  _id: 'q3',
-                  text: 'What aspects of the course did you find most valuable?',
-                  type: 'text',
-                  required: false
+                  _id: "q3",
+                  text: "What aspects of the course did you find most valuable?",
+                  type: "text",
+                  required: false, // Optional open-ended response
                 },
                 {
-                  _id: 'q4',
-                  text: 'Would you recommend this course to other students?',
-                  type: 'multiple-choice',
+                  _id: "q4",
+                  text: "Would you recommend this course to other students?",
+                  type: "multiple-choice",
                   required: true,
                   options: [
-                    { _id: 'o1', text: 'Yes, definitely' },
-                    { _id: 'o2', text: 'Yes, with some reservations' },
-                    { _id: 'o3', text: 'No, not really' },
-                    { _id: 'o4', text: 'No, definitely not' }
-                  ]
+                    { _id: "o1", text: "Yes, definitely" },
+                    { _id: "o2", text: "Yes, with some reservations" },
+                    { _id: "o3", text: "No, not really" },
+                    { _id: "o4", text: "No, definitely not" },
+                  ],
                 }
               ]
             };
@@ -790,6 +791,7 @@ const PreferenceFormCreate = () => {
           </button>
         </div>
       </form>
+      <ScrollToTop/>
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiSave, FiRefreshCw, FiDownload, FiUpload, FiTrash2 } from 'react-icons/fi';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop";
 
 const Settings = () => {
   const { user } = useAuth();
@@ -590,6 +591,7 @@ const Settings = () => {
           </button>
         </div>
       </form>
+      <ScrollToTop/>
     </div>
   );
 };

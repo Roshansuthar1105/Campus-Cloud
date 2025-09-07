@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiSave } from 'react-icons/fi';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop";
 
 const UserForm = () => {
   const { id } = useParams();
@@ -352,6 +353,7 @@ const UserForm = () => {
           </button>
         </div>
       </form>
+      <ScrollToTop/>
     </div>
   );
 };

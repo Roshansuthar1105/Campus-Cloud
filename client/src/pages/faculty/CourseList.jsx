@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FiBook, FiClipboard, FiUsers, FiCalendar } from 'react-icons/fi';
 import courseAPI from '../../services/courseApi';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop"
 
 const CourseList = () => {
   const { user } = useAuth();
@@ -146,6 +147,7 @@ const CourseList = () => {
           ))}
         </div>
       )}
+      <ScrollToTop/>
     </div>
   );
 };

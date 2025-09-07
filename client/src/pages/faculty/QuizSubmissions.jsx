@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FiArrowLeft, FiEye, FiCheck, FiX, FiClock, FiSearch, FiFilter, FiDownload } from 'react-icons/fi';
 import quizAPI from '../../services/quizApi';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop"
 
 const QuizSubmissions = () => {
   const { id } = useParams();
@@ -476,6 +477,7 @@ const QuizSubmissions = () => {
           </table>
         </div>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

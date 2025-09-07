@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiTrash2, FiUser, FiUserCheck, FiUserX } from 'react-icons/fi';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop";
 
 const UserList = () => {
   const { user } = useAuth();
@@ -255,6 +256,7 @@ const UserList = () => {
           </div>
         )}
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

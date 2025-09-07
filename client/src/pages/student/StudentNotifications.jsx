@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiInfo, FiCheck, FiAlertCircle, FiCheckCircle } from 'react-icons/fi';
 import notificationAPI from '../../services/notificationApi';
+import ScrollToTop from "../ScrollToTop"
 
 const StudentNotifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -158,6 +159,7 @@ const StudentNotifications = () => {
           </ul>
         </div>
       )}
+      <ScrollToTop/>
     </div>
   );
 };

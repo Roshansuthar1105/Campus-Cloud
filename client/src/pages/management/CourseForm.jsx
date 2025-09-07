@@ -4,6 +4,7 @@ import { FiArrowLeft, FiSave, FiPlus, FiX } from 'react-icons/fi';
 import courseAPI from '../../services/courseApi';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop";
 
 const CourseForm = () => {
   const { id } = useParams();
@@ -440,6 +441,7 @@ const CourseForm = () => {
           </button>
         </div>
       </form>
+      <ScrollToTop/>
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FiArrowLeft, FiEdit2, FiDownload, FiUsers, FiBarChart2, FiEye, FiCalendar, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop";
 
 const PreferenceFormDetail = () => {
   const { id } = useParams();
@@ -32,123 +33,129 @@ const PreferenceFormDetail = () => {
         
         // For now, we'll use mock data
         const mockForm = {
-          _id: id,
-          title: 'Course Feedback Form',
-          description: 'Please provide your feedback on the course content, teaching methods, and overall experience.',
-          course: {
-            _id: 'course123',
-            name: 'Introduction to Computer Science',
-            code: 'CS101'
-          },
-          questions: [
-            {
-              _id: 'q1',
-              text: 'How would you rate the overall quality of the course?',
-              type: 'rating',
-              required: true,
-              options: [1, 2, 3, 4, 5]
-            },
-            {
-              _id: 'q2',
-              text: 'How would you rate the clarity of the course materials?',
-              type: 'rating',
-              required: true,
-              options: [1, 2, 3, 4, 5]
-            },
-            {
-              _id: 'q3',
-              text: 'How would you rate the instructor\'s teaching effectiveness?',
-              type: 'rating',
-              required: true,
-              options: [1, 2, 3, 4, 5]
-            },
-            {
-              _id: 'q4',
-              text: 'What aspects of the course did you find most valuable?',
-              type: 'text',
-              required: false
-            },
-            {
-              _id: 'q5',
-              text: 'What aspects of the course could be improved?',
-              type: 'text',
-              required: false
-            },
-            {
-              _id: 'q6',
-              text: 'Would you recommend this course to other students?',
-              type: 'multiple-choice',
-              required: true,
-              options: [
-                { _id: 'o1', text: 'Yes, definitely' },
-                { _id: 'o2', text: 'Yes, with some reservations' },
-                { _id: 'o3', text: 'No, not really' },
-                { _id: 'o4', text: 'No, definitely not' }
-              ]
-            }
-          ],
-          startDate: new Date(2023, 10, 1),
-          endDate: new Date(2023, 11, 15),
-          isPublished: true,
-          createdAt: new Date(2023, 9, 15)
-        };
-        
-        const mockSubmissions = [
+        _id: id, // Unique form identifier
+        title: "Course Feedback Form",
+        description:
+          "Please provide your feedback on the course content, teaching methods, and overall experience.",
+        course: {
+          _id: "course123",
+          name: "Introduction to Computer Science",
+          code: "CS101",
+        },
+        questions: [
           {
-            _id: 'sub1',
-            formId: id,
-            student: {
-              _id: 'student1',
-              name: 'John Doe',
-              email: 'john.doe@example.com'
-            },
-            submittedAt: new Date(2023, 10, 5),
-            answers: {
-              q1: '4',
-              q2: '5',
-              q3: '4',
-              q4: 'The practical coding exercises and real-world examples were very helpful in understanding the concepts.',
-              q5: 'More time could be spent on advanced topics and additional resources for further learning would be beneficial.',
-              q6: 'o1'
-            }
+            _id: "q1",
+            text: "How would you rate the overall quality of the course?",
+            type: "rating",
+            required: true,
+            options: [1, 2, 3, 4, 5], // Rating scale from 1 (Poor) to 5 (Excellent)
           },
           {
-            _id: 'sub2',
-            formId: id,
-            student: {
-              _id: 'student2',
-              name: 'Jane Smith',
-              email: 'jane.smith@example.com'
-            },
-            submittedAt: new Date(2023, 10, 7),
-            answers: {
-              q1: '5',
-              q2: '4',
-              q3: '5',
-              q4: 'The interactive lectures and group discussions were very engaging and helped me understand complex topics.',
-              q5: 'The pace was sometimes too fast, especially for the more difficult concepts.',
-              q6: 'o1'
-            }
+            _id: "q2",
+            text: "How would you rate the clarity of the course materials?",
+            type: "rating",
+            required: true,
+            options: [1, 2, 3, 4, 5],
           },
           {
-            _id: 'sub3',
-            formId: id,
-            student: {
-              _id: 'student3',
-              name: 'Bob Johnson',
-              email: 'bob.johnson@example.com'
-            },
-            submittedAt: new Date(2023, 10, 10),
-            answers: {
-              q1: '3',
-              q2: '3',
-              q3: '4',
-              q4: 'The assignments were challenging but helped reinforce the concepts learned in class.',
-              q5: 'More examples and practice problems would be helpful.',
-              q6: 'o2'
-            }
-          }
-        ];
+            _id: "q3",
+            text: "How would you rate the instructor's teaching effectiveness?",
+            type: "rating",
+            required: true,
+            options: [1, 2, 3, 4, 5],
+          },
+          {
+            _id: "q4",
+            text: "What aspects of the course did you find most valuable?",
+            type: "text",
+            required: false, // Optional open-ended feedback
+          },
+          {
+            _id: "q5",
+            text: "What aspects of the course could be improved?",
+            type: "text",
+            required: false,
+          },
+          {
+            _id: "q6",
+            text: "Would you recommend this course to other students?",
+            type: "multiple-choice",
+            required: true,
+            options: [
+              { _id: "o1", text: "Yes, definitely" },
+              { _id: "o2", text: "Yes, with some reservations" },
+              { _id: "o3", text: "No, not really" },
+              { _id: "o4", text: "No, definitely not" },
+            ],
+          },
+        ],
+        startDate: new Date(2023, 10, 1), // November 1, 2023
+        endDate: new Date(2023, 11, 15), // December 15, 2023
+        isPublished: true, // Form is published
+        createdAt: new Date(2023, 9, 15), // October 15, 2023
+      };
+
+      // Mock Submissions for the Form
+      const mockSubmissions = [
+        {
+          _id: "sub1",
+          formId: id,
+          student: {
+            _id: "student1",
+            name: "John Doe",
+            email: "john.doe@example.com",
+          },
+          submittedAt: new Date(2023, 10, 5),
+          answers: {
+            q1: "4",
+            q2: "5",
+            q3: "4",
+            q4:
+              "The practical coding exercises and real-world examples were very helpful in understanding the concepts.",
+            q5:
+              "More time could be spent on advanced topics and additional resources for further learning would be beneficial.",
+            q6: "o1",
+          },
+        },
+        {
+          _id: "sub2",
+          formId: id,
+          student: {
+            _id: "student2",
+            name: "Jane Smith",
+            email: "jane.smith@example.com",
+          },
+          submittedAt: new Date(2023, 10, 7),
+          answers: {
+            q1: "5",
+            q2: "4",
+            q3: "5",
+            q4:
+              "The interactive lectures and group discussions were very engaging and helped me understand complex topics.",
+            q5: "The pace was sometimes too fast, especially for the more difficult concepts.",
+            q6: "o1",
+          },
+        },
+        {
+          _id: "sub3",
+          formId: id,
+          student: {
+            _id: "student3",
+            name: "Bob Johnson",
+            email: "bob.johnson@example.com",
+          },
+          submittedAt: new Date(2023, 10, 10),
+          answers: {
+            q1: "3",
+            q2: "3",
+            q3: "4",
+            q4:
+              "The assignments were challenging but helped reinforce the concepts learned in class.",
+            q5: "More examples and practice problems would be helpful.",
+            q6: "o2",
+          },
+        },
+      ];
         
         setForm(mockForm);
         setSubmissions(mockSubmissions);
@@ -537,6 +544,7 @@ const PreferenceFormDetail = () => {
           </div>
         </div>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

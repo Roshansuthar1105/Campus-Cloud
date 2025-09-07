@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FiArrowLeft, FiDownload, FiBarChart2, FiPieChart, FiList } from 'react-icons/fi';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import ScrollToTop from "../ScrollToTop";
 
 const QuizReports = () => {
   const { id } = useParams();
@@ -591,6 +592,7 @@ const QuizReports = () => {
       {activeTab === 'summary' && renderSummaryTab()}
       {activeTab === 'essay-responses' && renderEssayResponsesTab()}
       {activeTab === 'individual-responses' && renderIndividualResponsesTab()}
+      <ScrollToTop/>
     </div>
   );
 };

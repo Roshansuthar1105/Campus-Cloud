@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { userAPI } from '../services/api';
-import { FiUser, FiMail, FiLock } from 'react-icons/fi';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { userAPI } from "../services/api";
+import { FiUser, FiMail, FiLock } from "react-icons/fi";
+import ScrollToTop from "./ScrollToTop";
 
 const Dashboard = () => {
   const { user, updateUser, isAuthenticated, isLoading } = useAuth();
@@ -11,37 +12,36 @@ const Dashboard = () => {
   // Redirect if not authenticated and not loading
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      console.log('Not authenticated, redirecting to login');
-      navigate('/login');
+      console.log("Not authenticated, redirecting to login");
+      navigate("/login");
     }
   }, [isAuthenticated, isLoading, navigate]);
 
-  // Initialize profile data when user data is available
   const [profileData, setProfileData] = useState({
-    name: '',
-    email: ''
+    name: "",
+    email: "",
   });
 
-  // Update profile data when user changes
+  // Sync profile data when user changes
   useEffect(() => {
     if (user) {
       setProfileData({
-        name: user.name || '',
-        email: user.email || ''
+        name: user.name || "",
+        email: user.email || "",
       });
     }
   }, [user]);
 
   const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
-  const [profileSuccess, setProfileSuccess] = useState('');
-  const [profileError, setProfileError] = useState('');
-  const [passwordSuccess, setPasswordSuccess] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [profileSuccess, setProfileSuccess] = useState("");
+  const [profileError, setProfileError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
@@ -58,16 +58,19 @@ const Dashboard = () => {
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
 
-    setProfileSuccess('');
-    setProfileError('');
+    setProfileSuccess("");
+    setProfileError("");
     setIsUpdatingProfile(true);
 
     try {
       const response = await userAPI.updateProfile(profileData);
       updateUser(response.data.data);
-      setProfileSuccess('Profile updated successfully');
+      setProfileSuccess("Your profile has been updated successfully.");
     } catch (err) {
-      setProfileError(err.response?.data?.message || 'Failed to update profile');
+      setProfileError(
+        err.response?.data?.message ||
+          "Unable to update profile. Please try again."
+      );
     } finally {
       setIsUpdatingProfile(false);
     }
@@ -78,39 +81,42 @@ const Dashboard = () => {
 
     // Validate passwords
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setPasswordError('New passwords do not match');
+      setPasswordError("New password and confirmation do not match.");
       return;
     }
 
     if (passwordData.newPassword.length < 6) {
-      setPasswordError('New password must be at least 6 characters');
+      setPasswordError("Password must be at least 6 characters long.");
       return;
     }
 
-    setPasswordSuccess('');
-    setPasswordError('');
+    setPasswordSuccess("");
+    setPasswordError("");
     setIsChangingPassword(true);
 
     try {
       await userAPI.changePassword({
         currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword
+        newPassword: passwordData.newPassword,
       });
 
-      setPasswordSuccess('Password changed successfully');
+      setPasswordSuccess("Your password has been changed successfully.");
       setPasswordData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
       });
     } catch (err) {
-      setPasswordError(err.response?.data?.message || 'Failed to change password');
+      setPasswordError(
+        err.response?.data?.message ||
+          "Unable to change password. Please try again."
+      );
     } finally {
       setIsChangingPassword(false);
     }
   };
 
-  // Show loading indicator while checking authentication
+  // Show loading spinner while checking authentication
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -119,7 +125,7 @@ const Dashboard = () => {
     );
   }
 
-  // If not authenticated and not loading, we'll redirect (see useEffect above)
+  // If not authenticated, redirect is handled in useEffect
   if (!isAuthenticated) {
     return null;
   }
@@ -127,16 +133,26 @@ const Dashboard = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Dashboard</h1>
+
       {user && (
         <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
-          <p className="text-blue-700">Welcome, {user.name}!</p>
-          <p className="text-sm text-blue-600">You are logged in with {user.isGoogleAccount ? 'Google' : 'email and password'}.</p>
+          <p className="text-blue-700">Welcome back, {user.name}!</p>
+          <p className="text-sm text-blue-600">
+            You are logged in with{" "}
+            {user.isGoogleAccount
+              ? "your Google account"
+              : "your email and password"}
+            .
+          </p>
         </div>
       )}
 
+      {/* Profile Section */}
       <div className="bg-white shadow rounded-lg mb-6">
         <div className="px-4 py-5 sm:p-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Profile Information</h2>
+          <h2 className="text-lg font-medium text-gray-900 mb-4">
+            Profile Information
+          </h2>
 
           {profileSuccess && (
             <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
@@ -181,7 +197,7 @@ const Dashboard = () => {
                 />
                 {user?.isGoogleAccount && (
                   <p className="text-sm text-gray-500 mt-1">
-                    Email cannot be changed for Google accounts
+                    Email updates are not available for Google sign-in accounts.
                   </p>
                 )}
               </div>
@@ -192,7 +208,7 @@ const Dashboard = () => {
                   disabled={isUpdatingProfile}
                   className="btn btn-primary"
                 >
-                  {isUpdatingProfile ? 'Updating...' : 'Update Profile'}
+                  {isUpdatingProfile ? "Updating..." : "Save Changes"}
                 </button>
               </div>
             </div>
@@ -200,6 +216,7 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Change Password Section */}
       {!user?.isGoogleAccount && (
         <div className="bg-white shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
@@ -272,7 +289,7 @@ const Dashboard = () => {
                     disabled={isChangingPassword}
                     className="btn btn-primary"
                   >
-                    {isChangingPassword ? 'Changing...' : 'Change Password'}
+                    {isChangingPassword ? "Updating..." : "Change Password"}
                   </button>
                 </div>
               </div>
@@ -280,6 +297,7 @@ const Dashboard = () => {
           </div>
         </div>
       )}
+      <ScrollToTop/>
     </div>
   );
 };

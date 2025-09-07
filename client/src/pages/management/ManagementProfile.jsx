@@ -1,4 +1,5 @@
 import Profile from '../../components/Profile';
+import ScrollToTop from "../ScrollToTop";
 
 const ManagementProfile = () => {
   return (
@@ -9,6 +10,7 @@ const ManagementProfile = () => {
       </div>
       
       <Profile />
+      <ScrollToTop/>
     </div>
   );
 };

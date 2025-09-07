@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import WIPButton, { WIPLink } from '../components/WIPButton';
 import { redirectToWIP } from '../utils/wipRedirect';
+import ScrollToTop from "./ScrollToTop"
 
 const ExampleWIPUsage = () => {
   const navigate = useNavigate();
@@ -137,6 +138,7 @@ const ExampleWIPUsage = () => {
           Go Back
         </button>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

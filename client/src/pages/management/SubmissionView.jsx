@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiCheck, FiX, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import api from '../../services/api';
 import quizAPI from '../../services/quizApi';
+import ScrollToTop from "../ScrollToTop";
 
 const SubmissionView = () => {
   const { id, submissionId } = useParams();
@@ -457,6 +458,7 @@ const SubmissionView = () => {
           </div>
         </div>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };

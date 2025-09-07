@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ScrollToTop from "./ScrollToTop"
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -119,6 +120,7 @@ const ForgotPassword = () => {
           </p>
         </div>
       </div>
+      <ScrollToTop/>
     </div>
   );
 };
